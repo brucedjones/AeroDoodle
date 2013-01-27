@@ -467,7 +467,8 @@ function initGL(canvas) {
         })();
 
     gl = canvas.getContext("experimental-webgl");
-    gl.viewport(0, 0, canvas.width, canvas.height);
+    //gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.viewport(0, 0, N,N);
 }
 
 function getShader(ids, type) {
@@ -664,6 +665,10 @@ function stepState() {
 
 var frameNum = 0;
 var frameNumStarted = new Date();
+var pos;    //canvas position for mouse interaction
+var frameNum2 = 0;
+var frameNumStarted2 = new Date();
+var canvas;
 function step() {
     stepState();
     
@@ -674,6 +679,14 @@ function step() {
         document.getElementById('fps').innerText = (1000 / ((now - frameNumStarted) / frameNum)).toFixed(2);
         frameNum = 0;
         frameNumStarted = now;
+        }
+        
+        // detect canvas position
+        frameNum2++;
+	if (now - frameNumStarted2 > 100) {
+        pos = findPos(canvas);
+        frameNum2 = 0;
+        frameNumStarted2 = now;
 	}
     
     requestAnimFrame(step);
@@ -695,8 +708,22 @@ function onMouseMove(e) {
     }
 }
 
+function findPos(obj) {
+    var curleft = 0, curtop = 0;
+    if (obj.offsetParent) {
+        do {
+            curleft += obj.offsetLeft;
+            curtop += obj.offsetTop;
+        } while (obj = obj.offsetParent);
+        return { x: curleft, y: curtop };
+    }
+    return undefined;
+}
 function webGLStart() {
-    var canvas = document.getElementById('main-canvas');
+    canvas = document.getElementById('main-canvas');
+    pos = findPos(canvas);
+    var container = document.getElementById('container');
+    var lbm_window = document.getElementById('lbm_window');
     var mouseDown = false;
     canvas.onmousedown = function(e) {
         mouseDown = true;
@@ -708,7 +735,11 @@ function webGLStart() {
     canvas.onmousemove = function(e) {
         if (mouseDown) {
             e = e || window.event;
-            obstPoint = [e.clientX - canvas.offsetLeft, canvas.height - (e.clientY - canvas.offsetTop)];
+            //obstPoint = [(e.clientX - canvas.offsetLeft)*N/canvas.width, (canvas.height - (e.clientY - canvas.offsetTop))*N/canvas.height];
+            
+            var x = e.pageX - pos.x;
+            var y = e.pageY - pos.y;
+            obstPoint = [x*N/canvas.width, (canvas.height-y)*N/canvas.height];
             clear = e.ctrlKey;
         }
     };
@@ -737,15 +768,25 @@ function webGLStart() {
 	</style>
 </head>
 <body onload="webGLStart();">
-    <div id ="lbm_window">
-        <canvas id="main-canvas" style="border: none;" width="1024" height="1024"></canvas> <br>
-        <p>My mother has <span style="color:blue">blue</span> eyes.</p>
-    </div>
-    <div id ="readouts">
-        <p style="font-size:12px">FPS: <span id="fps">52.68</span></p>
-    </div>
+    <div id="container">
+        <div id ="lbm_window">
+            <canvas id="main-canvas" style="border: none;" width="768" height="768"></canvas> <br>
+        </div>
+        <div id ="readouts">
+            <table id="readouts_table">
+                <tr>
+                    <td>FPS: <span id="fps">52.68</span></td>
+                    <td>Lift: <span id="lift">0.0</span></td>
+                    <td>Drag: <span id="drag">0.0</span></td>
+                </tr>
+            </table>
+        </div>
+        <div id="simulation_controls">
+            
+        </div>
     <div id ="disclaimer">
         <p style="font-size:12px">Created by <a href="http://chouza.com.ar/">Mariano M. Chouza</a>.</p>
+    </div>
     </div>
 
 

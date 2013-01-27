@@ -50,12 +50,16 @@ acronym {
 	}
 
 
+
 /* specific divs */
+#container {
+    position: relative;
+    padding: 2% 0px 0px 10%;
+    
+}
+
 #lbm_window { 
-	background: url(zen-bg.jpg) no-repeat top left; 
-	padding: 0 175px 0 110px;  
-	margin: 0; 
-        width: 1024px;
+	margin: 0;
 	position: relative;
 	}
 
@@ -64,9 +68,15 @@ acronym {
 	}
         
 #readouts { 
-	min-width: 470px;
+        table-layout: fixed;
+	}
+        
+#readouts_table { 
+	width: 50%;
+        table-layout: fixed;
 	}
         
 #disclaimer {
             
         }
+        
