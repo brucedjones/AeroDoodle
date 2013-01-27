@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <!-- saved from url=(0082)https://mchouza.googlecode.com/svn/trunk/webgl-proc/lb-fluid-sim/lb_fluid_sim.html -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Fluid simulation with WebGL</title>
 <script id="shader-fs-utils" type="x-shader/x-fragment">
 precision highp float;
 precision highp int;
@@ -723,13 +722,29 @@ function webGLStart() {
     step();
 }
 </script>
+	<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+	<meta name="author" content="Bruce Jones" />
+	<meta name="keywords" content="lattice boltzmann, lbm, bloodhound, bloodhound ssc, swansea university" />
+	<meta name="description" content="Interactive Computational Fluid Dynamics" />
+
+	<title>Fluid simulation with WebGL</title>
+
+	<!-- to correct the unsightly Flash of Unstyled Content. http://www.bluerobot.com/web/css/fouc.asp -->
+	<script type="text/javascript"></script>
+	
+	<style type="text/css" media="all">
+		@import "lbm_web.css";
+	</style>
 </head>
 <body onload="webGLStart();">
-    <canvas id="main-canvas" style="border: none;" width="1024" height="1024"></canvas> <br>
-    <div style="width: 1024px; text-align:left">
+    <div id ="lbm_window">
+        <canvas id="main-canvas" style="border: none;" width="1024" height="1024"></canvas> <br>
+        <p>My mother has <span style="color:blue">blue</span> eyes.</p>
+    </div>
+    <div id ="readouts">
         <p style="font-size:12px">FPS: <span id="fps">52.68</span></p>
     </div>
-    <div style="width: 1024px; text-align:right">
+    <div id ="disclaimer">
         <p style="font-size:12px">Created by <a href="http://chouza.com.ar/">Mariano M. Chouza</a>.</p>
     </div>
 
