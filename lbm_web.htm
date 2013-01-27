@@ -151,25 +151,35 @@ void main(void)
     gl_FragColor = float2Color(f);
 }
 </script>
-<script id="shader-fs-update-obst" type="x-shader/x-fragment">
+<script id="shader-fs-update-obst-circle" type="x-shader/x-fragment">
 precision highp float;
 precision highp int;
 
 uniform highp sampler2D uSampler0;
 uniform int uPointX, uPointY;
 uniform int uClear;
+uniform int uAdd;
 
 varying vec2 vTextureCoord;
 
 void main(void)
 {
-    vec4 baseColor = texture2D(uSampler0, vTextureCoord);
+    vec4 baseColor;
+
+    if(uAdd != 0)
+        baseColor = texture2D(uSampler0, vTextureCoord);
+    else
+        baseColor = vec4(0.0, 0.0, 0.0, 1.0);
+        
     vec4 opColor;
     vec2 point = vec2(float(uPointX), float(uPointY)) / N;
     
     if (uClear != 0)
         opColor = vec4(0.0, 0.0, 0.0, 1.0);
     else
+        opColor = vec4(1.0, 0.0, 0.0, 1.0);
+        
+    if (uAdd == 0)
         opColor = vec4(1.0, 0.0, 0.0, 1.0);
     
     if ((length(point - vTextureCoord) < PEN_RADIUS) && (uPointX >= 0))
@@ -185,14 +195,21 @@ precision highp int;
 uniform highp sampler2D uSampler0;
 uniform int uPointX1, uPointY1, uPointX2, uPointY2;
 uniform int uClear;
+uniform int uAdd;
 
 varying vec2 vTextureCoord;
 
 vec2 p1, p2;
 
+vec4 baseColor;
+
 void main(void)
 {
-    vec4 baseColor = vec4(0.0, 0.0, 0.0, 1.0);
+    if(uAdd != 0)
+        baseColor = texture2D(uSampler0, vTextureCoord);
+    else
+        baseColor = vec4(0.0, 0.0, 0.0, 1.0);
+        
     vec4 opColor;
     vec2 p1 = vec2(float(uPointX1), float(uPointY1)) / N;
     vec2 p2 = vec2(float(uPointX2), float(uPointY2)) / N;
@@ -200,6 +217,9 @@ void main(void)
     if (uClear != 0)
         opColor = vec4(0.0, 0.0, 0.0, 1.0);
     else
+        opColor = vec4(1.0, 0.0, 0.0, 1.0);
+        
+    if (uAdd == 0)
         opColor = vec4(1.0, 0.0, 0.0, 1.0);
        
     if(vTextureCoord.x<p1.x || vTextureCoord.x>p2.x || vTextureCoord.y>p1.y || vTextureCoord.y<p2.y)
@@ -340,16 +360,50 @@ precision highp int;
 
 varying vec2 vTextureCoord;
 
-uniform highp sampler2D uSampler0, uSampler1, uSampler2;
+uniform highp sampler2D uSampler0, uSampler1, uSampler2, uSampler3;
+
+uniform int drawIntended;
 
 void main(void)
 {
     float ux = color2U(texture2D(uSampler0, vTextureCoord));
     float uy = color2U(texture2D(uSampler1, vTextureCoord));
     float obst = texture2D(uSampler2, vTextureCoord).r;
+    float obst_intended = texture2D(uSampler3, vTextureCoord).r;
     float uMod = length(vec2(ux, uy));
 
-	gl_FragColor = vec4(obst * 0.4, uMod, uMod, 1.0);
+    float red = 1.0-(0.0003/(uMod*uMod*uMod));
+    float blue = 1.0;
+    float green = 1.0;
+    
+    if(obst>0.0)
+    {
+        red = 0.6;
+        green = 0.05;
+        blue = 0.05;
+        }
+        
+    if(drawIntended == 1)
+    {
+        if(obst_intended>0.0)
+        {
+            if(obst>0.0)
+            {
+                red = 0.4;
+                green = 0.05;
+                blue = 0.05;
+            } else {
+            red = 1.0-(0.0003/(uMod*uMod*uMod));
+            blue = 0.2;
+            green = 0.2;
+            }
+        }
+    }
+    
+    
+    
+	gl_FragColor = vec4(red, green, blue, 1.0);
+        
 }
 </script>
 <script id="shader-vs" type="x-shader/x-vertex">
@@ -394,10 +448,13 @@ void main(void)
             </table>
         </div>
         <div id="simulation_controls">
-            
+            <form>
+                <input type="radio" name="brush_toggle" id="brush">Brush
+                <input type="radio" name="brush_toggle" id="square">Square
+            </form>
         </div>
     <div id ="disclaimer">
-        <p style="font-size:12px">Created by <a href="http://chouza.com.ar/">Mariano M. Chouza</a>.</p>
+        
     </div>
     </div>
 
