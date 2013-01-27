@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<!-- saved from url=(0082)https://mchouza.googlecode.com/svn/trunk/webgl-proc/lb-fluid-sim/lb_fluid_sim.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Fluid simulation with WebGL</title>
+<script id="shader-fs-utils" type="x-shader/x-fragment">
+precision highp float;
+precision highp int;
+
+const float OMEGA = 1.9;
+const float N = 1024.0;
+const float PI = 3.1415926535897932384626433832795;
+const float VEL = 0.1;
+
+const float RHO_SCALE = 2.0;
+const float U_SCALE = 2.0;
+const float U_BIAS = 1.0;
+
+const float PEN_RADIUS = 0.01;
+
+// The numbers are encoded using 3 component of a color (RGB). When storing
+// 'x' in a component, the persisted value is 'round(x * 255.0) % 256' and 
+// the recovered value is obtained doing a floating point division by 255.
+// The encoding is a fixed point one, going from 0.000000 to 0.ffffff and 
+// storing each pair of hexadecimal digits in a color component.
+
+vec4 float2Color(float f)
+{
+    f *= 256.0;
+    float r = floor(f);
+    f -= r;
+    f *= 256.0;
+    float g = floor(f);
+    f -= g;
+    f *= 256.0;
+    float b = floor(f);
+    return vec4(r / 255.0, g / 255.0, b / 255.0, 1.0);
+}
+
+float color2Float(vec4 c)
+{
+    return c.r * 255.0 / 256.0 + c.g * 255.0 / (256.0 * 256.0) + c.b * 255.0 / (256.0 * 256.0 * 256.0);
+}
+
+float getFEq(float rho, vec2 u, int i)
+{
+    float dotProd = 0.0;
+    if ((i == 1) || (i == 2) || (i == 8))
+        dotProd += u.x;
+    else if ((i >= 4) && (i <= 6))
+        dotProd -= u.x;
+    if ((i >= 2) && (i <= 4))
+        dotProd += u.y;
+    else if (i >= 6)
+        dotProd -= u.y;
+    float scD;
+    if (i == 0)
+        scD = 4.0 / 9.0;
+    else
+        scD = 1.0 / (36.0 - 27.0 * mod(float(i), 2.0));
+    return scD * rho * (1.0 + 3.0 * dotProd + 4.5 * dotProd * dotProd - 1.5 * dot(u, u));
+}
+
+vec4 rho2Color(float rho)
+{
+    return float2Color(rho / RHO_SCALE);
+}
+
+float color2Rho(vec4 c)
+{
+    return color2Float(c) * RHO_SCALE;
+}
+
+vec4 u2Color(float u)
+{
+    return float2Color((u + U_BIAS) / U_SCALE);
+}
+
+float color2U(vec4 c)
+{
+    return color2Float(c) * U_SCALE - U_BIAS;
+}
+</script>
+<script id="shader-fs-init-f" type="x-shader/x-fragment">
+precision highp float;
+precision highp int;
+
+uniform int uI;
+uniform highp sampler2D uSampler0, uSampler1, uSampler2;
+
+varying vec2 vTextureCoord;
+
+void main(void)
+{
+    float rho = color2Rho(texture2D(uSampler0, vTextureCoord));
+    float ux = color2U(texture2D(uSampler1, vTextureCoord));
+    float uy = color2U(texture2D(uSampler2, vTextureCoord));
+    
+    float fEq = getFEq(rho, vec2(ux, uy), uI);
+
+    gl_FragColor = float2Color(fEq);
+}
+</script>
+<script id="shader-fs-init-display" type="x-shader/x-fragment">
+precision highp float;
+precision highp int;
+
+varying vec2 vTextureCoord;
+
+void main(void)
+{
+    float r = sin(12.0 * PI * vTextureCoord.x);
+    float g = sin(12.0 * PI * vTextureCoord.x + 2.0 / 3.0 * PI);
+    float b = sin(12.0 * PI * vTextureCoord.x + 4.0 / 3.0 * PI);
+
+    gl_FragColor = vec4(r, g, b, 1.0);
+}
+</script>
+<script id="shader-fs-update-f" type="x-shader/x-fragment">
+precision highp float;
+precision highp int;
+
+uniform highp sampler2D uSampler0, uSampler1, uSampler2, uSampler3, uSampler4, uSampler5;
+uniform int uI;
+
+varying vec2 vTextureCoord;
+
+void main(void)
+{
+    vec2 offset = vec2(0.0, 0.0);
+    
+    if ((uI == 1) || (uI == 2) || (uI == 8))
+        offset.x = -1.0 / N;
+    else if ((uI >= 4) && (uI <= 6))
+        offset.x = 1.0 / N;
+    if ((uI >= 2) && (uI <= 4))
+        offset.y = -1.0 / N;
+    else if (uI >= 6)
+        offset.y = 1.0 / N;
+
+    float rho = color2Rho(texture2D(uSampler0, vTextureCoord + offset));
+    float ux = color2U(texture2D(uSampler1, vTextureCoord + offset));
+    float uy = color2U(texture2D(uSampler2, vTextureCoord + offset));
+    float f = color2Float(texture2D(uSampler3, vTextureCoord + offset)) * (1.0 - OMEGA) +
+        getFEq(rho, vec2(ux, uy), uI) * OMEGA;
+    float obst = texture2D(uSampler4, vTextureCoord + offset).r;
+
+    if (vTextureCoord.x < 0.01)
+        f = getFEq(1.0, vec2(VEL, 0.0), uI);
+    if (obst != 0.0)
+        f = getFEq(1.0, vec2(0.0, 0.0), uI);
+        
+    gl_FragColor = float2Color(f);
+}
+</script>
+<script id="shader-fs-update-obst" type="x-shader/x-fragment">
+precision highp float;
+precision highp int;
+
+uniform highp sampler2D uSampler0;
+uniform int uPointX, uPointY;
+uniform int uClear;
+
+varying vec2 vTextureCoord;
+
+void main(void)
+{
+    vec4 baseColor = texture2D(uSampler0, vTextureCoord);
+    vec4 opColor;
+    vec2 point = vec2(float(uPointX), float(uPointY)) / N;
+    
+    if (uClear != 0)
+        opColor = vec4(0.0, 0.0, 0.0, 1.0);
+    else
+        opColor = vec4(1.0, 0.0, 0.0, 1.0);
+    
+    if ((length(point - vTextureCoord) < PEN_RADIUS) && (uPointX >= 0))
+        gl_FragColor = opColor;
+    else
+        gl_FragColor = baseColor;
+}
+</script>
+<script id="shader-fs-update-display" type="x-shader/x-fragment">
+precision highp float;
+precision highp int;
+
+uniform highp sampler2D uSampler0, uSampler1, uSampler2;
+
+varying vec2 vTextureCoord;
+
+void main(void)
+{
+    float ux = color2U(texture2D(uSampler1, vTextureCoord));
+    float uy = color2U(texture2D(uSampler2, vTextureCoord));
+    
+    vec2 offset = vec2(ux, uy);
+
+    gl_FragColor = texture2D(uSampler0, vTextureCoord - offset / N);
+}
+</script>
+<script id="shader-fs-init-accum" type="x-shader/x-fragment">
+precision highp float;
+precision highp int;
+
+uniform int uRhoUxUy;
+
+varying vec2 vTextureCoord;
+
+void main(void)
+{
+    if (uRhoUxUy == 0)
+        gl_FragColor = rho2Color(1.0);
+    else if (uRhoUxUy == 1)
+        gl_FragColor = u2Color(VEL);
+    else
+        gl_FragColor = u2Color(0.0);
+}
+</script>
+<script id="shader-fs-init-obst" type="x-shader/x-fragment">
+precision highp float;
+precision highp int;
+
+varying vec2 vTextureCoord;
+
+void main(void)
+{
+    if (vTextureCoord.x > 0.19 && vTextureCoord.x < 0.31 && vTextureCoord.y + 0.2 * vTextureCoord.x > 0.49 && vTextureCoord.y + 0.2 * vTextureCoord.x < 0.51)
+        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+    else if (vTextureCoord.x > 0.19 && vTextureCoord.x < 0.31 && vTextureCoord.y - 0.2 * vTextureCoord.x > 0.31 && vTextureCoord.y - 0.2 * vTextureCoord.x < 0.33)
+        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+    else
+        gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+}
+</script>
+<script id="shader-fs-f-to-accum" type="x-shader/x-fragment">
+precision highp float;
+precision highp int;
+
+uniform int uRhoUxUy;
+uniform highp sampler2D uSampler0, uSampler1, uSampler2, uSampler3, uSampler4, uSampler5, uSampler6, uSampler7, uSampler8;
+
+varying vec2 vTextureCoord;
+
+void main(void)
+{
+    float f0 = color2Float(texture2D(uSampler0, vTextureCoord));
+    float f1 = color2Float(texture2D(uSampler1, vTextureCoord));
+    float f2 = color2Float(texture2D(uSampler2, vTextureCoord));
+    float f3 = color2Float(texture2D(uSampler3, vTextureCoord));
+    float f4 = color2Float(texture2D(uSampler4, vTextureCoord));
+    float f5 = color2Float(texture2D(uSampler5, vTextureCoord));
+    float f6 = color2Float(texture2D(uSampler6, vTextureCoord));
+    float f7 = color2Float(texture2D(uSampler7, vTextureCoord));
+    float f8 = color2Float(texture2D(uSampler8, vTextureCoord));
+    
+    float rho = f0 + f1 + f2 + f3 + f4 + f5 + f6 + f7 + f8;
+    
+    if (uRhoUxUy == 0)
+    {
+        gl_FragColor = rho2Color(rho);
+    }
+    else if (uRhoUxUy == 1)
+    {
+        float ux = (f1 + f2 + f8 - f4 - f5 - f6) / rho;
+        gl_FragColor = u2Color(ux);
+    }
+    else
+    {
+        float uy = (f2 + f3 + f4 - f6 - f7 - f8) / rho;
+        gl_FragColor = u2Color(uy);
+    }
+}
+</script>
+<script id="shader-fs-threshold" type="x-shader/x-fragment">
+precision highp float;
+precision highp int;
+
+varying vec2 vTextureCoord;
+
+uniform highp sampler2D uSampler0;
+
+void main(void)
+{
+    float f = color2U(texture2D(uSampler0, vTextureCoord));
+    
+    float REFERENCE = 0.75;
+    float TOL = 0.24;
+    if (f < REFERENCE - TOL)
+        gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
+    else if (f > REFERENCE + TOL)
+        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+    else
+        gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+}
+</script>
+<script id="shader-fs-show" type="x-shader/x-fragment">
+precision highp float;
+precision highp int;
+
+varying vec2 vTextureCoord;
+
+uniform highp sampler2D uSampler0;
+
+void main(void)
+{
+	gl_FragColor = texture2D(uSampler0, vTextureCoord);
+}
+</script>
+<script id="shader-fs-show-umod" type="x-shader/x-fragment">
+precision highp float;
+precision highp int;
+
+varying vec2 vTextureCoord;
+
+uniform highp sampler2D uSampler0, uSampler1, uSampler2;
+
+void main(void)
+{
+    float ux = color2U(texture2D(uSampler0, vTextureCoord));
+    float uy = color2U(texture2D(uSampler1, vTextureCoord));
+    float obst = texture2D(uSampler2, vTextureCoord).r;
+    float uMod = length(vec2(ux, uy));
+
+	gl_FragColor = vec4(obst * 0.4, uMod, uMod, 1.0);
+}
+</script>
+<script id="shader-vs" type="x-shader/x-vertex">
+attribute vec3 aVertexPosition;
+attribute vec2 aTextureCoord;
+
+varying vec2 vTextureCoord;
+
+void main(void)
+{
+    gl_Position = vec4(aVertexPosition, 1.0);
+    vTextureCoord = aTextureCoord;
+}
+</script>
+<script type="text/javascript">
+var N = 1024;
+
+var obstPoint = [-1, -1];
+var clear = false;
+
+var PROGS_DESC = {
+    'init-accum': {
+        'vs': ['shader-vs'],
+        'fs': ['shader-fs-utils', 'shader-fs-init-accum'],
+        'attribs': ['aVertexPosition', 'aTextureCoord'],
+        'uniforms': ['uRhoUxUy']
+    },
+    'init-f': {
+        'vs': ['shader-vs'],
+        'fs': ['shader-fs-utils', 'shader-fs-init-f'],
+        'attribs': ['aVertexPosition', 'aTextureCoord'],
+        'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uI']
+    },
+    'init-obst': {
+        'vs': ['shader-vs'],
+        'fs': ['shader-fs-utils', 'shader-fs-init-obst'],
+        'attribs': ['aVertexPosition', 'aTextureCoord'],
+        'uniforms': []
+    },
+    'init-display': {
+        'vs': ['shader-vs'],
+        'fs': ['shader-fs-utils', 'shader-fs-init-display'],
+        'attribs': ['aVertexPosition', 'aTextureCoord'],
+        'uniforms': []
+    },
+    'update-f': {
+        'vs': ['shader-vs'],
+        'fs': ['shader-fs-utils', 'shader-fs-update-f'],
+        'attribs': ['aVertexPosition', 'aTextureCoord'],
+        'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uI']
+    },
+    'update-display': {
+        'vs': ['shader-vs'],
+        'fs': ['shader-fs-utils', 'shader-fs-update-display'],
+        'attribs': ['aVertexPosition', 'aTextureCoord'],
+        'uniforms': ['uSampler0', 'uSampler1', 'uSampler2']
+    },
+    'update-obst': {
+        'vs': ['shader-vs'],
+        'fs': ['shader-fs-utils', 'shader-fs-update-obst'],
+        'attribs': ['aVertexPosition', 'aTextureCoord'],
+        'uniforms': ['uSampler0', 'uPointX', 'uPointY', 'uClear']
+    },
+    'f-to-accum': {
+        'vs': ['shader-vs'],
+        'fs': ['shader-fs-utils', 'shader-fs-f-to-accum'],
+        'attribs': ['aVertexPosition', 'aTextureCoord'],
+        'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uSampler5', 'uSampler6', 'uSampler7', 'uSampler8', 'uRhoUxUy']
+    },
+    'threshold': {
+        'vs': ['shader-vs'],
+        'fs': ['shader-fs-utils', 'shader-fs-threshold'],
+        'attribs': ['aVertexPosition', 'aTextureCoord'],
+        'uniforms': ['uSampler0']
+    },
+    'show': {
+        'vs': ['shader-vs'],
+        'fs': ['shader-fs-show'],
+        'attribs': ['aVertexPosition', 'aTextureCoord'],
+        'uniforms': ['uSampler0']
+    },
+    'show-umod': {
+        'vs': ['shader-vs'],
+        'fs': ['shader-fs-utils', 'shader-fs-show-umod'],
+        'attribs': ['aVertexPosition', 'aTextureCoord'],
+        'uniforms': ['uSampler0', 'uSampler1', 'uSampler2']
+    }
+};
+
+var TEXTURES_DESC = {
+    'rho': N,
+    'ux': N,
+    'uy': N,
+    'f0': N,
+    'f1': N,
+    'f2': N,
+    'f3': N,
+    'f4': N,
+    'f5': N,
+    'f6': N,
+    'f7': N,
+    'f8': N,
+    'tmp': N,
+    'obst': N
+};
+
+var BUFFERS_DESC = {
+    'quadVB': {
+        'type': 'v',
+        'data': [
+            -1.0, -1.0,  1.0,
+             1.0, -1.0,  1.0,
+             1.0,  1.0,  1.0,
+            -1.0,  1.0,  1.0
+        ]
+    },
+    'quadTB': {
+        'type': 't',
+        'data': [
+            0.0, 0.0,
+            1.0, 0.0,
+            1.0, 1.0,
+            0.0, 1.0
+        ]
+    },
+    'quadIB': {
+        'type': 'i',
+        'data': [0, 1, 2, 0, 2, 3]
+    }
+};
+
+var gl;
+function initGL(canvas) {
+    // requestAnimFrame with fallback
+    // http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+    window.requestAnimFrame = (function(){
+          return  window.requestAnimationFrame       || 
+                  window.webkitRequestAnimationFrame || 
+                  window.mozRequestAnimationFrame    || 
+                  window.oRequestAnimationFrame      || 
+                  window.msRequestAnimationFrame     || 
+                  function(/* function */ callback, /* DOMElement */ element){
+                    window.setTimeout(callback, 1000 / 60);
+                  };
+        })();
+
+    gl = canvas.getContext("experimental-webgl");
+    gl.viewport(0, 0, canvas.width, canvas.height);
+}
+
+function getShader(ids, type) {
+    var shader;
+    if (type === 'fs') {
+        shader = gl.createShader(gl.FRAGMENT_SHADER);
+    } else if (type === 'vs') {
+        shader = gl.createShader(gl.VERTEX_SHADER);
+    } else {
+        return null;
+    }
+    
+    if (!ids.pop) {
+        ids = [ids];
+    }
+    
+    var shaderTexts = [];
+    for (var i = 0; i < ids.length; i++) {
+        var shaderElem = document.getElementById(ids[i]);
+        shaderTexts.push(shaderElem.textContent);
+    }
+    
+    gl.shaderSource(shader, shaderTexts.join('\n'));
+    gl.compileShader(shader);
+
+    return shader;
+}
+
+var progs = {};
+function initShaders() {
+    for (var id in PROGS_DESC) {
+        progs[id] = gl.createProgram();
+        gl.attachShader(progs[id], getShader(PROGS_DESC[id].vs, 'vs'));
+        gl.attachShader(progs[id], getShader(PROGS_DESC[id].fs, 'fs'));
+        gl.linkProgram(progs[id]);
+        
+        for (var i = 0; i < PROGS_DESC[id].attribs.length; i++) {
+            progs[id][PROGS_DESC[id].attribs[i]] = gl.getAttribLocation(progs[id], PROGS_DESC[id].attribs[i]);
+            gl.enableVertexAttribArray(progs[id][PROGS_DESC[id].attribs[i]]);
+        }
+        
+        for (var i = 0; i < PROGS_DESC[id].uniforms.length; i++) {
+            progs[id][PROGS_DESC[id].uniforms[i]] = gl.getUniformLocation(progs[id], PROGS_DESC[id].uniforms[i]);
+        }
+    }
+}
+
+function createTexture(n, linear) {
+    var tex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    if (!linear) {
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    } else {
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    }
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT );
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT );
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, n, n, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    tex.n = n;
+    return tex;
+}
+
+var textures = {};
+var framebuffer;
+function initTexturesFramebuffer() {
+    for (var id in TEXTURES_DESC) {
+        textures[id] = createTexture(TEXTURES_DESC[id]);
+    }
+    textures.display = createTexture(N, true);
+    framebuffer = gl.createFramebuffer();
+}
+
+function createBuffer(desc) {
+    var glBufType = gl[{
+        'v': 'ARRAY_BUFFER',
+        't': 'ARRAY_BUFFER',
+        'i': 'ELEMENT_ARRAY_BUFFER'
+    }[desc.type]];
+    var glArrType = {
+        'v': Float32Array,
+        't': Float32Array,
+        'i': Uint16Array
+    }[desc.type];
+    var glItemSize = {
+        'v': 3,
+        't': 2,
+        'i': 1
+    }[desc.type];
+    
+    var buffer = gl.createBuffer();
+    gl.bindBuffer(glBufType, buffer);
+    gl.bufferData(glBufType, new glArrType(desc.data), gl.STATIC_DRAW);
+    gl.bindBuffer(glBufType, null);
+    
+    buffer.itemSize = glItemSize;
+    buffer.numItems = Math.floor(desc.data.length / glItemSize);
+    
+    return buffer;
+}
+
+var buffers = {};
+function initBuffers() {
+    for (var id in BUFFERS_DESC) {
+        buffers[id] = createBuffer(BUFFERS_DESC[id]);
+    }
+}
+
+function doRenderOp(tgtTexName, srcTexNames, progName, uniformAssignments) {
+    var prog = progs[progName];
+    gl.useProgram(prog);
+    
+    for (var uniformVarName in uniformAssignments) {
+        gl.uniform1i(prog[uniformVarName], uniformAssignments[uniformVarName]);
+    }
+    
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffers.quadVB);
+    gl.vertexAttribPointer(prog.aVertexPosition, buffers.quadVB.itemSize, gl.FLOAT, false, 0, 0);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffers.quadTB);
+    gl.vertexAttribPointer(prog.aTextureCoord, buffers.quadTB.itemSize, gl.FLOAT, false, 0, 0);
+    
+    for (var i = 0; i < srcTexNames.length; i++) {
+        gl.activeTexture(gl.TEXTURE0 + i);
+        gl.bindTexture(gl.TEXTURE_2D, textures[srcTexNames[i]]);
+        gl.uniform1i(prog['uSampler' + i], i);
+    }
+    
+    if (tgtTexName !== null) {
+        gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, textures[tgtTexName], 0);
+    } else {
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    }
+    
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.quadIB);
+    gl.drawElements(gl.TRIANGLES, buffers.quadIB.numItems, gl.UNSIGNED_SHORT, 0);
+}
+
+function swapTextures(tex1Name, tex2Name) {
+    var t = textures[tex1Name];
+    textures[tex1Name] = textures[tex2Name];
+    textures[tex2Name] = t;
+}
+
+function initState() {
+    doRenderOp('rho', [], 'init-accum', {'uRhoUxUy': 0});
+    doRenderOp('ux', [], 'init-accum', {'uRhoUxUy': 1});
+    doRenderOp('uy', [], 'init-accum', {'uRhoUxUy': 2});
+    doRenderOp('f0', ['rho', 'ux', 'uy'], 'init-f', {'uI': 0});
+    doRenderOp('f1', ['rho', 'ux', 'uy'], 'init-f', {'uI': 1});
+    doRenderOp('f2', ['rho', 'ux', 'uy'], 'init-f', {'uI': 2});
+    doRenderOp('f3', ['rho', 'ux', 'uy'], 'init-f', {'uI': 3});
+    doRenderOp('f4', ['rho', 'ux', 'uy'], 'init-f', {'uI': 4});
+    doRenderOp('f5', ['rho', 'ux', 'uy'], 'init-f', {'uI': 5});
+    doRenderOp('f6', ['rho', 'ux', 'uy'], 'init-f', {'uI': 6});
+    doRenderOp('f7', ['rho', 'ux', 'uy'], 'init-f', {'uI': 7});
+    doRenderOp('f8', ['rho', 'ux', 'uy'], 'init-f', {'uI': 8});
+    doRenderOp('obst', [], 'init-obst', {});
+    doRenderOp('display', [], 'init-display', {});
+}
+
+function stepState() {
+    doRenderOp('tmp', ['obst'], 'update-obst', {'uPointX': obstPoint[0], 'uPointY': obstPoint[1], 'uClear': clear ? 1 : 0});
+    swapTextures('tmp', 'obst');
+    doRenderOp('rho', ['f0', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8'], 'f-to-accum', {'uRhoUxUy': 0});
+    doRenderOp('ux', ['f0', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8'], 'f-to-accum', {'uRhoUxUy': 1});
+    doRenderOp('uy', ['f0', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8'], 'f-to-accum', {'uRhoUxUy': 2});
+    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f0', 'obst', 'f0'], 'update-f', {'uI': 0});
+    swapTextures('tmp', 'f0');
+    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f1', 'obst', 'f5'], 'update-f', {'uI': 1});
+    swapTextures('tmp', 'f1');
+    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f2', 'obst', 'f6'], 'update-f', {'uI': 2});
+    swapTextures('tmp', 'f2');
+    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f3', 'obst', 'f7'], 'update-f', {'uI': 3});
+    swapTextures('tmp', 'f3');
+    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f4', 'obst', 'f8'], 'update-f', {'uI': 4});
+    swapTextures('tmp', 'f4');
+    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f5', 'obst', 'f1'], 'update-f', {'uI': 5});
+    swapTextures('tmp', 'f5');
+    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f6', 'obst', 'f2'], 'update-f', {'uI': 6});
+    swapTextures('tmp', 'f6');
+    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f7', 'obst', 'f3'], 'update-f', {'uI': 7});
+    swapTextures('tmp', 'f7');
+    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f8', 'obst', 'f4'], 'update-f', {'uI': 8});
+    swapTextures('tmp', 'f8');
+    doRenderOp(null, ['ux', 'uy', 'obst'], 'show-umod', {});
+    //[null, ['obst'], 'show', {}]
+}
+
+var frameNum = 0;
+var frameNumStarted = new Date();
+function step() {
+    stepState();
+    
+    // FPS
+	frameNum++;
+	var now = new Date();
+	if (now - frameNumStarted > 1000) {
+        document.getElementById('fps').innerText = (1000 / ((now - frameNumStarted) / frameNum)).toFixed(2);
+        frameNum = 0;
+        frameNumStarted = now;
+	}
+    
+    requestAnimFrame(step);
+}
+
+
+function onMouseDown(e) {
+    
+}
+
+function onMouseUp(e) {
+    mouseDown = false;
+    obstPoint = [-1, -1];
+}
+
+function onMouseMove(e) {
+    if (mouseDown) {
+        obstPoint = [256, 256];
+    }
+}
+
+function webGLStart() {
+    var canvas = document.getElementById('main-canvas');
+    var mouseDown = false;
+    canvas.onmousedown = function(e) {
+        mouseDown = true;
+    };
+    canvas.onmouseup = function(e) {
+        mouseDown = false;
+        obstPoint = [-1, -1];
+    };
+    canvas.onmousemove = function(e) {
+        if (mouseDown) {
+            e = e || window.event;
+            obstPoint = [e.clientX - canvas.offsetLeft, canvas.height - (e.clientY - canvas.offsetTop)];
+            clear = e.ctrlKey;
+        }
+    };
+    
+    initGL(canvas);
+    initShaders();
+    initBuffers();
+    initTexturesFramebuffer();
+    initState();
+    
+    step();
+}
+</script>
+</head>
+<body onload="webGLStart();">
+    <canvas id="main-canvas" style="border: none;" width="1024" height="1024"></canvas> <br>
+    <div style="width: 1024px; text-align:left">
+        <p style="font-size:12px">FPS: <span id="fps">52.68</span></p>
+    </div>
+    <div style="width: 1024px; text-align:right">
+        <p style="font-size:12px">Created by <a href="http://chouza.com.ar/">Mariano M. Chouza</a>.</p>
+    </div>
+
+
+</body></html>
