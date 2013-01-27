@@ -1,6 +1,9 @@
 var N = 1024;
 
-var obstPoint = [-1, -1];
+var obstPoint1 = [-1, -1];
+var obstPoint2 = [-1, -1];
+var square1 = [-1, -1];
+var square2 = [-1, -1];
 var clear = false;
 
 var PROGS_DESC = {
@@ -46,6 +49,12 @@ var PROGS_DESC = {
         'attribs': ['aVertexPosition', 'aTextureCoord'],
         'uniforms': ['uSampler0', 'uPointX', 'uPointY', 'uClear']
     },
+    'update-obst-square': {
+        'vs': ['shader-vs'],
+        'fs': ['shader-fs-utils', 'shader-fs-update-obst-square'],
+        'attribs': ['aVertexPosition', 'aTextureCoord'],
+        'uniforms': ['uSampler0', 'uPointX1', 'uPointY1', 'uPointX2', 'uPointY2', 'uClear']
+    },
     'f-to-accum': {
         'vs': ['shader-vs'],
         'fs': ['shader-fs-utils', 'shader-fs-f-to-accum'],
@@ -86,7 +95,8 @@ var TEXTURES_DESC = {
     'f7': N,
     'f8': N,
     'tmp': N,
-    'obst': N
+    'obst': N,
+    'obst_intended': N
 };
 
 var BUFFERS_DESC = {
@@ -299,8 +309,10 @@ function initState() {
 }
 
 function stepState() {
-    doRenderOp('tmp', ['obst'], 'update-obst', {'uPointX': obstPoint[0], 'uPointY': obstPoint[1], 'uClear': clear ? 1 : 0});
-    swapTextures('tmp', 'obst');
+    doRenderOp('tmp', ['obst_intended'], 'update-obst-square', {'uPointX1': square1[0], 'uPointY1': square1[1], 'uPointX2': square2[0], 'uPointY2': square2[1], 'uClear': clear ? 1 : 0});
+    swapTextures('tmp', 'obst_intended');
+    //doRenderOp('tmp', ['obst'], 'update-obst', {'uPointX': obstPoint[0], 'uPointY': obstPoint[1], 'uClear': clear ? 1 : 0});
+    //swapTextures('tmp', 'obst');
     doRenderOp('rho', ['f0', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8'], 'f-to-accum', {'uRhoUxUy': 0});
     doRenderOp('ux', ['f0', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8'], 'f-to-accum', {'uRhoUxUy': 1});
     doRenderOp('uy', ['f0', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8'], 'f-to-accum', {'uRhoUxUy': 2});
@@ -322,7 +334,7 @@ function stepState() {
     swapTextures('tmp', 'f7');
     doRenderOp('tmp', ['rho', 'ux', 'uy', 'f8', 'obst', 'f4'], 'update-f', {'uI': 8});
     swapTextures('tmp', 'f8');
-    doRenderOp(null, ['ux', 'uy', 'obst'], 'show-umod', {});
+    doRenderOp(null, ['ux', 'uy', 'obst_intended'], 'show-umod', {});
     //[null, ['obst'], 'show', {}]
 }
 
@@ -385,11 +397,12 @@ function findPos(obj) {
 function webGLStart() {
     canvas = document.getElementById('main-canvas');
     pos = findPos(canvas);
-    var container = document.getElementById('container');
-    var lbm_window = document.getElementById('lbm_window');
     var mouseDown = false;
     canvas.onmousedown = function(e) {
         mouseDown = true;
+        var x = e.pageX - pos.x;
+        var y = e.pageY - pos.y;
+        obstPoint1 = [x*N/canvas.width, (canvas.height-y)*N/canvas.height];
     };
     canvas.onmouseup = function(e) {
         mouseDown = false;
@@ -402,7 +415,26 @@ function webGLStart() {
             
             var x = e.pageX - pos.x;
             var y = e.pageY - pos.y;
-            obstPoint = [x*N/canvas.width, (canvas.height-y)*N/canvas.height];
+            obstPoint2 = [x*N/canvas.width, (canvas.height-y)*N/canvas.height];
+            
+            if(obstPoint1[0]<obstPoint2[0]) {
+                square1[0] = obstPoint1[0]
+                square2[0] = obstPoint2[0]
+            } else {
+                square1[0] = obstPoint2[0]
+                square2[0] = obstPoint1[0]
+            }
+            if(obstPoint1[1]>obstPoint2[1]) {
+                square1[1] = obstPoint1[1]
+                square2[1] = obstPoint2[1]
+            } else {
+                square1[1] = obstPoint2[1]
+                square2[1] = obstPoint1[1]
+            }
+            
+            obstPoint1 = tmp1;
+            obstPoint2 = tmp2;
+            
             clear = e.ctrlKey;
         }
     };

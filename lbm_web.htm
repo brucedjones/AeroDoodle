@@ -178,6 +178,36 @@ void main(void)
         gl_FragColor = baseColor;
 }
 </script>
+<script id="shader-fs-update-obst-square" type="x-shader/x-fragment">
+precision highp float;
+precision highp int;
+
+uniform highp sampler2D uSampler0;
+uniform int uPointX1, uPointY1, uPointX2, uPointY2;
+uniform int uClear;
+
+varying vec2 vTextureCoord;
+
+vec2 p1, p2;
+
+void main(void)
+{
+    vec4 baseColor = vec4(0.0, 0.0, 0.0, 1.0);
+    vec4 opColor;
+    vec2 p1 = vec2(float(uPointX1), float(uPointY1)) / N;
+    vec2 p2 = vec2(float(uPointX2), float(uPointY2)) / N;
+    
+    if (uClear != 0)
+        opColor = vec4(0.0, 0.0, 0.0, 1.0);
+    else
+        opColor = vec4(1.0, 0.0, 0.0, 1.0);
+       
+    if(vTextureCoord.x<p1.x || vTextureCoord.x>p2.x || vTextureCoord.y>p1.y || vTextureCoord.y<p2.y)
+        gl_FragColor = baseColor;
+    else
+        gl_FragColor = opColor;
+}
+</script>
 <script id="shader-fs-update-display" type="x-shader/x-fragment">
 precision highp float;
 precision highp int;
