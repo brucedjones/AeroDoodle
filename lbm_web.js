@@ -12,6 +12,7 @@ var addCircle = false;
 var SQUARE_MODE = 1;
 var CIRCLE_MODE = 2;
 var SELECTION_MODE = 3;
+var circle_radius = 0.01;
 
 var mode = BRUSH_MODE;
 
@@ -56,7 +57,7 @@ var PROGS_DESC = {
         'vs': ['shader-vs'],
         'fs': ['shader-fs-utils', 'shader-fs-update-obst-circle'],
         'attribs': ['aVertexPosition', 'aTextureCoord'],
-        'uniforms': ['uSampler0', 'uPointX', 'uPointY', 'uClear', 'uAdd']
+        'uniforms': ['uSampler0', 'uPointX', 'uPointY', 'uRadius', 'uClear', 'uAdd']
     },
     'update-obst-square': {
         'vs': ['shader-vs'],
@@ -261,12 +262,24 @@ function initBuffers() {
     }
 }
 
+function is_int(value){ 
+  if((parseFloat(value) == parseInt(value)) && !isNaN(value)){
+      return true;
+  } else { 
+      return false;
+  } 
+}
+
 function doRenderOp(tgtTexName, srcTexNames, progName, uniformAssignments) {
     var prog = progs[progName];
     gl.useProgram(prog);
     
     for (var uniformVarName in uniformAssignments) {
-        gl.uniform1i(prog[uniformVarName], uniformAssignments[uniformVarName]);
+        if(is_int(uniformAssignments[uniformVarName])) {
+            gl.uniform1i(prog[uniformVarName], uniformAssignments[uniformVarName]);
+        } else {
+            gl.uniform1f(prog[uniformVarName], uniformAssignments[uniformVarName]);
+        }
     }
     
     gl.bindBuffer(gl.ARRAY_BUFFER, buffers.quadVB);
@@ -329,24 +342,24 @@ function stepState() {
     }
     
     if(mode == BRUSH_MODE){
-        doRenderOp('tmp', ['obst_intended'], 'update-obst-circle', {'uPointX': obstPoint2[0], 'uPointY': obstPoint2[1], 'uClear': clear ? 1 : 0, 'uAdd':0});
+        doRenderOp('tmp', ['obst_intended'], 'update-obst-circle', {'uPointX': obstPoint2[0], 'uPointY': obstPoint2[1], 'uRadius': circle_radius, 'uClear': clear ? 1 : 0, 'uAdd':0});
         swapTextures('tmp', 'obst_intended');
         if(addCircle) {
-            doRenderOp('tmp', ['obst'], 'update-obst-circle', {'uPointX': obstPoint2[0], 'uPointY': obstPoint2[1], 'uClear': clear ? 1 : 0, 'uAdd':1});
+            doRenderOp('tmp', ['obst'], 'update-obst-circle', {'uPointX': obstPoint2[0], 'uPointY': obstPoint2[1], 'uRadius': circle_radius, 'uClear': clear ? 1 : 0, 'uAdd':1});
             swapTextures('tmp', 'obst');
             //addCircle = false;
         }
     }
     
-    /*if(mode == CIRCLE_MODE){
-        doRenderOp('tmp', ['obst_intended'], 'update-obst-circle', {'uPointX1': square1[0], 'uPointY1': square1[1], 'uPointX2': square2[0], 'uPointY2': square2[1], 'uClear': clear ? 1 : 0, 'uAdd':0});
+    if(mode == CIRCLE_MODE){
+        doRenderOp('tmp', ['obst_intended'], 'update-obst-circle', {'uPointX': obstPoint1[0], 'uPointY': obstPoint1[1], 'uRadius': circle_radius, 'uClear': clear ? 1 : 0, 'uAdd':0});
         swapTextures('tmp', 'obst_intended');
-        if(addSquare) {
-            doRenderOp('tmp', ['obst'], 'update-obst-circle', {'uPointX1': square1[0], 'uPointY1': square1[1], 'uPointX2': square2[0], 'uPointY2': square2[1], 'uClear': clear ? 1 : 0, 'uAdd':1});
+        if(addCircleR) {
+            doRenderOp('tmp', ['obst'], 'update-obst-circle', {'uPointX': obstPoint1[0], 'uPointY': obstPoint1[1], 'uRadius': circle_radius, 'uClear': clear ? 1 : 0, 'uAdd':1});
             swapTextures('tmp', 'obst');
-            addSquare = false;
+            addCircleR = false;
         }
-    }*/
+    }
     //doRenderOp('tmp', ['obst'], 'update-obst', {'uPointX': obstPoint[0], 'uPointY': obstPoint[1], 'uClear': clear ? 1 : 0});
     //swapTextures('tmp', 'obst');
     doRenderOp('rho', ['f0', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8'], 'f-to-accum', {'uRhoUxUy': 0});
@@ -389,6 +402,7 @@ function step() {
             obstPoint1[1] = -1.0;
             obstPoint2[0] = -1.0;
             obstPoint2[1] = -1.0;
+            circle_radius = 0.01;
         }
     }else if(document.getElementById('square').checked) {
         if(mode != SQUARE_MODE) {
@@ -400,15 +414,17 @@ function step() {
             obstPoint2[0] = -1.0;
             obstPoint2[1] = -1.0;
         }
-    }/*else if(document.getElementById('circle').checked) {
+    }else if(document.getElementById('circle').checked) {
         if(mode != CIRCLE_MODE) {
             mode = CIRCLE_MODE;
+            drawIntended = false;
             addCircleR = false;
             obstPoint1[0] = -1.0;
             obstPoint1[1] = -1.0;
             obstPoint2[0] = -1.0;
             obstPoint2[1] = -1.0;
-        }*/
+            circle_radius = 0.0;
+        }
     }
     stepState();
     
@@ -475,6 +491,7 @@ function webGLStart() {
         mouseDown = false;
         if(mode != BRUSH_MODE) drawIntended = false;
         addSquare = true;
+        addCircleR = true;
         addCircle = false;
         //obstPoint = [-1, -1];
     };
@@ -483,6 +500,10 @@ function webGLStart() {
         var x = e.pageX - pos.x;
         var y = e.pageY - pos.y;
         obstPoint2 = [x*N/canvas.width, (canvas.height-y)*N/canvas.height];
+        
+        var delta = [obstPoint2[0]-obstPoint1[0],obstPoint2[1]-obstPoint1[1]];
+        
+        if(mode == CIRCLE_MODE) circle_radius = Math.sqrt(delta[0]*delta[0] + delta[1]*delta[1])/N;
             
         if (mouseDown) {
             e = e || window.event;

@@ -14,8 +14,6 @@ const float RHO_SCALE = 2.0;
 const float U_SCALE = 2.0;
 const float U_BIAS = 1.0;
 
-const float PEN_RADIUS = 0.01;
-
 // The numbers are encoded using 3 component of a color (RGB). When storing
 // 'x' in a component, the persisted value is 'round(x * 255.0) % 256' and 
 // the recovered value is obtained doing a floating point division by 255.
@@ -239,6 +237,7 @@ uniform highp sampler2D uSampler0;
 uniform int uPointX, uPointY;
 uniform int uClear;
 uniform int uAdd;
+uniform float uRadius;
 
 varying vec2 vTextureCoord;
 
@@ -261,8 +260,8 @@ void main(void)
         
     if (uAdd == 0)
         opColor = vec4(1.0, 0.0, 0.0, 1.0);
-    
-    if ((length(point - vTextureCoord) < PEN_RADIUS) && (uPointX >= 0))
+        
+    if ((length(point - vTextureCoord) < uRadius) && (uPointX >= 0))
         gl_FragColor = opColor;
     else
         gl_FragColor = baseColor;
@@ -531,6 +530,7 @@ void main(void)
             <form>
                 <input type="radio" name="brush_toggle" id="brush">Brush
                 <input type="radio" name="brush_toggle" id="square">Square
+                <input type="radio" name="brush_toggle" id="circle">Circle
             </form>
         </div>
     <div id="disclaimer">
