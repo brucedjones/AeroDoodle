@@ -486,6 +486,8 @@ function webGLStart() {
         var y = e.pageY - pos.y;
         obstPoint1 = [x*N/canvas.width, (canvas.height-y)*N/canvas.height];
         addCircle = true;
+        
+        return false;
     };
     canvas.onmouseup = function(e) {
         mouseDown = false;
