@@ -1,4 +1,4 @@
-var N = 1024;
+var N = 512;
 
 var obstPoint1 = [-1, -1];
 var obstPoint2 = [-1, -1];
@@ -7,9 +7,13 @@ var square2 = [-1, -1];
 var clear = false;
 var addSquare = false;
 var drawIntended = true;
-var brush_mode = true;
+var BRUSH_MODE = 0;
 var addCircle = false;
-var square_mode = false;
+var SQUARE_MODE = 1;
+var CIRCLE_MODE = 2;
+var SELECTION_MODE = 3;
+
+var mode = BRUSH_MODE;
 
 var PROGS_DESC = {
     'init-accum': {
@@ -314,7 +318,7 @@ function initState() {
 }
 
 function stepState() {
-    if(square_mode){
+    if(mode == SQUARE_MODE){
         doRenderOp('tmp', ['obst_intended'], 'update-obst-square', {'uPointX1': square1[0], 'uPointY1': square1[1], 'uPointX2': square2[0], 'uPointY2': square2[1], 'uClear': clear ? 1 : 0, 'uAdd':0});
         swapTextures('tmp', 'obst_intended');
         if(addSquare) {
@@ -324,7 +328,7 @@ function stepState() {
         }
     }
     
-    if(brush_mode){
+    if(mode == BRUSH_MODE){
         doRenderOp('tmp', ['obst_intended'], 'update-obst-circle', {'uPointX': obstPoint2[0], 'uPointY': obstPoint2[1], 'uClear': clear ? 1 : 0, 'uAdd':0});
         swapTextures('tmp', 'obst_intended');
         if(addCircle) {
@@ -333,6 +337,16 @@ function stepState() {
             //addCircle = false;
         }
     }
+    
+    /*if(mode == CIRCLE_MODE){
+        doRenderOp('tmp', ['obst_intended'], 'update-obst-circle', {'uPointX1': square1[0], 'uPointY1': square1[1], 'uPointX2': square2[0], 'uPointY2': square2[1], 'uClear': clear ? 1 : 0, 'uAdd':0});
+        swapTextures('tmp', 'obst_intended');
+        if(addSquare) {
+            doRenderOp('tmp', ['obst'], 'update-obst-circle', {'uPointX1': square1[0], 'uPointY1': square1[1], 'uPointX2': square2[0], 'uPointY2': square2[1], 'uClear': clear ? 1 : 0, 'uAdd':1});
+            swapTextures('tmp', 'obst');
+            addSquare = false;
+        }
+    }*/
     //doRenderOp('tmp', ['obst'], 'update-obst', {'uPointX': obstPoint[0], 'uPointY': obstPoint[1], 'uClear': clear ? 1 : 0});
     //swapTextures('tmp', 'obst');
     doRenderOp('rho', ['f0', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8'], 'f-to-accum', {'uRhoUxUy': 0});
@@ -368,25 +382,33 @@ var frameNumStarted2 = new Date();
 var canvas;
 function step() {
     if(document.getElementById('brush').checked) {
-        if(!brush_mode) {
-        brush_mode = true;
-        square_mode = false;
-        addCircle = false;
-        obstPoint1[0] = -1.0;
-        obstPoint1[1] = -1.0;
-        obstPoint2[0] = -1.0;
-        obstPoint2[1] = -1.0;
+        if(mode != BRUSH_MODE) {
+            mode = BRUSH_MODE;
+            addCircle = false;
+            obstPoint1[0] = -1.0;
+            obstPoint1[1] = -1.0;
+            obstPoint2[0] = -1.0;
+            obstPoint2[1] = -1.0;
         }
     }else if(document.getElementById('square').checked) {
-        if(!square_mode) {
-        brush_mode = false;
-        square_mode = true;
-        addSquare = false;
-        obstPoint1[0] = -1.0;
-        obstPoint1[1] = -1.0;
-        obstPoint2[0] = -1.0;
-        obstPoint2[1] = -1.0;
+        if(mode != SQUARE_MODE) {
+            mode = SQUARE_MODE;
+            drawIntended = false;
+            addSquare = false;
+            obstPoint1[0] = -1.0;
+            obstPoint1[1] = -1.0;
+            obstPoint2[0] = -1.0;
+            obstPoint2[1] = -1.0;
         }
+    }/*else if(document.getElementById('circle').checked) {
+        if(mode != CIRCLE_MODE) {
+            mode = CIRCLE_MODE;
+            addCircleR = false;
+            obstPoint1[0] = -1.0;
+            obstPoint1[1] = -1.0;
+            obstPoint2[0] = -1.0;
+            obstPoint2[1] = -1.0;
+        }*/
     }
     stepState();
     
@@ -451,13 +473,13 @@ function webGLStart() {
     };
     canvas.onmouseup = function(e) {
         mouseDown = false;
-        if(!brush_mode) drawIntended = false;
+        if(mode != BRUSH_MODE) drawIntended = false;
         addSquare = true;
         addCircle = false;
         //obstPoint = [-1, -1];
     };
     canvas.onmousemove = function(e) {
-        if(brush_mode) drawIntended = true;
+        if(mode == BRUSH_MODE) drawIntended = true;
         var x = e.pageX - pos.x;
         var y = e.pageY - pos.y;
         obstPoint2 = [x*N/canvas.width, (canvas.height-y)*N/canvas.height];
