@@ -11,11 +11,13 @@ var BRUSH_MODE = 0;
 var addCircle = false;
 var SQUARE_MODE = 1;
 var CIRCLE_MODE = 2;
-var SELECTION_MODE = 3;
-var circle_radius = 0.01;
+var LINE_MODE = 3;
+var SELECTION_MODE = 4;
+var brush_radius = 0.01;
+var circle_radius = brush_radius;
 
 var mode = BRUSH_MODE;
-
+var square_p4 = ;
 var PROGS_DESC = {
     'init-accum': {
         'vs': ['shader-vs'],
@@ -64,6 +66,12 @@ var PROGS_DESC = {
         'fs': ['shader-fs-utils', 'shader-fs-update-obst-square'],
         'attribs': ['aVertexPosition', 'aTextureCoord'],
         'uniforms': ['uSampler0', 'uPointX1', 'uPointY1', 'uPointX2', 'uPointY2', 'uClear', 'uAdd']
+    },
+    'update-obst-line': {
+        'vs': ['shader-vs'],
+        'fs': ['shader-fs-utils', 'shader-fs-update-obst-line'],
+        'attribs': ['aVertexPosition', 'aTextureCoord'],
+        'uniforms': ['uSampler0', 'uPointX1', 'uPointY1', 'uPointX2', 'uPointY2', 'uPointX3', 'uPointY3', 'uPointX4', 'uPointY4', 'uClear', 'uAdd']
     },
     'f-to-accum': {
         'vs': ['shader-vs'],
@@ -360,6 +368,17 @@ function stepState() {
             addCircleR = false;
         }
     }
+    
+    if(mode == LINE_MODE){
+        doRenderOp('tmp', ['obst_intended'], 'update-obst-line', {'uPointX1': square_p1[0], 'uPointY1': square_p1[1], 'uPointX2': square_p2[0], 'uPointY2': square_p2[1], 'uPointX3': square_p3[0], 'uPointY3': square_p3[1], 'uPointX4': square_p4[0], 'uPointY4': square_p4[1], 'uClear': clear ? 1 : 0, 'uAdd':0});
+        swapTextures('tmp', 'obst_intended');
+        if(addSquare) {
+            doRenderOp('tmp', ['obst'], 'update-obst-line', {'uPointX1': square1[0], 'uPointY1': square1[1], 'uPointX2': square2[0], 'uPointY2': square2[1], 'uClear': clear ? 1 : 0, 'uAdd':1});
+            swapTextures('tmp', 'obst');
+            addSquare = false;
+        }
+    }
+    
     //doRenderOp('tmp', ['obst'], 'update-obst', {'uPointX': obstPoint[0], 'uPointY': obstPoint[1], 'uClear': clear ? 1 : 0});
     //swapTextures('tmp', 'obst');
     doRenderOp('rho', ['f0', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8'], 'f-to-accum', {'uRhoUxUy': 0});
@@ -402,7 +421,7 @@ function step() {
             obstPoint1[1] = -1.0;
             obstPoint2[0] = -1.0;
             obstPoint2[1] = -1.0;
-            circle_radius = 0.01;
+            circle_radius = brush_radius;
         }
     }else if(document.getElementById('square').checked) {
         if(mode != SQUARE_MODE) {
@@ -487,6 +506,9 @@ function webGLStart() {
         obstPoint1 = [x*N/canvas.width, (canvas.height-y)*N/canvas.height];
         addCircle = true;
         
+        e = e || window.event;
+        clear = e.ctrlKey;
+        
         return false;
     };
     canvas.onmouseup = function(e) {
@@ -538,4 +560,10 @@ function webGLStart() {
     initState();
     
     step();
+}
+
+function updateBrushSlider(value) {
+    brush_radius = value*value/N;
+    if(mode == BRUSH_MODE)
+        circle_radius = brush_radius;
 }
