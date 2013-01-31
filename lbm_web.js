@@ -4,6 +4,10 @@ var obstPoint1 = [-1, -1];
 var obstPoint2 = [-1, -1];
 var square1 = [-1, -1];
 var square2 = [-1, -1];
+var square_p1 = [-1, -1];
+var square_p2 = [-1, -1];
+var square_p3 = [-1, -1];
+var square_p4 = [-1, -1];
 var clear = false;
 var addSquare = false;
 var drawIntended = true;
@@ -12,10 +16,11 @@ var addCircle = false;
 var SQUARE_MODE = 1;
 var CIRCLE_MODE = 2;
 var LINE_MODE = 3;
+var addLine = false;
 var SELECTION_MODE = 4;
 var brush_radius = 0.01;
 var circle_radius = brush_radius;
-var omega = 1.0;
+var omega = 1.9;
 var u = 0.05;
 
 var mode = BRUSH_MODE;
@@ -69,12 +74,12 @@ var PROGS_DESC = {
         'attribs': ['aVertexPosition', 'aTextureCoord'],
         'uniforms': ['uSampler0', 'uPointX1', 'uPointY1', 'uPointX2', 'uPointY2', 'uClear', 'uAdd']
     },
-    /*'update-obst-line': {
+    'update-obst-line': {
         'vs': ['shader-vs'],
         'fs': ['shader-fs-utils', 'shader-fs-update-obst-line'],
         'attribs': ['aVertexPosition', 'aTextureCoord'],
         'uniforms': ['uSampler0', 'uPointX1', 'uPointY1', 'uPointX2', 'uPointY2', 'uPointX3', 'uPointY3', 'uPointX4', 'uPointY4', 'uClear', 'uAdd']
-    },*/
+    },
     'f-to-accum': {
         'vs': ['shader-vs'],
         'fs': ['shader-fs-utils', 'shader-fs-f-to-accum'],
@@ -342,6 +347,20 @@ function initState() {
 
 function stepState() {
     if(mode == SQUARE_MODE){
+        if(obstPoint1[0]<obstPoint2[0]) {
+            square1[0] = obstPoint1[0]
+            square2[0] = obstPoint2[0]
+        } else {
+            square1[0] = obstPoint2[0]
+            square2[0] = obstPoint1[0]
+        }
+        if(obstPoint1[1]>obstPoint2[1]) {
+            square1[1] = obstPoint1[1]
+            square2[1] = obstPoint2[1]
+        } else {
+            square1[1] = obstPoint2[1]
+            square2[1] = obstPoint1[1]
+        }
         doRenderOp('tmp', ['obst_intended'], 'update-obst-square', {'uPointX1': square1[0], 'uPointY1': square1[1], 'uPointX2': square2[0], 'uPointY2': square2[1], 'uClear': clear ? 1 : 0, 'uAdd':0});
         swapTextures('tmp', 'obst_intended');
         if(addSquare) {
@@ -371,15 +390,37 @@ function stepState() {
         }
     }
     
-    /*if(mode == LINE_MODE){
+    if(mode == LINE_MODE){
+        var delta = [obstPoint2[0]-obstPoint1[0],obstPoint2[1]-obstPoint1[1]];
+        var len = Math.sqrt(delta[0]*delta[0]+delta[1]*delta[1]);
+        var theta = Math.asin(delta[0]/len);
+        if(obstPoint2[1]<obstPoint1[1]) theta = Math.PI-theta;
+        square_p1 = [-circle_radius*N, 0];
+        square_p2 = [-circle_radius*N, len];
+        square_p3 = [circle_radius*N, len];
+        square_p4 = [circle_radius*N, 0];
+        var ctheta = Math.cos(theta);
+        var stheta = Math.sin(theta);
+
+            square_p1 = [square_p1[0]*ctheta+square_p1[1]*stheta+obstPoint1[0], -square_p1[0]*stheta+square_p1[1]*ctheta+obstPoint1[1]];
+            square_p2 = [square_p2[0]*ctheta+square_p2[1]*stheta+obstPoint1[0], -square_p2[0]*stheta+square_p2[1]*ctheta+obstPoint1[1]];
+            square_p3 = [square_p3[0]*ctheta+square_p3[1]*stheta+obstPoint1[0], -square_p3[0]*stheta+square_p3[1]*ctheta+obstPoint1[1]];
+            square_p4 = [square_p4[0]*ctheta+square_p4[1]*stheta+obstPoint1[0], -square_p4[0]*stheta+square_p4[1]*ctheta+obstPoint1[1]];
+
+        if(len>0.0)
+            {
         doRenderOp('tmp', ['obst_intended'], 'update-obst-line', {'uPointX1': square_p1[0], 'uPointY1': square_p1[1], 'uPointX2': square_p2[0], 'uPointY2': square_p2[1], 'uPointX3': square_p3[0], 'uPointY3': square_p3[1], 'uPointX4': square_p4[0], 'uPointY4': square_p4[1], 'uClear': clear ? 1 : 0, 'uAdd':0});
         swapTextures('tmp', 'obst_intended');
-        if(addSquare) {
-            doRenderOp('tmp', ['obst'], 'update-obst-line', {'uPointX1': square1[0], 'uPointY1': square1[1], 'uPointX2': square2[0], 'uPointY2': square2[1], 'uClear': clear ? 1 : 0, 'uAdd':1});
+            
+        if(addLine) {
+            // Calculate Square points from line ends
+            doRenderOp('tmp', ['obst'], 'update-obst-line', {'uPointX1': square_p1[0], 'uPointY1': square_p1[1], 'uPointX2': square_p2[0], 'uPointY2': square_p2[1], 'uPointX3': square_p3[0], 'uPointY3': square_p3[1], 'uPointX4': square_p4[0], 'uPointY4': square_p4[1], 'uClear': clear ? 1 : 0, 'uAdd':1});
             swapTextures('tmp', 'obst');
-            addSquare = false;
+            addLine = false;
+            obstPoint2 = obstPoint1;
         }
-    }*/
+            }
+    }
     
     //doRenderOp('tmp', ['obst'], 'update-obst', {'uPointX': obstPoint[0], 'uPointY': obstPoint[1], 'uClear': clear ? 1 : 0});
     //swapTextures('tmp', 'obst');
@@ -446,7 +487,19 @@ function step() {
             obstPoint2[1] = -1.0;
             circle_radius = 0.0;
         }
+    } else if(document.getElementById('line').checked) {
+        if(mode != LINE_MODE) {
+            mode = LINE_MODE;
+            drawIntended = false;
+            addLine = false;
+            obstPoint1[0] = -1.0;
+            obstPoint1[1] = -1.0;
+            obstPoint2[0] = -1.0;
+            obstPoint2[1] = -1.0;
+            circle_radius = brush_radius;
+        }
     }
+    
     stepState();
     
     // FPS
@@ -511,19 +564,25 @@ function webGLStart() {
         
         e = e || window.event;
         clear = e.ctrlKey;
+        if(mode != LINE_MODE) drawIntended = true;
         
         return false;
     };
     canvas.onmouseup = function(e) {
         mouseDown = false;
-        if(mode != BRUSH_MODE) drawIntended = false;
+        if(mode != BRUSH_MODE ) drawIntended = false;
         addSquare = true;
         addCircleR = true;
+        addLine = true;
         addCircle = false;
         //obstPoint = [-1, -1];
     };
     canvas.onmousemove = function(e) {
         if(mode == BRUSH_MODE) drawIntended = true;
+        if(mouseDown)
+            {
+                if(mode == LINE_MODE) drawIntended = true;
+            }
         var x = e.pageX - pos.x;
         var y = e.pageY - pos.y;
         obstPoint2 = [x*N/canvas.width, (canvas.height-y)*N/canvas.height];
@@ -531,29 +590,6 @@ function webGLStart() {
         var delta = [obstPoint2[0]-obstPoint1[0],obstPoint2[1]-obstPoint1[1]];
         
         if(mode == CIRCLE_MODE) circle_radius = Math.sqrt(delta[0]*delta[0] + delta[1]*delta[1])/N;
-            
-        if (mouseDown) {
-            e = e || window.event;
-            //obstPoint = [(e.clientX - canvas.offsetLeft)*N/canvas.width, (canvas.height - (e.clientY - canvas.offsetTop))*N/canvas.height];
-
-            if(obstPoint1[0]<obstPoint2[0]) {
-                square1[0] = obstPoint1[0]
-                square2[0] = obstPoint2[0]
-            } else {
-                square1[0] = obstPoint2[0]
-                square2[0] = obstPoint1[0]
-            }
-            if(obstPoint1[1]>obstPoint2[1]) {
-                square1[1] = obstPoint1[1]
-                square2[1] = obstPoint2[1]
-            } else {
-                square1[1] = obstPoint2[1]
-                square2[1] = obstPoint1[1]
-            }
-            
-            clear = e.ctrlKey;
-            drawIntended = true;
-        }
     };
     
     initGL(canvas);
@@ -567,7 +603,7 @@ function webGLStart() {
 
 function updateBrushSlider(value) {
     brush_radius = value*value/N;
-    if(mode == BRUSH_MODE)
+    if(mode == BRUSH_MODE || mode == LINE_MODE)
         circle_radius = brush_radius;
 }
 
