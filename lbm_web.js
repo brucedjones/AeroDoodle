@@ -17,7 +17,7 @@ var brush_radius = 0.01;
 var circle_radius = brush_radius;
 
 var mode = BRUSH_MODE;
-var square_p4 = ;
+//var square_p4 = ;
 var PROGS_DESC = {
     'init-accum': {
         'vs': ['shader-vs'],
@@ -67,12 +67,12 @@ var PROGS_DESC = {
         'attribs': ['aVertexPosition', 'aTextureCoord'],
         'uniforms': ['uSampler0', 'uPointX1', 'uPointY1', 'uPointX2', 'uPointY2', 'uClear', 'uAdd']
     },
-    'update-obst-line': {
+    /*'update-obst-line': {
         'vs': ['shader-vs'],
         'fs': ['shader-fs-utils', 'shader-fs-update-obst-line'],
         'attribs': ['aVertexPosition', 'aTextureCoord'],
         'uniforms': ['uSampler0', 'uPointX1', 'uPointY1', 'uPointX2', 'uPointY2', 'uPointX3', 'uPointY3', 'uPointX4', 'uPointY4', 'uClear', 'uAdd']
-    },
+    },*/
     'f-to-accum': {
         'vs': ['shader-vs'],
         'fs': ['shader-fs-utils', 'shader-fs-f-to-accum'],
@@ -369,7 +369,7 @@ function stepState() {
         }
     }
     
-    if(mode == LINE_MODE){
+    /*if(mode == LINE_MODE){
         doRenderOp('tmp', ['obst_intended'], 'update-obst-line', {'uPointX1': square_p1[0], 'uPointY1': square_p1[1], 'uPointX2': square_p2[0], 'uPointY2': square_p2[1], 'uPointX3': square_p3[0], 'uPointY3': square_p3[1], 'uPointX4': square_p4[0], 'uPointY4': square_p4[1], 'uClear': clear ? 1 : 0, 'uAdd':0});
         swapTextures('tmp', 'obst_intended');
         if(addSquare) {
@@ -377,7 +377,7 @@ function stepState() {
             swapTextures('tmp', 'obst');
             addSquare = false;
         }
-    }
+    }*/
     
     //doRenderOp('tmp', ['obst'], 'update-obst', {'uPointX': obstPoint[0], 'uPointY': obstPoint[1], 'uClear': clear ? 1 : 0});
     //swapTextures('tmp', 'obst');
