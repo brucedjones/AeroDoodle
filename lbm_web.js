@@ -15,6 +15,8 @@ var LINE_MODE = 3;
 var SELECTION_MODE = 4;
 var brush_radius = 0.01;
 var circle_radius = brush_radius;
+var omega = 1.0;
+var u = 0.05;
 
 var mode = BRUSH_MODE;
 //var square_p4 = ;
@@ -47,7 +49,7 @@ var PROGS_DESC = {
         'vs': ['shader-vs'],
         'fs': ['shader-fs-utils', 'shader-fs-update-f'],
         'attribs': ['aVertexPosition', 'aTextureCoord'],
-        'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uI']
+        'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uI', 'uOmega', 'uVel']
     },
     'update-display': {
         'vs': ['shader-vs'],
@@ -384,23 +386,23 @@ function stepState() {
     doRenderOp('rho', ['f0', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8'], 'f-to-accum', {'uRhoUxUy': 0});
     doRenderOp('ux', ['f0', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8'], 'f-to-accum', {'uRhoUxUy': 1});
     doRenderOp('uy', ['f0', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8'], 'f-to-accum', {'uRhoUxUy': 2});
-    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f0', 'obst', 'f0'], 'update-f', {'uI': 0});
+    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f0', 'obst', 'f0'], 'update-f', {'uI': 0, 'uOmega': omega, 'uVel':u});
     swapTextures('tmp', 'f0');
-    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f1', 'obst', 'f5'], 'update-f', {'uI': 1});
+    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f1', 'obst', 'f5'], 'update-f', {'uI': 1, 'uOmega': omega, 'uVel':u});
     swapTextures('tmp', 'f1');
-    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f2', 'obst', 'f6'], 'update-f', {'uI': 2});
+    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f2', 'obst', 'f6'], 'update-f', {'uI': 2, 'uOmega': omega, 'uVel':u});
     swapTextures('tmp', 'f2');
-    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f3', 'obst', 'f7'], 'update-f', {'uI': 3});
+    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f3', 'obst', 'f7'], 'update-f', {'uI': 3, 'uOmega': omega, 'uVel':u});
     swapTextures('tmp', 'f3');
-    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f4', 'obst', 'f8'], 'update-f', {'uI': 4});
+    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f4', 'obst', 'f8'], 'update-f', {'uI': 4, 'uOmega': omega, 'uVel':u});
     swapTextures('tmp', 'f4');
-    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f5', 'obst', 'f1'], 'update-f', {'uI': 5});
+    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f5', 'obst', 'f1'], 'update-f', {'uI': 5, 'uOmega': omega, 'uVel':u});
     swapTextures('tmp', 'f5');
-    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f6', 'obst', 'f2'], 'update-f', {'uI': 6});
+    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f6', 'obst', 'f2'], 'update-f', {'uI': 6, 'uOmega': omega, 'uVel':u});
     swapTextures('tmp', 'f6');
-    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f7', 'obst', 'f3'], 'update-f', {'uI': 7});
+    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f7', 'obst', 'f3'], 'update-f', {'uI': 7, 'uOmega': omega, 'uVel':u});
     swapTextures('tmp', 'f7');
-    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f8', 'obst', 'f4'], 'update-f', {'uI': 8});
+    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f8', 'obst', 'f4'], 'update-f', {'uI': 8, 'uOmega': omega, 'uVel':u});
     swapTextures('tmp', 'f8');
     doRenderOp(null, ['ux', 'uy', 'obst', 'obst_intended'], 'show-umod', {'drawIntended': drawIntended ? 1: 0});
     //[null, ['obst'], 'show', {}]
@@ -496,6 +498,7 @@ function findPos(obj) {
     return undefined;
 }
 function webGLStart() {
+    document.getElementById('brush').checked = true;
     canvas = document.getElementById('main-canvas');
     pos = findPos(canvas);
     var mouseDown = false;
@@ -566,4 +569,14 @@ function updateBrushSlider(value) {
     brush_radius = value*value/N;
     if(mode == BRUSH_MODE)
         circle_radius = brush_radius;
+}
+
+function updateTauSlider(value) {
+    omega = 1.0/value;
+    document.getElementById('slider_tau_val').innerText=value; 
+}
+
+function updateUSlider(value) {
+    u = value;
+    document.getElementById('slider_u_val').innerText=value; 
 }
