@@ -354,7 +354,7 @@ precision highp float;
 precision highp int;
 
 uniform highp sampler2D uSampler0;
-uniform float uPointX1, uPointY1, uPointX2, uPointY2, uPointX3, uPointY3;
+uniform float uPointX1, uPointY1, uPointX2, uPointY2;//, uPointX3, uPointY3, uPointX4, uPointY4;
 uniform int uClear;
 uniform int uAdd;
 
@@ -362,17 +362,52 @@ varying vec2 vTextureCoord;
 
 void main(void)
 {
-    vec4 baseColor;
+    //vec4 baseColor;
+    //vec4 opColor;
+    
+    //if(uAdd != 0)
+    //    baseColor = texture2D(uSampler0, vTextureCoord);
+    //else
+    //    baseColor = vec4(0.0, 0.0, 0.0, 1.0);
+        
+    //vec2 p1 = vec2(float(uPointX1), float(uPointY1)) / N;
+    //vec2 p2 = vec2(float(uPointX2), float(uPointY2)) / N;
+    //vec2 p3 = vec2(float(uPointX3), float(uPointY3)) / N;
+    //vec2 p4 = vec2(float(uPointX4), float(uPointY4)) / N;
+    
+    //if (uClear != 0)
+    //    opColor = vec4(0.0, 0.0, 0.0, 0.0);
+    //else
+    //    opColor = vec4(1.0, 0.0, 0.0, 1.0);
+        
+    //if (uAdd == 0)
+    //    opColor = vec4(1.0, 0.0, 0.0, 1.0);
+       
+    //if(vTextureCoord.x<p3.x || vTextureCoord.x>p4.x || vTextureCoord.y>p3.y || vTextureCoord.y<p4.y)
+    //    opColor = baseColor;
+    //else
+    //    opColor = vec4(0.0, 0.0, 0.0, 1.0);
+        
+    //if(vTextureCoord.x<p3.x || vTextureCoord.x>p4.x || vTextureCoord.y>p3.y || vTextureCoord.y<p4.y){
+       //opColor = baseColor;
+    //   opColor = vec4(1.0, 0.0, 0.0, 1.0);
+    //}else{
+    //   opColor = vec4(0.0, 0.0, 0.0, 1.0);
+    //   opColor = texture2D(uSampler0, vec2(p1.x+(vTextureCoord.x-p1.x),p1.y+(vTextureCoord.y-p1.y)));
+    //}
+        
+    //gl_FragColor = opColor;
+    
     vec4 opColor;
+    vec4 baseColor;
     
     if(uAdd != 0)
         baseColor = texture2D(uSampler0, vTextureCoord);
     else
-        baseColor = vec4(0.0, 0.0, 0.0, 1.0);
-        
+        baseColor = vec4(0.0, 0.0, 0.0, 1.0);   
+    
     vec2 p1 = vec2(float(uPointX1), float(uPointY1)) / N;
     vec2 p2 = vec2(float(uPointX2), float(uPointY2)) / N;
-    vec2 p3 = vec2(float(uPointX3), float(uPointY3)) / N;
     
     if (uClear != 0)
         opColor = vec4(0.0, 0.0, 0.0, 1.0);
@@ -383,11 +418,9 @@ void main(void)
         opColor = vec4(1.0, 0.0, 0.0, 1.0);
        
     if(vTextureCoord.x<p1.x || vTextureCoord.x>p2.x || vTextureCoord.y>p1.y || vTextureCoord.y<p2.y)
-        opColor = baseColor;
+        gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);//baseColor;
     else
-        opColor = texture2D(uSampler0, vec2(p3.x+(vTextureCoord.x-p3.x),p3.y+(vTextureCoord.y-p3.y));
-    
-    gl_FragColor = opColor;
+        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);//opColor;
 }
 </script>
 <script id="shader-fs-update-display" type="x-shader/x-fragment">
@@ -615,7 +648,11 @@ void main(void)
                 <input type="radio" name="brush_toggle" id="square">Square
                 <input type="radio" name="brush_toggle" id="circle">Circle
                 <input type="radio" name="brush_toggle" id="line">Line
-                <input type="radio" name="brush_toggle" id="copy">Copy
+                <input type="radio" name="brush_toggle" id="select">Select
+            </form>
+            <form>
+                <input type="radio" name="sel_toggle" id="move">Move
+                <input type="radio" name="sel_toggle" id="copy">Copy
             </form>
             <div id="slider_brush">
                 Smaller <input id="slider_brush" type="range"
