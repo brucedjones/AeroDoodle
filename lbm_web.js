@@ -11,18 +11,23 @@ var square_p4 = [-1, -1];
 var clear = false;
 var addSquare = false;
 var drawIntended = true;
-var BRUSH_MODE = 0;
 var addCircle = false;
-var SQUARE_MODE = 1;
-var CIRCLE_MODE = 2;
-var LINE_MODE = 3;
 var addLine = false;
-var SELECTION_MODE = 4;
+var copySelection = false;
 var brush_radius = 0.01;
 var circle_radius = brush_radius;
 var omega = 1.9;
 var u = 0.05;
 
+var MAKE_SEL_MODE = 1;
+var ACTIVE_SEL_MODE = 2;
+var sel_mode = MAKE_SEL_MODE;
+
+var BRUSH_MODE = 0;
+var SQUARE_MODE = 1;
+var CIRCLE_MODE = 2;
+var LINE_MODE = 3;
+var SELECT_MODE = 4;
 var mode = BRUSH_MODE;
 //var square_p4 = ;
 var PROGS_DESC = {
@@ -79,6 +84,12 @@ var PROGS_DESC = {
         'fs': ['shader-fs-utils', 'shader-fs-update-obst-line'],
         'attribs': ['aVertexPosition', 'aTextureCoord'],
         'uniforms': ['uSampler0', 'uPointX1', 'uPointY1', 'uPointX2', 'uPointY2', 'uPointX3', 'uPointY3', 'uPointX4', 'uPointY4', 'uClear', 'uAdd']
+    },
+    'update-obst-square-copy': {
+        'vs': ['shader-vs'],
+        'fs': ['shader-fs-utils', 'shader-fs-update-obst-square'],
+        'attribs': ['aVertexPosition', 'aTextureCoord'],
+        'uniforms': ['uSampler0', 'uSampler1', 'uPointX1', 'uPointY1', 'uPointX2', 'uPointY2', 'uPointX3', 'uPointY3', 'uClear', 'uAdd']
     },
     'f-to-accum': {
         'vs': ['shader-vs'],
@@ -422,6 +433,39 @@ function stepState() {
             }
     }
     
+    if(mode == SELECT_MODE) {
+        
+        if(sel_mode == ACTIVE_SEL_MODE){
+            doRenderOp('tmp', ['obst_intended', 'obst'], 'update-obst-square-copy', {'uPointX': obstPoint1[0], 'uPointY': obstPoint1[1], 'uRadius': circle_radius, 'uClear': clear ? 1 : 0, 'uAdd':0});
+            swapTextures('tmp', 'obst_intended');
+            if(addCircleR) {
+                doRenderOp('tmp', ['obst_intended', 'obst'], 'update-obst-square-copy', {'uPointX': obstPoint1[0], 'uPointY': obstPoint1[1], 'uRadius': circle_radius, 'uClear': clear ? 1 : 0, 'uAdd':1});
+                swapTextures('tmp', 'obst');
+                addCircleR = false;
+            }
+        }
+
+        if(sel_mode == MAKE_SEL_MODE){
+            if(obstPoint1[0]<obstPoint2[0]) {
+                square1[0] = obstPoint1[0]
+                square2[0] = obstPoint2[0]
+            } else {
+                square1[0] = obstPoint2[0]
+                square2[0] = obstPoint1[0]
+            }
+            if(obstPoint1[1]>obstPoint2[1]) {
+                square1[1] = obstPoint1[1]
+                square2[1] = obstPoint2[1]
+            } else {
+                square1[1] = obstPoint2[1]
+                square2[1] = obstPoint1[1]
+            }
+            doRenderOp('tmp', ['obst_intended'], 'update-obst-square', {'uPointX1': square1[0], 'uPointY1': square1[1], 'uPointX2': square2[0], 'uPointY2': square2[1], 'uClear': clear ? 1 : 0, 'uAdd':0});
+            swapTextures('tmp', 'obst_intended');
+        }
+        
+        if(copySelection){}
+    }
     //doRenderOp('tmp', ['obst'], 'update-obst', {'uPointX': obstPoint[0], 'uPointY': obstPoint[1], 'uClear': clear ? 1 : 0});
     //swapTextures('tmp', 'obst');
     doRenderOp('rho', ['f0', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8'], 'f-to-accum', {'uRhoUxUy': 0});
@@ -498,6 +542,16 @@ function step() {
             obstPoint2[1] = -1.0;
             circle_radius = brush_radius;
         }
+    }else if(document.getElementById('copy').checked) {
+        if(mode != SELECT_MODE) {
+            mode = SELECT_MODE;
+            copySelected = false;
+            drawIntended = false;
+            obstPoint1[0] = -1.0;
+            obstPoint1[1] = -1.0;
+            obstPoint2[0] = -1.0;
+            obstPoint2[1] = -1.0;
+        }
     }
     
     stepState();
@@ -566,11 +620,14 @@ function webGLStart() {
         clear = e.ctrlKey;
         if(mode != LINE_MODE) drawIntended = true;
         
+        // SELECT MODE SWITCH
+        sel_mode = MAKE_SEL_MODE;
+        
         return false;
     };
     canvas.onmouseup = function(e) {
         mouseDown = false;
-        if(mode != BRUSH_MODE ) drawIntended = false;
+        if(mode != BRUSH_MODE || mode != SELECT_MODE) drawIntended = false;
         addSquare = true;
         addCircleR = true;
         addLine = true;
@@ -615,4 +672,12 @@ function updateTauSlider(value) {
 function updateUSlider(value) {
     u = value;
     document.getElementById('slider_u_val').innerText=value; 
+}
+
+function isInside(p1,p2,p3)
+{
+    if(p3[0]<p1[0] || p3[0]>p2[0] || p3[1]>p1[1] || p3[1]<p2[1])
+        return false;
+    else
+        return true;
 }
