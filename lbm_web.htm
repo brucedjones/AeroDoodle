@@ -257,12 +257,12 @@ void main(void)
     if (uClear != 0)
         opColor = vec4(0.0, 0.0, 0.0, 1.0);
     else
-        opColor = vec4(1.0, 0.0, 0.0, 1.0);
+        opColor = vec4(0.1, 0.0, 0.0, 1.0);
         
     if(uAdd != 0)
         baseColor = texture2D(uSampler0, vTextureCoord);
     else
-        opColor = vec4(1.0, 0.0, 0.0, 1.0);
+        opColor = vec4(0.1, 0.0, 0.0, 1.0);
        
     if ((length(point - vTextureCoord) < uRadius) && (uPointX >= 0))
         gl_FragColor = opColor;
@@ -297,15 +297,15 @@ void main(void)
     if (uClear != 0)
         opColor = vec4(0.0, 0.0, 0.0, 1.0);
     else
-        opColor = vec4(1.0, 0.0, 0.0, 1.0);
+        opColor = vec4(0.1, 0.0, 0.0, 1.0);
         
     if (uAdd == 0)
-        opColor = vec4(1.0, 0.0, 0.0, 1.0);
+        opColor = vec4(0.1, 0.0, 0.0, 1.0);
        
     if(vTextureCoord.x<p1.x || vTextureCoord.x>p2.x || vTextureCoord.y>p1.y || vTextureCoord.y<p2.y)
         gl_FragColor = baseColor;
     else
-        gl_FragColor = opColor;
+        gl_FragColor = 5.0*baseColor+opColor;
 }
 </script>
 <script id="shader-fs-update-obst-line" type="x-shader/x-fragment">
@@ -337,10 +337,10 @@ void main(void)
     if (uClear != 0)
         opColor = vec4(0.0, 0.0, 0.0, 1.0);
     else
-        opColor = vec4(1.0, 0.0, 0.0, 1.0);
+        opColor = vec4(0.1, 0.0, 0.0, 1.0);
         
     if (uAdd == 0)
-        opColor = vec4(1.0, 0.0, 0.0, 1.0);
+        opColor = vec4(10.1, 0.0, 0.0, 1.0);
        
     if (triangleArea(p1,p2,vTextureCoord)>0.0 && triangleArea(p2,p3,vTextureCoord)>0.0 && triangleArea(p3,p4,vTextureCoord)>0.0 && triangleArea(p4,p1,vTextureCoord)>0.0)
         gl_FragColor = opColor;
@@ -370,7 +370,7 @@ void main(void)
         baseColor = texture2D(uSampler0, vTextureCoord);
     else
         baseColor = vec4(0.0, 0.0, 0.0, 1.0);   
-    
+        
     vec2 p1 = vec2(float(uPointX1), float(uPointY1)) / N;
     vec2 p2 = vec2(float(uPointX2), float(uPointY2)) / N;
     vec2 p3 = vec2(float(uPointX3), float(uPointY3)) / N;
@@ -385,7 +385,7 @@ void main(void)
         opColor = baseColor;
         if(uClear != 0) {
             if(vTextureCoord.x<p3.x || vTextureCoord.x>p4.x || vTextureCoord.y>p3.y || vTextureCoord.y<p4.y) {
-                
+
             } else {
                 opColor = vec4(0.0,0.0,0.0,0.0);
             }
@@ -442,9 +442,9 @@ varying vec2 vTextureCoord;
 void main(void)
 {
     if (vTextureCoord.x > 0.19 && vTextureCoord.x < 0.31 && vTextureCoord.y + 0.2 * vTextureCoord.x > 0.49 && vTextureCoord.y + 0.2 * vTextureCoord.x < 0.51)
-        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+        gl_FragColor = vec4(0.1, 0.0, 0.0, 1.0);
     else if (vTextureCoord.x > 0.19 && vTextureCoord.x < 0.31 && vTextureCoord.y - 0.2 * vTextureCoord.x > 0.31 && vTextureCoord.y - 0.2 * vTextureCoord.x < 0.33)
-        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+        gl_FragColor = vec4(0.1, 0.0, 0.0, 1.0);
     else
         gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
 }
@@ -563,6 +563,7 @@ void main(void)
                 blue = 0.05;
             } else {
             red = 1.0-(0.0003/(uMod*uMod*uMod)-obst_intended);
+            //red = 1.0-obst_intended;
             blue = 0.2;
             green = 0.2;
             }

@@ -462,11 +462,17 @@ function stepState() {
         }
 
         if(sel_mode == ACTIVE_SEL_MODE){
-            doRenderOp('tmp', ['obst'], 'update-obst-square-copy', {'uPointX1': square_b1[0], 'uPointY1': square_b1[1], 'uPointX2': square_b2[0], 'uPointY2': square_b2[1], 'uPointX3': square_a1[0], 'uPointY3': square_a1[1], 'uPointX4': square_a2[0], 'uPointY4': square_a2[1], 'uClear': clear ? 1 : 0, 'uAdd':0});
+            doRenderOp('tmp', ['obst'], 'update-obst-square-copy', {'uPointX1': square_b1[0], 'uPointY1': square_b1[1], 'uPointX2': square_b2[0], 'uPointY2': square_b2[1], 'uPointX3': square_a1[0], 'uPointY3': square_a1[1], 'uPointX4': square_a2[0], 'uPointY4': square_a2[1], 'uClear': 1, 'uAdd':0});
             swapTextures('tmp', 'obst_intended');
             
-            doRenderOp('tmp', ['obst_intended'], 'update-obst-square', {'uPointX1': square_b1[0], 'uPointY1': square_b1[1], 'uPointX2': square_b2[0], 'uPointY2': square_b2[1], 'uClear': clear ? 1 : 0, 'uAdd':0});
+            doRenderOp('tmp', ['obst_intended'], 'update-obst-square', {'uPointX1': square_b1[0], 'uPointY1': square_b1[1], 'uPointX2': square_b2[0], 'uPointY2': square_b2[1], 'uClear': clear ? 1 : 0, 'uAdd':1});
             swapTextures('tmp', 'obst_intended');
+            
+            doRenderOp('tmp', ['obst_intended'], 'update-obst-square', {'uPointX1': square_a1[0], 'uPointY1': square_a1[1], 'uPointX2': square_a2[0], 'uPointY2': square_a2[1], 'uClear': clear ? 1 : 0, 'uAdd':1});
+            swapTextures('tmp', 'obst_intended');
+            
+            
+            
             
         }
 
