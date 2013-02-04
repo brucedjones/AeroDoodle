@@ -14,8 +14,8 @@ var addSquare = false;
 var drawIntended = true;
 var addCircle = false;
 var addLine = false;
-var copySelection = false;
-var moveSelection = false;
+var copySelected = false;
+var moveSelected = true;
 var placeSelection = true;
 var brush_radius = 0.01;
 var circle_radius = brush_radius;
@@ -97,8 +97,8 @@ var PROGS_DESC = {
         'vs': ['shader-vs'],
         'fs': ['shader-fs-utils', 'shader-fs-update-obst-square-copy'],
         'attribs': ['aVertexPosition', 'aTextureCoord'],
-        //'uniforms': ['uSampler0', 'uPointX1', 'uPointY1', 'uPointX2', 'uPointY2', 'uPointX3', 'uPointY3', 'uPointX4', 'uPointY4', 'uClear', 'uAdd']
-        'uniforms': ['uSampler0', 'uPointX1', 'uPointY1', 'uPointX2', 'uPointY2', 'uClear', 'uAdd']
+        'uniforms': ['uSampler0', 'uPointX1', 'uPointY1', 'uPointX2', 'uPointY2', 'uPointX3', 'uPointY3', 'uPointX4', 'uPointY4', 'uClear', 'uAdd']
+        //'uniforms': ['uSampler0', 'uPointX1', 'uPointY1', 'uPointX2', 'uPointY2', 'uClear', 'uAdd']
     },
     'f-to-accum': {
         'vs': ['shader-vs'],
@@ -445,17 +445,29 @@ function stepState() {
     if(mode == SELECT_MODE) {
 
         if(placeSelection) {
-            //doRenderOp('tmp', ['obst'], 'update-obst-square-copy', {'uPointX1': square_a1[0], 'uPointY1': square_a1[1], 'uPointX2': square_a2[0], 'uPointY2': square_a2[1], 'uPointX3': square_b1[0], 'uPointY3': square_b1[1], 'uPointX4': square_b2[0], 'uPointY4': square_b2[1], 'uClear': clear ? 1 : 0, 'uAdd':1});
-            doRenderOp('tmp', ['obst'], 'update-obst-square-copy', {'uPointX1': square_b1[0], 'uPointY1': square_b1[1], 'uPointX2': square_b2[0], 'uPointY2': square_b2[1], 'uClear': clear ? 1 : 0, 'uAdd':1});
-            swapTextures('tmp', 'obst');
-            placeSelection = false;
-            square_a1 = square_b1;
-            square_a2 = square_b2;
+            if(copySelected) {
+                doRenderOp('tmp', ['obst'], 'update-obst-square-copy', {'uPointX1': square_b1[0], 'uPointY1': square_b1[1], 'uPointX2': square_b2[0], 'uPointY2': square_b2[1], 'uPointX3': square_a1[0], 'uPointY3': square_a1[1], 'uPointX4': square_a2[0], 'uPointY4': square_a2[1], 'uClear': 1, 'uAdd':1});
+                swapTextures('tmp', 'obst');
+                placeSelection = false;
+                square_a1 = square_b1;
+                square_a2 = square_b2;
+            }
+            if(moveSelected) {
+                doRenderOp('tmp', ['obst'], 'update-obst-square-copy', {'uPointX1': square_b1[0], 'uPointY1': square_b1[1], 'uPointX2': square_b2[0], 'uPointY2': square_b2[1], 'uPointX3': square_a1[0], 'uPointY3': square_a1[1], 'uPointX4': square_a2[0], 'uPointY4': square_a2[1], 'uClear': 0, 'uAdd':1});
+                swapTextures('tmp', 'obst');
+                placeSelection = false;
+                square_a1 = square_b1;
+                square_a2 = square_b2;
+            }
         }
 
         if(sel_mode == ACTIVE_SEL_MODE){
+            doRenderOp('tmp', ['obst'], 'update-obst-square-copy', {'uPointX1': square_b1[0], 'uPointY1': square_b1[1], 'uPointX2': square_b2[0], 'uPointY2': square_b2[1], 'uPointX3': square_a1[0], 'uPointY3': square_a1[1], 'uPointX4': square_a2[0], 'uPointY4': square_a2[1], 'uClear': clear ? 1 : 0, 'uAdd':0});
+            swapTextures('tmp', 'obst_intended');
+            
             doRenderOp('tmp', ['obst_intended'], 'update-obst-square', {'uPointX1': square_b1[0], 'uPointY1': square_b1[1], 'uPointX2': square_b2[0], 'uPointY2': square_b2[1], 'uClear': clear ? 1 : 0, 'uAdd':0});
             swapTextures('tmp', 'obst_intended');
+            
         }
 
         if(sel_mode == MAKE_SEL_MODE){
@@ -476,8 +488,6 @@ function stepState() {
             doRenderOp('tmp', ['obst_intended'], 'update-obst-square', {'uPointX1': square_a1[0], 'uPointY1': square_a1[1], 'uPointX2': square_a2[0], 'uPointY2': square_a2[1], 'uClear': clear ? 1 : 0, 'uAdd':0});
             swapTextures('tmp', 'obst_intended');
         }
-        
-        if(copySelection){}
     }
     //doRenderOp('tmp', ['obst'], 'update-obst', {'uPointX': obstPoint[0], 'uPointY': obstPoint[1], 'uClear': clear ? 1 : 0});
     //swapTextures('tmp', 'obst');
@@ -569,8 +579,10 @@ function step() {
     
     if(document.getElementById('move').checked) {
         copySelected = true;
+        moveselected = false;
     } else if(document.getElementById('copy').checked) {
         moveSelected = true;
+        copySelected = false;
     }
     
     stepState();
