@@ -1,4 +1,5 @@
-var N = 512;
+var Nx = 1024;
+var Ny = 256;
 
 var mouseDown = false;
 var obstPoint1 = [-1, -1];
@@ -127,21 +128,21 @@ var PROGS_DESC = {
 };
 
 var TEXTURES_DESC = {
-    'rho': N,
-    'ux': N,
-    'uy': N,
-    'f0': N,
-    'f1': N,
-    'f2': N,
-    'f3': N,
-    'f4': N,
-    'f5': N,
-    'f6': N,
-    'f7': N,
-    'f8': N,
-    'tmp': N,
-    'obst': N,
-    'obst_intended': N
+    'rho': [Nx, Ny],
+    'ux': [Nx, Ny],
+    'uy': [Nx, Ny],
+    'f0': [Nx, Ny],
+    'f1': [Nx, Ny],
+    'f2': [Nx, Ny],
+    'f3': [Nx, Ny],
+    'f4': [Nx, Ny],
+    'f5': [Nx, Ny],
+    'f6': [Nx, Ny],
+    'f7': [Nx, Ny],
+    'f8': [Nx, Ny],
+    'tmp': [Nx, Ny],
+    'obst': [Nx, Ny],
+    'obst_intended': [Nx, Ny]
 };
 
 var BUFFERS_DESC = {
@@ -186,7 +187,7 @@ function initGL(canvas) {
 
     gl = canvas.getContext("experimental-webgl");
     //gl.viewport(0, 0, canvas.width, canvas.height);
-    gl.viewport(0, 0, N,N);
+    gl.viewport(0, 0, Nx,Ny);
 }
 
 function getShader(ids, type) {
@@ -234,7 +235,7 @@ function initShaders() {
     }
 }
 
-function createTexture(n, linear) {
+function createTexture(nx, ny, linear) {
     var tex = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, tex);
     if (!linear) {
@@ -246,9 +247,9 @@ function createTexture(n, linear) {
     }
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT );
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT );
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, n, n, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, nx, ny, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
     gl.bindTexture(gl.TEXTURE_2D, null);
-    tex.n = n;
+    tex.n = nx;
     return tex;
 }
 
@@ -256,9 +257,9 @@ var textures = {};
 var framebuffer;
 function initTexturesFramebuffer() {
     for (var id in TEXTURES_DESC) {
-        textures[id] = createTexture(TEXTURES_DESC[id]);
+        textures[id] = createTexture(Nx,Ny,true);//TEXTURES_DESC[id]);
     }
-    textures.display = createTexture(N, true);
+    textures.display = createTexture(Nx, Ny, true);
     framebuffer = gl.createFramebuffer();
 }
 
@@ -415,10 +416,10 @@ function stepState() {
         var len = Math.sqrt(delta[0]*delta[0]+delta[1]*delta[1]);
         var theta = Math.asin(delta[0]/len);
         if(obstPoint2[1]<obstPoint1[1]) theta = Math.PI-theta;
-        square_p1 = [-circle_radius*N, 0];
-        square_p2 = [-circle_radius*N, len];
-        square_p3 = [circle_radius*N, len];
-        square_p4 = [circle_radius*N, 0];
+        square_p1 = [-circle_radius*Nx, 0];
+        square_p2 = [-circle_radius*Nx, len];
+        square_p3 = [circle_radius*Nx, len];
+        square_p4 = [circle_radius*Nx, 0];
         var ctheta = Math.cos(theta);
         var stheta = Math.sin(theta);
 
@@ -651,7 +652,7 @@ function webGLStart() {
         mouseDown = true;
         var x = e.pageX - pos.x;
         var y = e.pageY - pos.y;
-        obstPoint1 = [x*N/canvas.width, (canvas.height-y)*N/canvas.height];
+        obstPoint1 = [x*Nx/canvas.width, (canvas.height-y)*Ny/canvas.height];
         
         if(mode == BRUSH_MODE) BrushMouseDown(pos);
         if(mode == SQUARE_MODE) SquareMouseDown(pos);
@@ -677,7 +678,7 @@ function webGLStart() {
     canvas.onmousemove = function(e) {
         var x = e.pageX - pos.x;
         var y = e.pageY - pos.y;
-        obstPoint2 = [x*N/canvas.width, (canvas.height-y)*N/canvas.height];
+        obstPoint2 = [x*Nx/canvas.width, (canvas.height-y)*Ny/canvas.height];
         
         if(mode == BRUSH_MODE) BrushMouseMove(pos);
         if(mode == SQUARE_MODE) SquareMouseMove(pos);
@@ -753,7 +754,7 @@ function CircleMouseDown(pos) {
 
 function CircleMouseMove(pos) {
     var delta = [obstPoint2[0]-obstPoint1[0],obstPoint2[1]-obstPoint1[1]];
-    circle_radius = Math.sqrt(delta[0]*delta[0] + delta[1]*delta[1])/N;
+    circle_radius = Math.sqrt(delta[0]*delta[0] + delta[1]*delta[1])/Nx;
 }
 
 function CircleMouseUp(pos) {
