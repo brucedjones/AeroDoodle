@@ -1,4 +1,4 @@
-var Nx = 1024;
+var Nx = 2048;
 var Ny = 256;
 
 var mouseDown = false;
@@ -249,7 +249,6 @@ function createTexture(nx, ny, linear) {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT );
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, nx, ny, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
     gl.bindTexture(gl.TEXTURE_2D, null);
-    tex.n = nx;
     return tex;
 }
 
@@ -698,7 +697,7 @@ function webGLStart() {
 }
 
 function updateBrushSlider(value) {
-    brush_radius = value*value/N;
+    brush_radius = value*value/Nx;
     if(mode == BRUSH_MODE || mode == LINE_MODE)
         circle_radius = brush_radius;
 }
