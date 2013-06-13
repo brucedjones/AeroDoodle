@@ -651,7 +651,7 @@ function webGLStart() {
         mouseDown = true;
         var x = e.pageX - pos.x;
         var y = e.pageY - pos.y;
-        obstPoint1 = [x*Nx/canvas.width, (canvas.height-y)*Ny/canvas.height];
+        obstPoint1 = [x*Nx/canvas.width, (canvas.height-y)*(Ny/2)/canvas.height];
         
         if(mode == BRUSH_MODE) BrushMouseDown(pos);
         if(mode == SQUARE_MODE) SquareMouseDown(pos);
@@ -677,7 +677,7 @@ function webGLStart() {
     canvas.onmousemove = function(e) {
         var x = e.pageX - pos.x;
         var y = e.pageY - pos.y;
-        obstPoint2 = [x*Nx/canvas.width, (canvas.height-y)*Ny/canvas.height];
+        obstPoint2 = [x*Nx/canvas.width, (canvas.height-y)*(Ny/2)/canvas.height];
         
         if(mode == BRUSH_MODE) BrushMouseMove(pos);
         if(mode == SQUARE_MODE) SquareMouseMove(pos);
