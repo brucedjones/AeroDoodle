@@ -1,5 +1,5 @@
-var Nx = 2048;
-var Ny = 256;
+var Nx = 1024;
+var Ny = 128;
 
 var mouseDown = false;
 var obstPoint1 = [-1, -1];
@@ -651,7 +651,7 @@ function webGLStart() {
         mouseDown = true;
         var x = e.pageX - pos.x;
         var y = e.pageY - pos.y;
-        obstPoint1 = [x*Nx/canvas.width, (canvas.height-y)*(Ny/2)/canvas.height];
+        obstPoint1 = [x*Nx/canvas.width, (canvas.height-y)*(Ny)/canvas.height];
         
         if(mode == BRUSH_MODE) BrushMouseDown(pos);
         if(mode == SQUARE_MODE) SquareMouseDown(pos);
@@ -677,7 +677,7 @@ function webGLStart() {
     canvas.onmousemove = function(e) {
         var x = e.pageX - pos.x;
         var y = e.pageY - pos.y;
-        obstPoint2 = [x*Nx/canvas.width, (canvas.height-y)*(Ny/2)/canvas.height];
+        obstPoint2 = [x*Nx/canvas.width, (canvas.height-y)*(Ny)/canvas.height];
         
         if(mode == BRUSH_MODE) BrushMouseMove(pos);
         if(mode == SQUARE_MODE) SquareMouseMove(pos);
@@ -697,7 +697,7 @@ function webGLStart() {
 }
 
 function updateBrushSlider(value) {
-    brush_radius = value*value/Nx;
+    brush_radius = value*value/Ny;
     if(mode == BRUSH_MODE || mode == LINE_MODE)
         circle_radius = brush_radius;
 }
