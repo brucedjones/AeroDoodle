@@ -18,7 +18,7 @@ var addLine = false;
 var copySelected = false;
 var moveSelected = true;
 var placeSelection = true;
-var brush_radius = 0.01;
+var brush_radius = 5;
 var circle_radius = brush_radius;
 var omega = 1.9;
 var u = 0.05;
@@ -415,10 +415,10 @@ function stepState() {
         var len = Math.sqrt(delta[0]*delta[0]+delta[1]*delta[1]);
         var theta = Math.asin(delta[0]/len);
         if(obstPoint2[1]<obstPoint1[1]) theta = Math.PI-theta;
-        square_p1 = [-circle_radius*Nx, 0];
-        square_p2 = [-circle_radius*Nx, len];
-        square_p3 = [circle_radius*Nx, len];
-        square_p4 = [circle_radius*Nx, 0];
+        square_p1 = [-circle_radius, 0];
+        square_p2 = [-circle_radius, len];
+        square_p3 = [circle_radius, len];
+        square_p4 = [circle_radius, 0];
         var ctheta = Math.cos(theta);
         var stheta = Math.sin(theta);
 
@@ -518,7 +518,10 @@ function stepState() {
     swapTextures('tmp', 'f7');
     doRenderOp('tmp', ['rho', 'ux', 'uy', 'f8', 'obst', 'f4'], 'update-f', {'uI': 8, 'uOmega': omega, 'uVel':u});
     swapTextures('tmp', 'f8');
+    //gl.viewport(0, 0, Nx/4,Ny/4);
     doRenderOp(null, ['ux', 'uy', 'obst', 'obst_intended'], 'show-umod', {'drawIntended': drawIntended ? 1: 0});
+    
+//gl.viewport(0, 0, Nx,Ny);
     //[null, ['obst'], 'show', {}]
 }
 
@@ -753,7 +756,7 @@ function CircleMouseDown(pos) {
 
 function CircleMouseMove(pos) {
     var delta = [obstPoint2[0]-obstPoint1[0],obstPoint2[1]-obstPoint1[1]];
-    circle_radius = Math.sqrt(delta[0]*delta[0] + delta[1]*delta[1])/Nx;
+    circle_radius = Math.sqrt(delta[0]*delta[0] + delta[1]*delta[1]);
 }
 
 function CircleMouseUp(pos) {
