@@ -3,6 +3,15 @@ var canvas;
 var Nx = 1024;
 var Ny = 128;
 
+var vport = {'left':-1.0,'right':1.0,'bottom':-1.0,'top':1.0,'near':1.0,'far':-1.0};
+
+function ortho(vport) {
+  return   [2.0/(vport.right- vport.left), 0.0, 0.0, 0.0,
+                0.0, 2.0/(vport.top-vport.bottom), 0.0, 0.0,
+                0.0, 0.0, -2.0/(vport.far-vport.near), 0.0,
+                -(vport.right+vport.left)/(vport.right-vport.left), -(vport.top+vport.bottom)/(vport.top-vport.bottom), -(vport.far+vport.near)/(vport.far-vport.near), 1.0];
+} 
+
 var mouseDown = false;
 var obstPoint1 = [-1, -1];
 var obstPoint2 = [-1, -1];
@@ -125,7 +134,7 @@ var PROGS_DESC = {
         'vs': ['shader-vs-show'],
         'fs': ['shader-fs-utils', 'shader-fs-show-umod'],
         'attribs': ['aVertexPosition', 'aTextureCoord'],
-        'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3','drawIntended']
+        'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3','drawIntended', 'MVPMat']
     }
 };
 
@@ -312,10 +321,14 @@ function doRenderOp(tgtTexName, srcTexNames, progName, uniformAssignments) {
     gl.useProgram(prog);
     
     for (var uniformVarName in uniformAssignments) {
-        if(is_int(uniformAssignments[uniformVarName])) {
-            gl.uniform1i(prog[uniformVarName], uniformAssignments[uniformVarName]);
+        if(uniformVarName == 'MVPMat') {
+          gl.uniformMatrix4fv(prog[uniformVarName], false, uniformAssignments[uniformVarName]);
         } else {
-            gl.uniform1f(prog[uniformVarName], uniformAssignments[uniformVarName]);
+          if(is_int(uniformAssignments[uniformVarName])) {
+              gl.uniform1i(prog[uniformVarName], uniformAssignments[uniformVarName]);
+          } else {
+              gl.uniform1f(prog[uniformVarName], uniformAssignments[uniformVarName]);
+          }
         }
     }
     
@@ -523,7 +536,7 @@ function stepState() {
     swapTextures('tmp', 'f7');
     doRenderOp('tmp', ['rho', 'ux', 'uy', 'f8', 'obst', 'f4'], 'update-f', {'uI': 8, 'uOmega': omega, 'uVel':u});
     swapTextures('tmp', 'f8');
-    doRenderOp(null, ['ux', 'uy', 'obst', 'obst_intended'], 'show-umod', {'drawIntended': drawIntended ? 1: 0});
+    doRenderOp(null, ['ux', 'uy', 'obst', 'obst_intended'], 'show-umod', {'drawIntended': drawIntended ? 1: 0, 'MVPMat': MVPMat});
 }
 
 var frameNum = 0;

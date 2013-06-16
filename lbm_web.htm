@@ -369,10 +369,10 @@ void main(void)
     vec4 baseColor;
     
     
-    //if(uAdd != 0)
+    if(uAdd != 0)
         baseColor = texture2D(uSampler0, vTextureCoord);
-    //else
-   //     baseColor = vec4(0.0, 0.0, 0.0, 1.0);   
+    else
+        baseColor = vec4(0.0, 0.0, 0.0, 1.0);   
         
     vec2 p1 = vec2(float(uPointX1)/Nx, float(uPointY1)/Ny);
     vec2 p2 = vec2(float(uPointX2)/Nx, float(uPointY2)/Ny);
@@ -592,6 +592,9 @@ void main(void)
 }
 </script>
 <script id="shader-vs-show" type="x-shader/x-vertex">
+
+uniform lowp mat4 MVPMat;
+
 attribute vec3 aVertexPosition;
 attribute vec2 aTextureCoord;
 
@@ -599,7 +602,7 @@ varying vec2 vTextureCoord;
 
 void main(void)
 {
-    gl_Position = vec4(aVertexPosition.x*1.0,aVertexPosition.y*1.0,aVertexPosition.z, 1.0);
+    gl_Position = MVPMat*vec4(aVertexPosition.x*1.0,aVertexPosition.y*1.0,aVertexPosition.z, 1.0);
     vTextureCoord = aTextureCoord;
 }
 </script>
