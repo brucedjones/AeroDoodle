@@ -318,9 +318,13 @@ void main(void)
         opColor = vec4(0.1, 0.0, 0.0, 1.0);
        
     if(vTextureCoord.x<p1.x || vTextureCoord.x>p2.x || vTextureCoord.y>p1.y || vTextureCoord.y<p2.y)
-        gl_FragColor = baseColor;
-    else
-        gl_FragColor = opColor;
+        opColor = baseColor;
+        
+    // Force drawing to build area
+    if(vTextureCoord.x<BL || vTextureCoord.x>BR || vTextureCoord.y>BB || vTextureCoord.y<BT) 
+        opColor = vec4(0.0,0.0,0.0,1.0);
+        
+    gl_FragColor = opColor;
 }
 </script>
 <script id="shader-fs-update-obst-line" type="x-shader/x-fragment">
@@ -357,10 +361,14 @@ void main(void)
     if (uAdd == 0)
         opColor = vec4(10.1, 0.0, 0.0, 1.0);
        
-    if (triangleArea(p1,p2,vTextureCoord)>0.0 && triangleArea(p2,p3,vTextureCoord)>0.0 && triangleArea(p3,p4,vTextureCoord)>0.0 && triangleArea(p4,p1,vTextureCoord)>0.0)
-        gl_FragColor = opColor;
-    else
-        gl_FragColor = baseColor;
+    if ((triangleArea(p1,p2,vTextureCoord)>0.0 && triangleArea(p2,p3,vTextureCoord)>0.0 && triangleArea(p3,p4,vTextureCoord)>0.0 && triangleArea(p4,p1,vTextureCoord)>0.0) == false)
+        opColor = baseColor;
+    
+    // Force drawing to build area
+    if(vTextureCoord.x<BL || vTextureCoord.x>BR || vTextureCoord.y>BB || vTextureCoord.y<BT) 
+        opColor = vec4(0.0,0.0,0.0,1.0);
+        
+    gl_FragColor = opColor;
 }
 </script>
 <script id="shader-fs-update-obst-square-copy" type="x-shader/x-fragment">

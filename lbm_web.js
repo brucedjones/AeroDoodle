@@ -24,11 +24,11 @@ function ortho(vport) {
                 -(vport.right+vport.left)/(vport.right-vport.left), -(vport.top+vport.bottom)/(vport.top-vport.bottom), -(vport.far+vport.near)/(vport.far-vport.near), 1.0];
 } 
 
-var fromV = buildVport;
-var toV = vport;
+var fromV = vport;
+var toV = buildVport;
 var frameProgress = 200;
 
-var MVPMat = ortho(vport);
+var MVPMat = ortho(buildVport);
 
 var mouseDown = false;
 var obstPoint1 = [-1, -1];
