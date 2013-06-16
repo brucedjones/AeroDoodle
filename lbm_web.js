@@ -1,3 +1,5 @@
+var canvas;
+
 var Nx = 1024;
 var Ny = 128;
 
@@ -18,15 +20,15 @@ var addLine = false;
 var copySelected = false;
 var moveSelected = true;
 var placeSelection = true;
-var brush_radius = 5;
+var brush_radius = 5.0;
 var circle_radius = brush_radius;
 var omega = 1.9;
 var u = 0.05;
 
-var square_a1 = [-1, -1];
-var square_a2 = [-1, -1];
-var square_b1 = [-1, -1];
-var square_b2 = [-1, -1];
+var square_a1 = [-1.0, -1.0];
+var square_a2 = [-1.0, -1.0];
+var square_b1 = [-1.0, -1.0];
+var square_b2 = [-1.0, -1.0];
 
 var MAKE_SEL_MODE = 1;
 var ACTIVE_SEL_MODE = 2;
@@ -70,12 +72,12 @@ var PROGS_DESC = {
         'attribs': ['aVertexPosition', 'aTextureCoord'],
         'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uI', 'uOmega', 'uVel']
     },
-    'update-display': {
+    /*'update-display': {
         'vs': ['shader-vs'],
         'fs': ['shader-fs-utils', 'shader-fs-update-display'],
         'attribs': ['aVertexPosition', 'aTextureCoord'],
         'uniforms': ['uSampler0', 'uSampler1', 'uSampler2']
-    },
+    },*/
     'update-obst-circle': {
         'vs': ['shader-vs'],
         'fs': ['shader-fs-utils', 'shader-fs-update-obst-circle'],
@@ -107,18 +109,18 @@ var PROGS_DESC = {
         'attribs': ['aVertexPosition', 'aTextureCoord'],
         'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uSampler5', 'uSampler6', 'uSampler7', 'uSampler8', 'uRhoUxUy']
     },
-    'threshold': {
+    /*'threshold': {
         'vs': ['shader-vs'],
         'fs': ['shader-fs-utils', 'shader-fs-threshold'],
         'attribs': ['aVertexPosition', 'aTextureCoord'],
         'uniforms': ['uSampler0']
-    },
-    'show': {
+    },*/
+    /*'show': {
         'vs': ['shader-vs'],
         'fs': ['shader-fs-show'],
         'attribs': ['aVertexPosition', 'aTextureCoord'],
         'uniforms': ['uSampler0']
-    },
+    },*/
     'show-umod': {
         'vs': ['shader-vs-show'],
         'fs': ['shader-fs-utils', 'shader-fs-show-umod'],
@@ -495,6 +497,9 @@ function stepState() {
             swapTextures('tmp', 'obst_intended');
         }
     }
+    canvas.width  = window.innerWidth*0.8;
+    canvas.height = canvas.width*Ny/Nx;
+    
     //doRenderOp('tmp', ['obst'], 'update-obst', {'uPointX': obstPoint[0], 'uPointY': obstPoint[1], 'uClear': clear ? 1 : 0});
     //swapTextures('tmp', 'obst');
     doRenderOp('rho', ['f0', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8'], 'f-to-accum', {'uRhoUxUy': 0});
@@ -526,7 +531,6 @@ var frameNumStarted = new Date();
 var pos;    //canvas position for mouse interaction
 var frameNum2 = 0;
 var frameNumStarted2 = new Date();
-var canvas;
 function step() {
     if(document.getElementById('brush').checked) {
         if(mode != BRUSH_MODE) {
@@ -647,10 +651,11 @@ function webGLStart() {
     pos = findPos(canvas);
     
     canvas.onmousedown = function(e) {
+
         mouseDown = true;
         var x = e.pageX - pos.x;
         var y = e.pageY - pos.y;
-        obstPoint1 = [x*Nx/canvas.width, (canvas.height-y)*(Ny)/canvas.height];
+        obstPoint1 = [1.0*x*Nx/canvas.width, 1.0*(canvas.height-y)*(Ny)/canvas.height];
         
         if(mode == BRUSH_MODE) BrushMouseDown(pos);
         if(mode == SQUARE_MODE) SquareMouseDown(pos);
@@ -676,7 +681,7 @@ function webGLStart() {
     canvas.onmousemove = function(e) {
         var x = e.pageX - pos.x;
         var y = e.pageY - pos.y;
-        obstPoint2 = [x*Nx/canvas.width, (canvas.height-y)*(Ny)/canvas.height];
+        obstPoint2 = [1.0*x*Nx/canvas.width, 1.0*(canvas.height-y)*(Ny)/canvas.height];
         
         if(mode == BRUSH_MODE) BrushMouseMove(pos);
         if(mode == SQUARE_MODE) SquareMouseMove(pos);
