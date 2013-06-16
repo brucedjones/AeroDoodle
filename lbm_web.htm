@@ -15,6 +15,12 @@ const float RHO_SCALE = 2.0;
 const float U_SCALE = 2.0;
 const float U_BIAS = 1.0;
 
+const float BL = 100.0/1024.0;
+const float BR = 356.0/1024.0;
+const float BT = 48.0/128.0;
+const float BB = 80.0/128.0;
+
+
 // The numbers are encoded using 3 component of a color (RGB). When storing
 // 'x' in a component, the persisted value is 'round(x * 255.0) % 256' and 
 // the recovered value is obtained doing a floating point division by 255.
@@ -266,11 +272,17 @@ void main(void)
         opColor = vec4(0.1, 0.0, 0.0, 1.0);
     
     float dist_square = (point.x-vTextureCoord.x*Nx)*(point.x-vTextureCoord.x*Nx)+(point.y-vTextureCoord.y*Ny)*(point.y-vTextureCoord.y*Ny);
-       
-    if ((dist_square < uRadius*uRadius) && (uPointX >= 0.0))
-        gl_FragColor = opColor;
-    else
-        gl_FragColor = baseColor;
+    
+
+    
+    if (((dist_square < uRadius*uRadius) && (uPointX >= 0.0))==false)
+        opColor = baseColor;
+        
+    // Force drawing to build area
+    if(vTextureCoord.x<BL || vTextureCoord.x>BR || vTextureCoord.y>BB || vTextureCoord.y<BT) 
+        opColor = vec4(0.0,0.0,0.0,1.0);
+        
+    gl_FragColor = opColor;
 }
 </script>
 <script id="shader-fs-update-obst-square" type="x-shader/x-fragment">
@@ -662,6 +674,11 @@ void main(void)
                 min="0.001" max="0.1" step="0.001" value="0.05"
                 onchange="updateUSlider(this.value)"/><span id="slider_u_val">0.05</span>
             </div><br/>
+            
+            <div id="zoom_but">
+              <button onclick="zoomClick()">Toggle Zoom</button>
+            </div>
+            
         </div>
     <div id="disclaimer">
         

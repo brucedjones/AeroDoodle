@@ -5,12 +5,30 @@ var Ny = 128;
 
 var vport = {'left':-1.0,'right':1.0,'bottom':-1.0,'top':1.0,'near':1.0,'far':-1.0};
 
+var bLeft = 100;
+var bRight = 356;
+var bBottom = 48;
+var bTop = 80;
+
+var horOffset = Nx/2;
+var verOffset = Ny/2;
+
+var buildVport = {'left':(bLeft-horOffset)/horOffset,'right':(bRight-horOffset)/horOffset,
+                    'bottom':(bBottom-verOffset)/verOffset,'top':(bTop-verOffset)/verOffset,
+                    'near':1.0,'far':-1.0};
+
 function ortho(vport) {
   return   [2.0/(vport.right- vport.left), 0.0, 0.0, 0.0,
                 0.0, 2.0/(vport.top-vport.bottom), 0.0, 0.0,
                 0.0, 0.0, -2.0/(vport.far-vport.near), 0.0,
                 -(vport.right+vport.left)/(vport.right-vport.left), -(vport.top+vport.bottom)/(vport.top-vport.bottom), -(vport.far+vport.near)/(vport.far-vport.near), 1.0];
 } 
+
+var fromV = buildVport;
+var toV = vport;
+var frameProgress = 200;
+
+var MVPMat = ortho(vport);
 
 var mouseDown = false;
 var obstPoint1 = [-1, -1];
@@ -510,8 +528,14 @@ function stepState() {
             swapTextures('tmp', 'obst_intended');
         }
     }
+    
+    // Ensure Canvas is scaled with window size
     canvas.width  = window.innerWidth*0.8;
     canvas.height = canvas.width*Ny/Nx;
+    
+    // Update the viewport
+    frameProgress+=1;
+    updateZoom(fromV, toV);
     
     //doRenderOp('tmp', ['obst'], 'update-obst', {'uPointX': obstPoint[0], 'uPointY': obstPoint[1], 'uClear': clear ? 1 : 0});
     //swapTextures('tmp', 'obst');
@@ -826,4 +850,29 @@ function SelectMouseUp(pos) {
     }
 
     
+}
+
+var zoomFrameLen = 30;
+
+function updateZoom(fromVport, toVport) {
+  if(frameProgress<=zoomFrameLen)
+  {
+    var interpolent = frameProgress/zoomFrameLen
+    var curVport = {
+      'left':fromVport.left+interpolent*(toVport.left-fromVport.left),
+      'right':fromVport.right+interpolent*(toVport.right-fromVport.right),
+      'bottom':fromVport.bottom+interpolent*(toVport.bottom-fromVport.bottom),
+      'top':fromVport.top+interpolent*(toVport.top-fromVport.top),
+      'near':1.0,'far':-1.0};
+      
+    MVPMat = ortho(curVport);
+  }
+  
+}
+
+function zoomClick() {
+  frameProgress = 0;
+  var tmp = fromV;
+  fromV = toV;
+  toV = tmp;
 }
