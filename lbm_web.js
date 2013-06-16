@@ -120,7 +120,7 @@ var PROGS_DESC = {
         'uniforms': ['uSampler0']
     },
     'show-umod': {
-        'vs': ['shader-vs'],
+        'vs': ['shader-vs-show'],
         'fs': ['shader-fs-utils', 'shader-fs-show-umod'],
         'attribs': ['aVertexPosition', 'aTextureCoord'],
         'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3','drawIntended']
@@ -518,11 +518,7 @@ function stepState() {
     swapTextures('tmp', 'f7');
     doRenderOp('tmp', ['rho', 'ux', 'uy', 'f8', 'obst', 'f4'], 'update-f', {'uI': 8, 'uOmega': omega, 'uVel':u});
     swapTextures('tmp', 'f8');
-    //gl.viewport(0, 0, Nx/4,Ny/4);
     doRenderOp(null, ['ux', 'uy', 'obst', 'obst_intended'], 'show-umod', {'drawIntended': drawIntended ? 1: 0});
-    
-//gl.viewport(0, 0, Nx,Ny);
-    //[null, ['obst'], 'show', {}]
 }
 
 var frameNum = 0;
