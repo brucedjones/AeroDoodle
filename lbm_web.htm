@@ -156,8 +156,14 @@ void main(void)
     float obst = texture2D(uSampler4, vTextureCoord + offset).r;
 
     //if (vTextureCoord.x < 0.01 || vTextureCoord.y<0.01 || vTextureCoord.y>0.99)
-    if (vTextureCoord.x < 1.0/Nx)
+    if (vTextureCoord.y < 2.0/Ny)
         f = getFEq(1.0, vec2(uVel, 0.0), uI);
+    if (vTextureCoord.y > (Ny-1.0)/Ny)
+        f = getFEq(1.0, vec2(uVel, 0.0), uI);
+    if (vTextureCoord.x < 2.0/Nx)
+        f = getFEq(1.0, vec2(uVel, 0.0), uI);
+    if (vTextureCoord.x > (Nx-1.0)/Nx)
+        f = getFEq(1.0, vec2(ux, uy), uI);
     if (obst != 0.0)
         f = getFEq(rho, vec2(0.0, 0.0), uI);
         
@@ -559,7 +565,7 @@ void main(void)
     float obst_intended = texture2D(uSampler3, vTextureCoord).r;
     float uMod = length(vec2(ux, uy));
 
-    float fourValue = 16.0 * uMod;
+    float fourValue = 20.0 * uMod;
     float red   = min(fourValue - 1.5, -fourValue + 4.5);
     float green = min(fourValue - 0.5, -fourValue + 3.5);
     float blue  = min(fourValue + 0.5, -fourValue + 2.5);
@@ -668,7 +674,7 @@ void main(void)
             </form>
             <div id="slider_brush">
                 Smaller <input id="slider_brush" type="range"
-                min="1" max="50.0" step="1.0" value="3.0"
+                min="5.0" max="50.0" step="1.0" value="5.0"
                 onchange="updateBrushSlider(this.value)"/>Larger
             </div><br/>
             <div id="slider_tau">
@@ -679,12 +685,12 @@ void main(void)
             
             <div id="slider_u">
                 Velocity: <input id="slider_u" type="range"
-                min="0.001" max="0.1" step="0.001" value="0.05"
-                onchange="updateUSlider(this.value)"/><span id="slider_u_val">0.05</span>
+                min="0.001" max="0.15" step="0.001" value="0.15"
+                onchange="updateUSlider(this.value)"/><span id="slider_u_val">0.15</span>
             </div><br/>
             
             <div id="zoom_but">
-              <button onclick="zoomClick()">Toggle Zoom</button>
+              <button onclick="zoomClick()">Analyze</button>
             </div>
             
         </div>

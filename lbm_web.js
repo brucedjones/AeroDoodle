@@ -24,6 +24,7 @@ function ortho(vport) {
                 -(vport.right+vport.left)/(vport.right-vport.left), -(vport.top+vport.bottom)/(vport.top-vport.bottom), -(vport.far+vport.near)/(vport.far-vport.near), 1.0];
 } 
 
+var inDraw = true;
 var fromV = vport;
 var toV = buildVport;
 var frameProgress = 200;
@@ -50,7 +51,7 @@ var placeSelection = true;
 var brush_radius = 5.0;
 var circle_radius = brush_radius;
 var omega = 1.9;
-var u = 0.05;
+var u = 0.15;
 
 var square_a1 = [-1.0, -1.0];
 var square_a2 = [-1.0, -1.0];
@@ -692,7 +693,14 @@ function webGLStart() {
         mouseDown = true;
         var x = e.pageX - pos.x;
         var y = e.pageY - pos.y;
-        obstPoint1 = [1.0*x*Nx/canvas.width, 1.0*(canvas.height-y)*(Ny)/canvas.height];
+        
+        if(inDraw) {
+          var horRat = (buildVport.right-buildVport.left)/(vport.right-vport.left);
+          var verRat = (buildVport.top-buildVport.bottom)/(vport.top-vport.bottom)
+          obstPoint1 = [((x-0.5)*horRat)+bLeft, (canvas.height-y-0.5)*verRat+bBottom];
+        } else {
+          obstPoint1 = [x-0.5, (canvas.height-y-0.5)];
+        }
         
         if(mode == BRUSH_MODE) BrushMouseDown(pos);
         if(mode == SQUARE_MODE) SquareMouseDown(pos);
@@ -718,7 +726,14 @@ function webGLStart() {
     canvas.onmousemove = function(e) {
         var x = e.pageX - pos.x;
         var y = e.pageY - pos.y;
-        obstPoint2 = [1.0*x*Nx/canvas.width, 1.0*(canvas.height-y)*(Ny)/canvas.height];
+
+        if(inDraw) {
+          var horRat = (buildVport.right-buildVport.left)/(vport.right-vport.left);
+          var verRat = (buildVport.top-buildVport.bottom)/(vport.top-vport.bottom)
+          obstPoint2 = [((x-0.5)*horRat)+bLeft, (canvas.height-y-0.5)*verRat+bBottom];
+        } else {
+          obstPoint2 = [x-0.5, (canvas.height-y-0.5)];
+        }
         
         if(mode == BRUSH_MODE) BrushMouseMove(pos);
         if(mode == SQUARE_MODE) SquareMouseMove(pos);
@@ -871,6 +886,11 @@ function updateZoom(fromVport, toVport) {
 }
 
 function zoomClick() {
+  if(inDraw == true) {
+    inDraw = false;
+  }else{
+    inDraw = true;
+  }
   frameProgress = 0;
   var tmp = fromV;
   fromV = toV;
