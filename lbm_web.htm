@@ -109,26 +109,11 @@ void main(void)
     gl_FragColor = float2Color(fEq);
 }
 </script>
-<script id="shader-fs-init-display" type="x-shader/x-fragment">
-precision highp float;
-precision highp int;
-
-varying vec2 vTextureCoord;
-
-void main(void)
-{
-    float r = sin(12.0 * PI * vTextureCoord.x);
-    float g = sin(12.0 * PI * vTextureCoord.x + 2.0 / 3.0 * PI);
-    float b = sin(12.0 * PI * vTextureCoord.x + 4.0 / 3.0 * PI);
-
-    gl_FragColor = vec4(r, g, b, 1.0);
-}
-</script>
 <script id="shader-fs-update-f" type="x-shader/x-fragment">
 precision highp float;
 precision highp int;
 
-uniform highp sampler2D uSampler0, uSampler1, uSampler2, uSampler3, uSampler4, uSampler5;
+uniform highp sampler2D uSampler0, uSampler1, uSampler2, uSampler3, uSampler4;
 uniform int uI;
 uniform float uVel;
 uniform float uOmega;
@@ -151,11 +136,11 @@ void main(void)
     float rho = color2Rho(texture2D(uSampler0, vTextureCoord + offset));
     float ux = color2U(texture2D(uSampler1, vTextureCoord + offset));
     float uy = color2U(texture2D(uSampler2, vTextureCoord + offset));
-    float f = color2Float(texture2D(uSampler3, vTextureCoord + offset)) * (1.0 - uOmega) +
-        getFEq(rho, vec2(ux, uy), uI) * uOmega;
     float obst = texture2D(uSampler4, vTextureCoord + offset).r;
 
-    //if (vTextureCoord.x < 0.01 || vTextureCoord.y<0.01 || vTextureCoord.y>0.99)
+    float f = color2Float(texture2D(uSampler3, vTextureCoord + offset)) * (1.0 - uOmega) +
+        getFEq(rho, vec2(ux, uy), uI) * uOmega;
+
     if (vTextureCoord.y < 2.0/Ny)
         f = getFEq(1.0, vec2(uVel, 0.0), uI);
     if (vTextureCoord.y > (Ny-1.0)/Ny)
@@ -170,70 +155,63 @@ void main(void)
     gl_FragColor = float2Color(f);
 }
 </script>
-<script id="shader-fs-update-f-all" type="x-shader/x-fragment">
+<script id="shader-fs-update-Fx" type="x-shader/x-fragment">
 precision highp float;
 precision highp int;
 
-uniform highp sampler2D uSampler0, uSampler1, uSampler2, uSampler3, uSampler4, uSampler5, uSampler6, uSampler5, uSampler8, uSampler9, uSampler10, uSampler11;
+uniform highp sampler2D f1, f2, f3, f4, f5, f6, f5, f8, obstTex;
 
 varying vec2 vTextureCoord;
 
 void main(void)
 {
-    float f[9],f_tmp[9];
+    float f[9], f_opp[9];
     vec2 offset = vec2(0.0, 0.0);
     vec2 offset2 = vec2(0.0, 0.0);
-
+    
     float obst = texture2D(uSampler4, vTextureCoord + offset).r;
-    float rho = color2Rho(texture2D(uSampler0, vTextureCoord + offset));
-    float ux = color2U(texture2D(uSampler1, vTextureCoord + offset));
-    float uy = color2U(texture2D(uSampler2, vTextureCoord + offset));
-    uI = 0;
-    float f[0] = color2Float(texture2D(uSampler3, vTextureCoord + offset)) * (1.0 - OMEGA) +
-        getFEq(rho, vec2(ux, uy), uI) * OMEGA;
+  
     uI = 1;
     offset.x = -1.0 / Nx;
     offset.y = 0.0;
-    float f[1] = color2Float(texture2D(uSampler4, vTextureCoord + offset)) * (1.0 - OMEGA) +
-        getFEq(rho, vec2(ux, uy), uI) * OMEGA;
+    float f[1] = color2Float(texture2D(uSampler1, vTextureCoord + offset))
+    
     uI = 2;
     offset.x = -1.0 / Nx;
     offset.y = -1.0 / Ny;
-    float f[2] = color2Float(texture2D(uSampler4, vTextureCoord + offset)) * (1.0 - OMEGA) +
-        getFEq(rho, vec2(ux, uy), uI) * OMEGA;
+    float f[2] = color2Float(texture2D(uSampler2, vTextureCoord + offset))
+    
     uI = 3;
     offset.x = 0.0;
     offset.y = -1.0 / Ny;
-    float f[3] = color2Float(texture2D(uSampler4, vTextureCoord + offset)) * (1.0 - OMEGA) +
-        getFEq(rho, vec2(ux, uy), uI) * OMEGA;
+    float f[3] = color2Float(texture2D(uSampler3, vTextureCoord + offset))
+    
     uI = 4;
     offset.x = 1.0 / Nx;
     offset.y = -1.0 / Ny;
-    float f[4] = color2Float(texture2D(uSampler4, vTextureCoord + offset)) * (1.0 - OMEGA) +
-        getFEq(rho, vec2(ux, uy), uI) * OMEGA;
+    float f[4] = color2Float(texture2D(uSampler4, vTextureCoord + offset))
+    
     uI = 5;
     offset.x = 1.0 / Nx;
     offset.y = 0.0;
-    float f[5] = color2Float(texture2D(uSampler4, vTextureCoord + offset)) * (1.0 - OMEGA) +
-        getFEq(rho, vec2(ux, uy), uI) * OMEGA;
+    float f[5] = color2Float(texture2D(uSampler5, vTextureCoord + offset))
+    
     uI = 6;
     offset.x = 1.0 / Nx;
     offset.y = 1.0 / Ny;
-    float f[6] = color2Float(texture2D(uSampler4, vTextureCoord + offset)) * (1.0 - OMEGA) +
-        getFEq(rho, vec2(ux, uy), uI) * OMEGA;
+    float f[6] = color2Float(texture2D(uSampler6, vTextureCoord + offset));
+    
     uI = 7;
     offset.x = 0.0;
     offset.y = 1.0 / Ny;
-    float f[7] = color2Float(texture2D(uSampler4, vTextureCoord + offset)) * (1.0 - OMEGA) +
-        getFEq(rho, vec2(ux, uy), uI) * OMEGA;
+    float f[7] = color2Float(texture2D(uSampler7, vTextureCoord + offset));
+    
     uI = 8;
     offset.x = -1.0 / Nx;
     offset.y = 1.0 / Ny;
-    float f[8] = color2Float(texture2D(uSampler4, vTextureCoord + offset)) * (1.0 - OMEGA) +
-        getFEq(rho, vec2(ux, uy), uI) * OMEGA;
+    float f[8] = color2Float(texture2D(uSampler8, vTextureCoord + offset));
     
     
-    //float f_opp = color2Float(texture2D(uSampler5, vTextureCoord - offset));
     
 
     if (vTextureCoord.x < 0.01)
@@ -426,24 +404,6 @@ void main(void)
     gl_FragColor = opColor+baseColor;
 }
 </script>
-<script id="shader-fs-update-display" type="x-shader/x-fragment">
-precision highp float;
-precision highp int;
-
-uniform highp sampler2D uSampler0, uSampler1, uSampler2;
-
-varying vec2 vTextureCoord;
-
-void main(void)
-{
-    float ux = color2U(texture2D(uSampler1, vTextureCoord));
-    float uy = color2U(texture2D(uSampler2, vTextureCoord));
-    
-    vec2 offset = vec2(ux, uy);
-
-    gl_FragColor = texture2D(uSampler0, (vTextureCoord.x - offset.x)/Nx, (vTextureCoord.y - offset.y)/Ny);
-}
-</script>
 <script id="shader-fs-init-accum" type="x-shader/x-fragment">
 precision highp float;
 precision highp int;
@@ -510,41 +470,6 @@ void main(void)
         float uy = (f2 + f3 + f4 - f6 - f7 - f8) / rho;
         gl_FragColor = u2Color(uy);
     }
-}
-</script>
-<script id="shader-fs-threshold" type="x-shader/x-fragment">
-precision highp float;
-precision highp int;
-
-varying vec2 vTextureCoord;
-
-uniform highp sampler2D uSampler0;
-
-void main(void)
-{
-    float f = color2U(texture2D(uSampler0, vTextureCoord));
-    
-    float REFERENCE = 0.75;
-    float TOL = 0.24;
-    if (f < REFERENCE - TOL)
-        gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);
-    else if (f > REFERENCE + TOL)
-        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
-    else
-        gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
-}
-</script>
-<script id="shader-fs-show" type="x-shader/x-fragment">
-precision highp float;
-precision highp int;
-
-varying vec2 vTextureCoord;
-
-uniform highp sampler2D uSampler0;
-
-void main(void)
-{
-	gl_FragColor = texture2D(uSampler0, vTextureCoord);
 }
 </script>
 <script id="shader-fs-show-umod" type="x-shader/x-fragment">

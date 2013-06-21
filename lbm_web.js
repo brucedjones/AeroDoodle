@@ -88,24 +88,12 @@ var PROGS_DESC = {
         'attribs': ['aVertexPosition', 'aTextureCoord'],
         'uniforms': []
     },
-    'init-display': {
-        'vs': ['shader-vs'],
-        'fs': ['shader-fs-utils', 'shader-fs-init-display'],
-        'attribs': ['aVertexPosition', 'aTextureCoord'],
-        'uniforms': []
-    },
     'update-f': {
         'vs': ['shader-vs'],
         'fs': ['shader-fs-utils', 'shader-fs-update-f'],
         'attribs': ['aVertexPosition', 'aTextureCoord'],
         'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uI', 'uOmega', 'uVel']
     },
-    /*'update-display': {
-        'vs': ['shader-vs'],
-        'fs': ['shader-fs-utils', 'shader-fs-update-display'],
-        'attribs': ['aVertexPosition', 'aTextureCoord'],
-        'uniforms': ['uSampler0', 'uSampler1', 'uSampler2']
-    },*/
     'update-obst-circle': {
         'vs': ['shader-vs'],
         'fs': ['shader-fs-utils', 'shader-fs-update-obst-circle'],
@@ -137,18 +125,6 @@ var PROGS_DESC = {
         'attribs': ['aVertexPosition', 'aTextureCoord'],
         'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uSampler5', 'uSampler6', 'uSampler7', 'uSampler8', 'uRhoUxUy']
     },
-    /*'threshold': {
-        'vs': ['shader-vs'],
-        'fs': ['shader-fs-utils', 'shader-fs-threshold'],
-        'attribs': ['aVertexPosition', 'aTextureCoord'],
-        'uniforms': ['uSampler0']
-    },*/
-    /*'show': {
-        'vs': ['shader-vs'],
-        'fs': ['shader-fs-show'],
-        'attribs': ['aVertexPosition', 'aTextureCoord'],
-        'uniforms': ['uSampler0']
-    },*/
     'show-umod': {
         'vs': ['shader-vs-show'],
         'fs': ['shader-fs-utils', 'shader-fs-show-umod'],
@@ -396,7 +372,6 @@ function initState() {
     doRenderOp('f7', ['rho', 'ux', 'uy'], 'init-f', {'uI': 7});
     doRenderOp('f8', ['rho', 'ux', 'uy'], 'init-f', {'uI': 8});
     doRenderOp('obst', [], 'init-obst', {});
-    doRenderOp('display', [], 'init-display', {});
 }
 
 function stepState() {
