@@ -160,7 +160,9 @@ var TEXTURES_DESC = {
     'f8': [Nx, Ny],
     'tmp': [Nx, Ny],
     'obst': [Nx, Ny],
-    'obst_intended': [Nx, Ny]
+    'obst_intended': [Nx, Ny],
+    'fx': [Nx, Ny],
+    'fy': [Nx, Ny]
 };
 
 var BUFFERS_DESC = {
