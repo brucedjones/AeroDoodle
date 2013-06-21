@@ -155,76 +155,184 @@ void main(void)
     gl_FragColor = float2Color(f);
 }
 </script>
-<script id="shader-fs-update-Fx" type="x-shader/x-fragment">
+<script id="shader-fs-update-fx" type="x-shader/x-fragment">
 precision highp float;
 precision highp int;
 
-uniform highp sampler2D f1, f2, f3, f4, f5, f6, f5, f8, obstTex;
+uniform highp sampler2D f1, f2, f4, f5, f6, f8, obstTex;
 
 varying vec2 vTextureCoord;
 
 void main(void)
 {
-    float f[9], f_opp[9];
+    float f, f_opp, obst;
     vec2 offset = vec2(0.0, 0.0);
-    vec2 offset2 = vec2(0.0, 0.0);
-    
-    float obst = texture2D(uSampler4, vTextureCoord + offset).r;
-  
-    uI = 1;
-    offset.x = -1.0 / Nx;
-    offset.y = 0.0;
-    float f[1] = color2Float(texture2D(uSampler1, vTextureCoord + offset))
-    
-    uI = 2;
-    offset.x = -1.0 / Nx;
-    offset.y = -1.0 / Ny;
-    float f[2] = color2Float(texture2D(uSampler2, vTextureCoord + offset))
-    
-    uI = 3;
-    offset.x = 0.0;
-    offset.y = -1.0 / Ny;
-    float f[3] = color2Float(texture2D(uSampler3, vTextureCoord + offset))
-    
-    uI = 4;
-    offset.x = 1.0 / Nx;
-    offset.y = -1.0 / Ny;
-    float f[4] = color2Float(texture2D(uSampler4, vTextureCoord + offset))
-    
-    uI = 5;
-    offset.x = 1.0 / Nx;
-    offset.y = 0.0;
-    float f[5] = color2Float(texture2D(uSampler5, vTextureCoord + offset))
-    
-    uI = 6;
-    offset.x = 1.0 / Nx;
-    offset.y = 1.0 / Ny;
-    float f[6] = color2Float(texture2D(uSampler6, vTextureCoord + offset));
-    
-    uI = 7;
-    offset.x = 0.0;
-    offset.y = 1.0 / Ny;
-    float f[7] = color2Float(texture2D(uSampler7, vTextureCoord + offset));
-    
-    uI = 8;
-    offset.x = -1.0 / Nx;
-    offset.y = 1.0 / Ny;
-    float f[8] = color2Float(texture2D(uSampler8, vTextureCoord + offset));
-    
-    
-    
+    float Fx = 0.0;
 
-    if (vTextureCoord.x < 0.01)
-    for(int i =0;i<9;i++){
-        f[i] = getFEq(1.0, vec2(VEL, 0.0), i);
-        }
-    if (obst != 0.0)
-    for(int i =0;i<9;i++){
-        f[i] = getFEq(1.0, vec2(0.0, 0.0), i);
-        }
-        //f = f_opp;
+    
+    obst = texture2D(obstTex, vTextureCoord).r;
+    
+    if(obst != 0.0)
+    {
+      // Direction 1;
+      offset.x = -1.0 / Nx;
+      offset.y = 0.0;
+      obst = texture2D(obstTex, vTextureCoord + offset).r;
+      if(obst == 0.0);
+      {
+        f = color2Float(texture2D(f1, vTextureCoord + offset));
+        f_opp = color2Float(texture2D(f5, vTextureCoord));
+        Fx = Fx + (f-f_opp);
+      }
+      
+      // Direction 2;
+      offset.x = -1.0 / Nx;
+      offset.y = -1.0 / Ny;
+      obst = texture2D(obstTex, vTextureCoord + offset).r;
+      if(obst == 0.0);
+      {
+        f = color2Float(texture2D(f2, vTextureCoord + offset));
+        f_opp = color2Float(texture2D(f6, vTextureCoord));
+        Fx = Fx + (f-f_opp);
+      }
         
-    gl_FragColor = float2Color(f);
+      // Direction 4;
+      offset.x = 1.0 / Nx;
+      offset.y = -1.0 / Ny;
+      obst = texture2D(obstTex, vTextureCoord + offset).r;
+      if(obst == 0.0);
+      {
+        f = color2Float(texture2D(f4, vTextureCoord + offset));
+        f_opp = color2Float(texture2D(f8, vTextureCoord));
+        Fx = Fx + (f-f_opp);
+      }
+      
+      // Direction 5;
+      offset.x = 1.0 / Nx;
+      offset.y = 0.0;
+      obst = texture2D(obstTex, vTextureCoord + offset).r;
+      if(obst == 0.0);
+      {
+        f = color2Float(texture2D(f5, vTextureCoord + offset));
+        f_opp = color2Float(texture2D(f1, vTextureCoord));
+        Fx = Fx + (f-f_opp);
+      }
+      
+      // Direction 6;
+      offset.x = 1.0 / Nx;
+      offset.y = 1.0 / Ny;
+      obst = texture2D(obstTex, vTextureCoord + offset).r;
+      if(obst == 0.0);
+      {
+        f = color2Float(texture2D(f6, vTextureCoord + offset));
+        f_opp = color2Float(texture2D(f2, vTextureCoord));
+        Fx = Fx + (f-f_opp);
+      }
+      
+      // Direction 8;
+      offset.x = -1.0 / Nx;
+      offset.y = 1.0 / Ny;
+      obst = texture2D(obstTex, vTextureCoord + offset).r;
+      if(obst == 0.0);
+      {
+        f = color2Float(texture2D(f8, vTextureCoord + offset));
+        f_opp = color2Float(texture2D(f4, vTextureCoord));
+        Fx = Fx + (f-f_opp);
+      }
+    
+    }
+            
+    gl_FragColor = float2Color(Fx);
+}
+</script>
+<script id="shader-fs-update-fy" type="x-shader/x-fragment">
+precision highp float;
+precision highp int;
+
+uniform highp sampler2D f2, f3, f4, f6, f7, f8, obstTex;
+
+varying vec2 vTextureCoord;
+
+void main(void)
+{
+    float f, f_opp, obst;
+    vec2 offset = vec2(0.0, 0.0);
+    float Fy = 0.0;
+
+    
+    obst = texture2D(obstTex, vTextureCoord).r;
+    
+    if(obst != 0.0)
+    { 
+      // Direction 2
+      offset.x = -1.0 / Nx;
+      offset.y = -1.0 / Ny;
+      obst = texture2D(obstTex, vTextureCoord + offset).r;
+      if(obst == 0.0);
+      {
+        f = color2Float(texture2D(f2, vTextureCoord + offset));
+        f_opp = color2Float(texture2D(f6, vTextureCoord));
+        Fy = Fy + (f-f_opp);
+      }
+      
+      // Direction 3
+      offset.x = 0.0;
+      offset.y = -1.0 / Ny;
+      obst = texture2D(obstTex, vTextureCoord + offset).r;
+      if(obst == 0.0);
+      {
+        f = color2Float(texture2D(f3, vTextureCoord + offset));
+        f_opp = color2Float(texture2D(f7, vTextureCoord));
+        Fy = Fy + (f-f_opp);
+      }
+        
+      // Direction 4
+      offset.x = 1.0 / Nx;
+      offset.y = -1.0 / Ny;
+      obst = texture2D(obstTex, vTextureCoord + offset).r;
+      if(obst == 0.0);
+      {
+        f = color2Float(texture2D(f4, vTextureCoord + offset));
+        f_opp = color2Float(texture2D(f8, vTextureCoord));
+        Fy = Fy + (f-f_opp);
+      }
+       
+      // Direction 6
+      offset.x = 1.0 / Nx;
+      offset.y = 1.0 / Ny;
+      obst = texture2D(obstTex, vTextureCoord + offset).r;
+      if(obst == 0.0);
+      {
+        f = color2Float(texture2D(f6, vTextureCoord + offset));
+        f_opp = color2Float(texture2D(f2, vTextureCoord));
+        Fy = Fy + (f-f_opp);
+      }
+      
+      // Direction 7
+      offset.x = 0.0;
+      offset.y = 1.0 / Ny;
+      obst = texture2D(obstTex, vTextureCoord + offset).r;
+      if(obst == 0.0);
+      {
+        f = color2Float(texture2D(f7, vTextureCoord + offset));
+        f_opp = color2Float(texture2D(f3, vTextureCoord));
+        Fy = Fy + (f-f_opp);
+      }
+      
+      // Direction 8
+      offset.x = -1.0 / Nx;
+      offset.y = 1.0 / Ny;
+      obst = texture2D(obstTex, vTextureCoord + offset).r;
+      if(obst == 0.0);
+      {
+        f = color2Float(texture2D(f8, vTextureCoord + offset));
+        f_opp = color2Float(texture2D(f4, vTextureCoord));
+        Fy = Fy + (f-f_opp);
+      }
+    
+    }
+            
+    gl_FragColor = float2Color(Fy);
 }
 </script>
 <script id="shader-fs-update-obst-circle" type="x-shader/x-fragment">

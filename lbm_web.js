@@ -94,6 +94,18 @@ var PROGS_DESC = {
         'attribs': ['aVertexPosition', 'aTextureCoord'],
         'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uI', 'uOmega', 'uVel']
     },
+    'update-Fx': {
+        'vs': ['shader-vs'],
+        'fs': ['shader-fs-utils', 'shader-fs-update-fx'],
+        'attribs': ['aVertexPosition', 'aTextureCoord'],
+        'uniforms': ['f1', 'f2', 'f4', 'f5', 'f6', 'f8', 'obstTex']
+    },
+    'update-Fy': {
+        'vs': ['shader-vs'],
+        'fs': ['shader-fs-utils', 'shader-fs-update-fy'],
+        'attribs': ['aVertexPosition', 'aTextureCoord'],
+        'uniforms': ['f2', 'f3', 'f4', 'f6', 'f7', 'f8', 'obstTex']
+    },
     'update-obst-circle': {
         'vs': ['shader-vs'],
         'fs': ['shader-fs-utils', 'shader-fs-update-obst-circle'],
