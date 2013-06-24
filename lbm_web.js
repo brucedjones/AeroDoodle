@@ -9,6 +9,8 @@ var bLeft = 100;
 var bRight = 356;
 var bBottom = 48;
 var bTop = 80;
+var bWidth = bRight-bLeft;
+var bHeight = bTop-bBottom;
 
 var horOffset = Nx/2;
 var verOffset = Ny/2;
@@ -98,13 +100,13 @@ var PROGS_DESC = {
         'vs': ['shader-vs'],
         'fs': ['shader-fs-utils', 'shader-fs-update-fx'],
         'attribs': ['aVertexPosition', 'aTextureCoord'],
-        'uniforms': ['f1', 'f2', 'f4', 'f5', 'f6', 'f8', 'obstTex']
+        'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uSampler5', 'uSampler6' ]
     },
     'update-Fy': {
         'vs': ['shader-vs'],
         'fs': ['shader-fs-utils', 'shader-fs-update-fy'],
         'attribs': ['aVertexPosition', 'aTextureCoord'],
-        'uniforms': ['f2', 'f3', 'f4', 'f6', 'f7', 'f8', 'obstTex']
+        'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uSampler5', 'uSampler6']
     },
     'update-obst-circle': {
         'vs': ['shader-vs'],
@@ -529,28 +531,36 @@ function stepState() {
     
     //doRenderOp('tmp', ['obst'], 'update-obst', {'uPointX': obstPoint[0], 'uPointY': obstPoint[1], 'uClear': clear ? 1 : 0});
     //swapTextures('tmp', 'obst');
+    // Calculate Macros
     doRenderOp('rho', ['f0', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8'], 'f-to-accum', {'uRhoUxUy': 0});
     doRenderOp('ux', ['f0', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8'], 'f-to-accum', {'uRhoUxUy': 1});
     doRenderOp('uy', ['f0', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8'], 'f-to-accum', {'uRhoUxUy': 2});
-    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f0', 'obst', 'f0'], 'update-f', {'uI': 0, 'uOmega': omega, 'uVel':u});
+    doRenderOp('fx', ['f1', 'f2', 'f4', 'f5', 'f6', 'f8', 'obst'], 'update-Fx', {});
+    doRenderOp('fy', ['f2', 'f3', 'f4', 'f6', 'f7', 'f8', 'obst'], 'update-Fy', {});
+    computeForce();
+    // Stream and collide
+    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f0', 'obst'], 'update-f', {'uI': 0, 'uOmega': omega, 'uVel':u});
     swapTextures('tmp', 'f0');
-    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f1', 'obst', 'f5'], 'update-f', {'uI': 1, 'uOmega': omega, 'uVel':u});
+    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f1', 'obst'], 'update-f', {'uI': 1, 'uOmega': omega, 'uVel':u});
     swapTextures('tmp', 'f1');
-    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f2', 'obst', 'f6'], 'update-f', {'uI': 2, 'uOmega': omega, 'uVel':u});
+    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f2', 'obst'], 'update-f', {'uI': 2, 'uOmega': omega, 'uVel':u});
     swapTextures('tmp', 'f2');
-    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f3', 'obst', 'f7'], 'update-f', {'uI': 3, 'uOmega': omega, 'uVel':u});
+    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f3', 'obst'], 'update-f', {'uI': 3, 'uOmega': omega, 'uVel':u});
     swapTextures('tmp', 'f3');
-    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f4', 'obst', 'f8'], 'update-f', {'uI': 4, 'uOmega': omega, 'uVel':u});
+    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f4', 'obst'], 'update-f', {'uI': 4, 'uOmega': omega, 'uVel':u});
     swapTextures('tmp', 'f4');
-    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f5', 'obst', 'f1'], 'update-f', {'uI': 5, 'uOmega': omega, 'uVel':u});
+    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f5', 'obst'], 'update-f', {'uI': 5, 'uOmega': omega, 'uVel':u});
     swapTextures('tmp', 'f5');
-    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f6', 'obst', 'f2'], 'update-f', {'uI': 6, 'uOmega': omega, 'uVel':u});
+    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f6', 'obst'], 'update-f', {'uI': 6, 'uOmega': omega, 'uVel':u});
     swapTextures('tmp', 'f6');
-    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f7', 'obst', 'f3'], 'update-f', {'uI': 7, 'uOmega': omega, 'uVel':u});
+    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f7', 'obst'], 'update-f', {'uI': 7, 'uOmega': omega, 'uVel':u});
     swapTextures('tmp', 'f7');
-    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f8', 'obst', 'f4'], 'update-f', {'uI': 8, 'uOmega': omega, 'uVel':u});
+    doRenderOp('tmp', ['rho', 'ux', 'uy', 'f8', 'obst'], 'update-f', {'uI': 8, 'uOmega': omega, 'uVel':u});
     swapTextures('tmp', 'f8');
-    doRenderOp(null, ['ux', 'uy', 'obst', 'obst_intended'], 'show-umod', {'drawIntended': drawIntended ? 1: 0, 'MVPMat': MVPMat});
+    // Render
+    //doRenderOp(null, ['ux', 'uy', 'obst', 'obst_intended'], 'show-umod', {'drawIntended': drawIntended ? 1: 0, 'MVPMat': MVPMat});
+    doRenderOp(null, ['fx', 'fy', 'obst', 'obst_intended'], 'show-umod', {'drawIntended': drawIntended ? 1: 0, 'MVPMat': MVPMat});
+    
 }
 
 var frameNum = 0;
@@ -884,4 +894,57 @@ function zoomClick() {
   var tmp = fromV;
   fromV = toV;
   toV = tmp;
+}
+
+function computeForce() {
+
+  var forceX = new Uint8Array(bWidth * bHeight * 4);
+  var forceY = new Uint8Array(bWidth * bHeight * 4);
+  
+  // Read X Force
+  gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, textures['fx'], 0);
+  if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) == gl.FRAMEBUFFER_COMPLETE) {
+    gl.readPixels(bLeft, bBottom, bWidth, bHeight, gl.RGBA, gl.UNSIGNED_BYTE, forceX);
+  }
+  
+  // Read Y Force
+  gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+  gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, textures['fy'], 0);
+  if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) == gl.FRAMEBUFFER_COMPLETE) {
+    gl.readPixels(bLeft, bBottom, bWidth, bHeight, gl.RGBA, gl.UNSIGNED_BYTE, forceY);
+  }
+  
+  var forceXVal = 0;
+  var forceYVal = 0;
+  
+  for (var j=0;j<bHeight;j++)
+  { 
+    for (var i=0;i<bWidth;i++)
+    { 
+      var r = forceX[(j*bWidth*4)+(4*i)+0];
+      var g = forceX[(j*bWidth*4)+(4*i)+1]; 
+      var b = forceX[(j*bWidth*4)+(4*i)+2];
+      var tmp = color2Float(r, g, b);
+      //if(!isNaN(color2Float(r, g, b)))
+      //{
+       forceXVal = forceXVal + color2Float(r, g, b);
+      //}
+      var r = forceY[(j*bWidth*4)+(4*i)+0];
+      var g = forceY[(j*bWidth*4)+(4*i)+1];
+      var b = forceY[(j*bWidth*4)+(4*i)+2];
+      //if(!isNaN(color2Float(r, g, b)))
+      //{
+       forceYVal = forceYVal + color2Float(r, g, b);
+       //}
+      
+    }
+  }
+  document.getElementById('lift').innerText =  forceYVal.toFixed(7);
+  document.getElementById('drag').innerText =  forceXVal.toFixed(7);
+}
+
+function color2Float(r, g, b)
+{    
+    return ((r / 256.0 + g / (256.0 * 256.0) + b  / (256.0 * 256.0 * 256.0))*2.0)-1.0;
 }

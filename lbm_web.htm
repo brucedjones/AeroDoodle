@@ -159,8 +159,8 @@ void main(void)
 precision highp float;
 precision highp int;
 
-uniform highp sampler2D f1, f2, f4, f5, f6, f8, obstTex;
-
+uniform highp sampler2D uSampler0, uSampler1, uSampler2, uSampler3, uSampler4, uSampler5, uSampler6;
+// f1 f2 f4 f5 f6 f8 obst
 varying vec2 vTextureCoord;
 
 void main(void)
@@ -170,87 +170,87 @@ void main(void)
     float Fx = 0.0;
 
     
-    obst = texture2D(obstTex, vTextureCoord).r;
+    obst = texture2D(uSampler6, vTextureCoord).r;
     
     if(obst != 0.0)
     {
       // Direction 1;
       offset.x = -1.0 / Nx;
       offset.y = 0.0;
-      obst = texture2D(obstTex, vTextureCoord + offset).r;
-      if(obst == 0.0);
+      obst = texture2D(uSampler6, vTextureCoord + offset).r;
+      if(obst == 0.0)
       {
-        f = color2Float(texture2D(f1, vTextureCoord + offset));
-        f_opp = color2Float(texture2D(f5, vTextureCoord));
-        Fx = Fx + (f-f_opp);
+        f = color2Float(texture2D(uSampler0, vTextureCoord + offset));
+        f_opp = color2Float(texture2D(uSampler3, vTextureCoord));
+        Fx = Fx + (f+f_opp);
       }
       
       // Direction 2;
       offset.x = -1.0 / Nx;
       offset.y = -1.0 / Ny;
-      obst = texture2D(obstTex, vTextureCoord + offset).r;
-      if(obst == 0.0);
+      obst = texture2D(uSampler6, vTextureCoord + offset).r;
+      if(obst == 0.0)
       {
-        f = color2Float(texture2D(f2, vTextureCoord + offset));
-        f_opp = color2Float(texture2D(f6, vTextureCoord));
-        Fx = Fx + (f-f_opp);
+        f = color2Float(texture2D(uSampler1, vTextureCoord + offset));
+        f_opp = color2Float(texture2D(uSampler4, vTextureCoord));
+        Fx = Fx + (f+f_opp);
       }
         
       // Direction 4;
       offset.x = 1.0 / Nx;
       offset.y = -1.0 / Ny;
-      obst = texture2D(obstTex, vTextureCoord + offset).r;
-      if(obst == 0.0);
+      obst = texture2D(uSampler6, vTextureCoord + offset).r;
+      if(obst == 0.0)
       {
-        f = color2Float(texture2D(f4, vTextureCoord + offset));
-        f_opp = color2Float(texture2D(f8, vTextureCoord));
-        Fx = Fx + (f-f_opp);
+        f = color2Float(texture2D(uSampler2, vTextureCoord + offset));
+        f_opp = color2Float(texture2D(uSampler5, vTextureCoord));
+        Fx = Fx - (f+f_opp);
       }
       
       // Direction 5;
       offset.x = 1.0 / Nx;
       offset.y = 0.0;
-      obst = texture2D(obstTex, vTextureCoord + offset).r;
-      if(obst == 0.0);
+      obst = texture2D(uSampler6, vTextureCoord + offset).r;
+      if(obst == 0.0)
       {
-        f = color2Float(texture2D(f5, vTextureCoord + offset));
-        f_opp = color2Float(texture2D(f1, vTextureCoord));
-        Fx = Fx + (f-f_opp);
+        f = color2Float(texture2D(uSampler3, vTextureCoord + offset));
+        f_opp = color2Float(texture2D(uSampler0, vTextureCoord));
+        Fx = Fx - (f+f_opp);
       }
       
       // Direction 6;
       offset.x = 1.0 / Nx;
       offset.y = 1.0 / Ny;
-      obst = texture2D(obstTex, vTextureCoord + offset).r;
-      if(obst == 0.0);
+      obst = texture2D(uSampler6, vTextureCoord + offset).r;
+      if(obst == 0.0)
       {
-        f = color2Float(texture2D(f6, vTextureCoord + offset));
-        f_opp = color2Float(texture2D(f2, vTextureCoord));
-        Fx = Fx + (f-f_opp);
+        f = color2Float(texture2D(uSampler4, vTextureCoord + offset));
+        f_opp = color2Float(texture2D(uSampler1, vTextureCoord));
+        Fx = Fx - (f+f_opp);
       }
       
       // Direction 8;
       offset.x = -1.0 / Nx;
       offset.y = 1.0 / Ny;
-      obst = texture2D(obstTex, vTextureCoord + offset).r;
-      if(obst == 0.0);
+      obst = texture2D(uSampler6, vTextureCoord + offset).r;
+      if(obst == 0.0)
       {
-        f = color2Float(texture2D(f8, vTextureCoord + offset));
-        f_opp = color2Float(texture2D(f4, vTextureCoord));
-        Fx = Fx + (f-f_opp);
+        f = color2Float(texture2D(uSampler5, vTextureCoord + offset));
+        f_opp = color2Float(texture2D(uSampler2, vTextureCoord));
+        Fx = Fx + (f+f_opp);
       }
     
     }
-            
-    gl_FragColor = float2Color(Fx);
+     
+    gl_FragColor = u2Color(Fx);
 }
 </script>
 <script id="shader-fs-update-fy" type="x-shader/x-fragment">
 precision highp float;
 precision highp int;
 
-uniform highp sampler2D f2, f3, f4, f6, f7, f8, obstTex;
-
+uniform highp sampler2D uSampler0, uSampler1, uSampler2, uSampler3, uSampler4, uSampler5, uSampler6;
+// f2 f3 f4 f6 f7 f8 obst
 varying vec2 vTextureCoord;
 
 void main(void)
@@ -260,79 +260,80 @@ void main(void)
     float Fy = 0.0;
 
     
-    obst = texture2D(obstTex, vTextureCoord).r;
+    obst = texture2D(uSampler6, vTextureCoord).r;
     
     if(obst != 0.0)
     { 
       // Direction 2
       offset.x = -1.0 / Nx;
       offset.y = -1.0 / Ny;
-      obst = texture2D(obstTex, vTextureCoord + offset).r;
-      if(obst == 0.0);
+      obst = texture2D(uSampler6, vTextureCoord + offset).r;
+      
+      if(obst == 0.0)
       {
-        f = color2Float(texture2D(f2, vTextureCoord + offset));
-        f_opp = color2Float(texture2D(f6, vTextureCoord));
-        Fy = Fy + (f-f_opp);
+        f = color2Float(texture2D(uSampler0, vTextureCoord + offset));
+        f_opp = color2Float(texture2D(uSampler3, vTextureCoord));
+        Fy = Fy + (f+f_opp);
       }
       
       // Direction 3
       offset.x = 0.0;
       offset.y = -1.0 / Ny;
-      obst = texture2D(obstTex, vTextureCoord + offset).r;
-      if(obst == 0.0);
+      obst = texture2D(uSampler6, vTextureCoord + offset).r;
+      if(obst == 0.0)
       {
-        f = color2Float(texture2D(f3, vTextureCoord + offset));
-        f_opp = color2Float(texture2D(f7, vTextureCoord));
-        Fy = Fy + (f-f_opp);
+        f = color2Float(texture2D(uSampler1, vTextureCoord + offset));
+        f_opp = color2Float(texture2D(uSampler4, vTextureCoord));
+        Fy = Fy + (f+f_opp);
       }
         
       // Direction 4
       offset.x = 1.0 / Nx;
       offset.y = -1.0 / Ny;
-      obst = texture2D(obstTex, vTextureCoord + offset).r;
-      if(obst == 0.0);
+      obst = texture2D(uSampler6, vTextureCoord + offset).r;
+      if(obst == 0.0)
       {
-        f = color2Float(texture2D(f4, vTextureCoord + offset));
-        f_opp = color2Float(texture2D(f8, vTextureCoord));
-        Fy = Fy + (f-f_opp);
+        f = color2Float(texture2D(uSampler2, vTextureCoord + offset));
+        f_opp = color2Float(texture2D(uSampler5, vTextureCoord));
+        Fy = Fy + (f+f_opp);
       }
        
       // Direction 6
       offset.x = 1.0 / Nx;
       offset.y = 1.0 / Ny;
-      obst = texture2D(obstTex, vTextureCoord + offset).r;
-      if(obst == 0.0);
+      obst = texture2D(uSampler6, vTextureCoord + offset).r;
+      if(obst == 0.0)
       {
-        f = color2Float(texture2D(f6, vTextureCoord + offset));
-        f_opp = color2Float(texture2D(f2, vTextureCoord));
-        Fy = Fy + (f-f_opp);
+        f = color2Float(texture2D(uSampler3, vTextureCoord + offset));
+        f_opp = color2Float(texture2D(uSampler0, vTextureCoord));
+        Fy = Fy - (f+f_opp);
       }
       
       // Direction 7
       offset.x = 0.0;
       offset.y = 1.0 / Ny;
-      obst = texture2D(obstTex, vTextureCoord + offset).r;
-      if(obst == 0.0);
+      obst = texture2D(uSampler6, vTextureCoord + offset).r;
+      if(obst == 0.0)
       {
-        f = color2Float(texture2D(f7, vTextureCoord + offset));
-        f_opp = color2Float(texture2D(f3, vTextureCoord));
-        Fy = Fy + (f-f_opp);
+        f = color2Float(texture2D(uSampler4, vTextureCoord + offset));
+        f_opp = color2Float(texture2D(uSampler1, vTextureCoord));
+        Fy = Fy - (f+f_opp);
       }
       
       // Direction 8
       offset.x = -1.0 / Nx;
       offset.y = 1.0 / Ny;
-      obst = texture2D(obstTex, vTextureCoord + offset).r;
-      if(obst == 0.0);
+      obst = texture2D(uSampler6, vTextureCoord + offset).r;
+      if(obst == 0.0)
       {
-        f = color2Float(texture2D(f8, vTextureCoord + offset));
-        f_opp = color2Float(texture2D(f4, vTextureCoord));
-        Fy = Fy + (f-f_opp);
+        f = color2Float(texture2D(uSampler5, vTextureCoord + offset));
+        f_opp = color2Float(texture2D(uSampler2, vTextureCoord));
+        Fy = Fy - (f+f_opp);
       }
     
     }
             
-    gl_FragColor = float2Color(Fy);
+    gl_FragColor = u2Color(Fy);
 }
 </script>
 <script id="shader-fs-update-obst-circle" type="x-shader/x-fragment">
@@ -596,9 +597,10 @@ void main(void)
     float uy = color2U(texture2D(uSampler1, vTextureCoord));
     float obst = texture2D(uSampler2, vTextureCoord).r;
     float obst_intended = texture2D(uSampler3, vTextureCoord).r;
-    float uMod = length(vec2(ux, uy));
+    float uMod = ux;//length(vec2(ux, uy));
 
-    float fourValue = 20.0 * uMod;
+    //float fourValue = 20.0 * uMod;
+    float fourValue = 10.0 * uMod;
     float red   = min(fourValue - 1.5, -fourValue + 4.5);
     float green = min(fourValue - 0.5, -fourValue + 3.5);
     float blue  = min(fourValue + 0.5, -fourValue + 2.5);
@@ -609,9 +611,9 @@ void main(void)
     
     if(obst>0.0)
     {
-        red = 0.6;
-        green = 0.05;
-        blue = 0.05;
+        //red = 0.6;
+        //green = 0.05;
+        //blue = 0.05;
         }
         
     if(drawIntended == 1)
