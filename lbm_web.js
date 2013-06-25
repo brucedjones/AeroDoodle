@@ -933,8 +933,8 @@ function computeForce() {
   var forceXVal = 0;
   var forceYVal = 0;
   var count = 0;
-  var mini = bHeight;
-  var maxi = 0;
+  var minj = bWidth;
+  var maxj = 0;
   for (var j=0;j<bHeight;j++)
   { 
     for (var i=0;i<bWidth;i++)
@@ -950,8 +950,8 @@ function computeForce() {
       var tmpy = color2Float(r, g, b);
       if(tmpx!=0 || tmpy!=0)
       {
-        if(i<mini) mini = i;
-        if(i>maxi) maxi = i;
+        if(j<minj) minj = j;
+        if(j>maxj) maxj = j;
         forceXVal = forceXVal + tmpx;
         forceYVal = forceYVal + tmpy;
         count = count+1;
@@ -960,7 +960,7 @@ function computeForce() {
     }
   }
   
-  var cd,cl, A = maxi-mini;
+  var cd,cl, A = maxj-minj;
   
   if(count>0)
   {
@@ -988,8 +988,9 @@ function computeForce() {
   min_coeff = (min_coeff_cl<min_coeff_cd) ? min_coeff_cl : min_coeff_cd;
   max_coeff = (max_coeff_cl>max_coeff_cd) ? max_coeff_cl : max_coeff_cd;
   
-  min_coeff *= 1.2;
-  max_coeff *= 1.2;
+  var offset = (min_coeff>max_coeff) ? min_coeff*0.2 : max_coeff*0.2;
+  min_coeff -= offset;
+  max_coeff += offset;
   
   
   document.getElementById('lift').innerText =  cl.toFixed(7);
