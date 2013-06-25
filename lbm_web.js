@@ -558,8 +558,8 @@ function stepState() {
     doRenderOp('tmp', ['rho', 'ux', 'uy', 'f8', 'obst'], 'update-f', {'uI': 8, 'uOmega': omega, 'uVel':u});
     swapTextures('tmp', 'f8');
     // Render
-    //doRenderOp(null, ['ux', 'uy', 'obst', 'obst_intended'], 'show-umod', {'drawIntended': drawIntended ? 1: 0, 'MVPMat': MVPMat});
-    doRenderOp(null, ['fx', 'fy', 'obst', 'obst_intended'], 'show-umod', {'drawIntended': drawIntended ? 1: 0, 'MVPMat': MVPMat});
+    doRenderOp(null, ['ux', 'uy', 'obst', 'obst_intended'], 'show-umod', {'drawIntended': drawIntended ? 1: 0, 'MVPMat': MVPMat});
+    //doRenderOp(null, ['fx', 'fy', 'obst', 'obst_intended'], 'show-umod', {'drawIntended': drawIntended ? 1: 0, 'MVPMat': MVPMat});
     
 }
 
@@ -896,6 +896,21 @@ function zoomClick() {
   toV = tmp;
 }
 
+var min_coeff = -1;
+var max_coeff = 1;
+var cl_array = [];
+var cd_array = [];
+var cl_data = [];
+var cd_data = [];
+
+Array.max = function( array ){
+    return Math.max.apply( Math, array );
+};
+ 
+Array.min = function( array ){
+    return Math.min.apply( Math, array );
+};
+
 function computeForce() {
 
   var forceX = new Uint8Array(bWidth * bHeight * 4);
@@ -917,7 +932,9 @@ function computeForce() {
   
   var forceXVal = 0;
   var forceYVal = 0;
-  
+  var count = 0;
+  var mini = bHeight;
+  var maxi = 0;
   for (var j=0;j<bHeight;j++)
   { 
     for (var i=0;i<bWidth;i++)
@@ -925,26 +942,142 @@ function computeForce() {
       var r = forceX[(j*bWidth*4)+(4*i)+0];
       var g = forceX[(j*bWidth*4)+(4*i)+1]; 
       var b = forceX[(j*bWidth*4)+(4*i)+2];
-      var tmp = color2Float(r, g, b);
-      //if(!isNaN(color2Float(r, g, b)))
-      //{
-       forceXVal = forceXVal + color2Float(r, g, b);
-      //}
+      var tmpx = color2Float(r, g, b);
+      
       var r = forceY[(j*bWidth*4)+(4*i)+0];
       var g = forceY[(j*bWidth*4)+(4*i)+1];
       var b = forceY[(j*bWidth*4)+(4*i)+2];
-      //if(!isNaN(color2Float(r, g, b)))
-      //{
-       forceYVal = forceYVal + color2Float(r, g, b);
-       //}
+      var tmpy = color2Float(r, g, b);
+      if(tmpx!=0 || tmpy!=0)
+      {
+        if(i<mini) mini = i;
+        if(i>maxi) maxi = i;
+        forceXVal = forceXVal + tmpx;
+        forceYVal = forceYVal + tmpy;
+        count = count+1;
+      }
       
     }
   }
-  document.getElementById('lift').innerText =  forceYVal.toFixed(7);
-  document.getElementById('drag').innerText =  forceXVal.toFixed(7);
+  
+  var cd,cl, A = maxi-mini;
+  
+  if(count>0)
+  {
+    cd = 2*forceXVal/(u*u*A);
+    cl = 2*forceYVal/(u*u*A);
+  } else {
+    cd = 0;
+    cl = 0;
+  }
+  
+  // Add value to plotting data array
+  if(cl_array.length>1000)
+  {
+    var ignore = cl_array.shift();
+    ignore = cd_array.shift();
+  } 
+  cl_array.push(cl);
+  cd_array.push(cd);
+  
+  // Adjust plot axis limits
+  var min_coeff_cl = Array.min(cl_array);
+  var max_coeff_cl = Array.max(cl_array);
+  var min_coeff_cd = Array.min(cd_array);
+  var max_coeff_cd = Array.max(cd_array);
+  min_coeff = (min_coeff_cl<min_coeff_cd) ? min_coeff_cl : min_coeff_cd;
+  max_coeff = (max_coeff_cl>max_coeff_cd) ? max_coeff_cl : max_coeff_cd;
+  
+  min_coeff *= 1.2;
+  max_coeff *= 1.2;
+  
+  
+  document.getElementById('lift').innerText =  cl.toFixed(7);
+  document.getElementById('drag').innerText =  cd.toFixed(7);
 }
 
 function color2Float(r, g, b)
 {    
     return ((r / 256.0 + g / (256.0 * 256.0) + b  / (256.0 * 256.0 * 256.0))*2.0)-1.0;
 }
+
+// FLOT PLOTTING
+
+$(function() {
+
+		// Set up the control widget
+
+		var updateInterval = 30;
+		$("#updateInterval").val(updateInterval).change(function () {
+			var v = $(this).val();
+			if (v && !isNaN(+v)) {
+				updateInterval = +v;
+				if (updateInterval < 1) {
+					updateInterval = 1;
+				} else if (updateInterval > 2000) {
+					updateInterval = 2000;
+				}
+				$(this).val("" + updateInterval);
+			}
+		});
+
+		var plot = $.plot("#coeffPlot", [{ label: "Cl", data: cl_data },
+			{ label: "Cd", data: cd_data }], {
+			series: {
+				shadowSize: 5	// Drawing is faster without shadows
+			},
+			yaxis: {
+				min: 0,
+				max: 100
+			},
+			xaxis: {
+				show: false
+			},
+			legend: {
+        noColumns: 2,
+        backgroundOpacity: 0.5
+			}
+		});
+
+		function update() {
+
+      cl_data = [];
+      for (var i = 0; i < cl_array.length; ++i) {
+        cl_data.push([i, cl_array[i]]);
+      }
+      
+      cd_data = [];
+      for (var i = 0; i < cd_array.length; ++i) {
+        cd_data.push([i, cd_array[i]]);
+      }
+	
+			plot.setData([cl_data]);
+			
+			plot = $.plot("#coeffPlot", [ { label: "Cl", data: cl_data },
+			{ label: "Cd", data: cd_data } ], {
+			series: {
+				shadowSize: 5	// Drawing is faster without shadows
+			},
+			yaxis: {
+				min: min_coeff,
+				max: max_coeff
+			},
+			xaxis: {
+				show: false
+			},
+			legend: {
+        noColumns: 2,
+        backgroundOpacity: 0.5
+			}
+		});
+			
+      plot.setupGrid()
+			// Since the axes don't change, we don't need to call plot.setupGrid()
+
+			plot.draw();
+			setTimeout(update, updateInterval);
+		}
+
+		update();
+
+	});

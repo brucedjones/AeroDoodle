@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <!-- saved from url=(0082)https://mchouza.googlecode.com/svn/trunk/webgl-proc/lb-fluid-sim/lb_fluid_sim.html -->
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<script language="javascript" type="text/javascript" src="flot/jquery.js"></script>
+<script language="javascript" type="text/javascript" src="flot/jquery.flot.js"></script>
+
 <script id="shader-fs-utils" type="x-shader/x-fragment">
 precision highp float;
 precision highp int;
@@ -599,21 +602,17 @@ void main(void)
     float obst_intended = texture2D(uSampler3, vTextureCoord).r;
     float uMod = ux;//length(vec2(ux, uy));
 
-    //float fourValue = 20.0 * uMod;
-    float fourValue = 10.0 * uMod;
+    float fourValue = 20.0 * uMod;
+    //float fourValue = 10.0 * uMod;
     float red   = min(fourValue - 1.5, -fourValue + 4.5);
     float green = min(fourValue - 0.5, -fourValue + 3.5);
     float blue  = min(fourValue + 0.5, -fourValue + 2.5);
-
-    //float red = 1.0-(0.0003/(uMod*uMod*uMod));
-    //float blue = 1.0;
-    //float green = 1.0;
     
     if(obst>0.0)
     {
-        //red = 0.6;
-        //green = 0.05;
-        //blue = 0.05;
+        red = 0.6;
+        green = 0.05;
+        blue = 0.05;
         }
         
     if(drawIntended == 1)
@@ -727,6 +726,15 @@ void main(void)
             <div id="zoom_but">
               <button onclick="zoomClick()">Analyze</button>
             </div>
+            
+            <div class="coeff-plot-container">
+              <div id="coeffPlot" class="coeff-plot"></div>
+            </div>
+
+            <p>You can update a chart periodically to get a real-time effect by using a timer to insert the new data in the plot and redraw it.</p>
+
+            <p>Time between updates: <input id="updateInterval" type="text" value="" style="text-align: right; width:5em"> milliseconds</p>
+
             
         </div>
     <div id="disclaimer">
