@@ -1001,10 +1001,10 @@ function color2Float(r, g, b)
 {    
     return ((r / 256.0 + g / (256.0 * 256.0) + b  / (256.0 * 256.0 * 256.0))*2.0)-1.0;
 }
+    
+    // FLOT PLOTTING
 
-// FLOT PLOTTING
-
-$(function() {
+$(function () {
 
 		// Set up the control widget
 
@@ -1028,8 +1028,6 @@ $(function() {
 				shadowSize: 5	// Drawing is faster without shadows
 			},
 			yaxis: {
-				min: 0,
-				max: 100
 			},
 			xaxis: {
 				show: false
@@ -1052,33 +1050,74 @@ $(function() {
         cd_data.push([i, cd_array[i]]);
       }
 	
-			plot.setData([cl_data]);
-			
-			plot = $.plot("#coeffPlot", [ { label: "Cl", data: cl_data },
-			{ label: "Cd", data: cd_data } ], {
-			series: {
-				shadowSize: 5	// Drawing is faster without shadows
-			},
-			yaxis: {
-				min: min_coeff,
-				max: max_coeff
-			},
-			xaxis: {
-				show: false
-			},
-			legend: {
-        noColumns: 2,
-        backgroundOpacity: 0.5
-			}
-		});
-			
-      plot.setupGrid()
-			// Since the axes don't change, we don't need to call plot.setupGrid()
+			plot.setData([{ label: "Cl", data: cl_data },
+        { label: "Cd", data: cd_data }]);
+      
+      plot.setupGrid();
 
 			plot.draw();
 			setTimeout(update, updateInterval);
 		}
 
 		update();
+	})
+	
+		// LIQUID SLIDER
+	$(function(){
+      
+      $('#slider-id').liquidSlider();
 
-	});
+
+      /* If you want to adjust the settings, you set an option
+         as follows:
+
+          $('#slider-id').liquidSlider({
+            autoSlide:false,
+            autoHeight:false
+          });
+
+         Find more options at http://liquidslider.kevinbatdorf.com/
+      */
+
+      /* If you need to access the internal property or methods, use this:
+
+      var sliderObject = $.data( $('#slider-id')[0], 'liquidSlider');
+      console.log(sliderObject);
+      //*/
+
+    });
+    
+    /*
+    // Load the Visualization API and the piechart package.
+      google.load('visualization', '1.0', {'packages':['corechart']});
+      
+      // Set a callback to run when the Google Visualization API is loaded.
+      google.setOnLoadCallback(drawChart);
+
+
+      // Callback that creates and populates a data table, 
+      // instantiates the pie chart, passes in the data and
+      // draws it.
+      function drawChart() {
+
+      // Create the data table.
+      var data = new google.visualization.DataTable();
+      data.addColumn('string', 'Topping');
+      data.addColumn('number', 'Slices');
+      data.addRows([
+        ['Mushrooms', 3],
+        ['Onions', 1],
+        ['Olives', 1], 
+        ['Zucchini', 1],
+        ['Pepperoni', 2]
+      ]);
+
+      // Set chart options
+      var options = {'title':'How Much Pizza I Ate Last Night',
+                     'width':400,
+                     'height':300};
+
+      // Instantiate and draw our chart, passing in some options.
+      var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
+      chart.draw(data, options);
+    }*/
