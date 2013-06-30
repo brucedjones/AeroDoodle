@@ -502,55 +502,6 @@ void main(void)
     gl_FragColor = opColor;
 }
 </script>
-<script id="shader-fs-update-obst-square-copy" type="x-shader/x-fragment">
-precision highp float;
-precision highp int;
-
-uniform highp sampler2D uSampler0;
-uniform float uPointX1, uPointY1, uPointX2, uPointY2;
-uniform float uPointX3, uPointY3, uPointX4, uPointY4;
-uniform int uClear;
-uniform int uAdd;
-
-varying vec2 vTextureCoord;
-
-void main(void)
-{
-    vec4 opColor;
-    vec4 baseColor;
-    
-    
-    if(uAdd != 0)
-        baseColor = texture2D(uSampler0, vTextureCoord);
-    else
-        baseColor = vec4(0.0, 0.0, 0.0, 1.0);   
-        
-    vec2 p1 = vec2(float(uPointX1)/Nx, float(uPointY1)/Ny);
-    vec2 p2 = vec2(float(uPointX2)/Nx, float(uPointY2)/Ny);
-    vec2 p3 = vec2(float(uPointX3)/Nx, float(uPointY3)/Ny);
-    vec2 p4 = vec2(float(uPointX4)/Nx, float(uPointY4)/Ny);
-    
-    vec4 offColor = texture2D(uSampler0, vec2(p3.x+(vTextureCoord.x-p1.x),p3.y+(vTextureCoord.y-p1.y)));
-    
-    
-    
-    if(vTextureCoord.x<p1.x || vTextureCoord.x>p2.x || vTextureCoord.y>p1.y || vTextureCoord.y<p2.y)
-    {
-        opColor = baseColor;
-        if(uClear != 0) {
-            if(vTextureCoord.x<p3.x || vTextureCoord.x>p4.x || vTextureCoord.y>p3.y || vTextureCoord.y<p4.y) {
-
-            } else {
-                opColor = vec4(0.0,0.0,0.0,0.0);
-            }
-        }
-    }else{
-        opColor = offColor;
-    }
-        
-    gl_FragColor = opColor+baseColor;
-}
-</script>
 <script id="shader-fs-init-accum" type="x-shader/x-fragment">
 precision highp float;
 precision highp int;
@@ -741,11 +692,6 @@ void main(void)
                   <input type="radio" name="brush_toggle" id="square">Square
                   <input type="radio" name="brush_toggle" id="circle">Circle
                   <input type="radio" name="brush_toggle" id="line">Line
-                  <input type="radio" name="brush_toggle" id="select">Select
-              </form>
-              <form>
-                  <input type="radio" name="sel_toggle" id="move">Move
-                  <input type="radio" name="sel_toggle" id="copy">Copy
               </form>
               <h3> Brush Size </h3>
               <div id="slider_brush">

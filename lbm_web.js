@@ -47,9 +47,6 @@ var addSquare = false;
 var drawIntended = true;
 var addCircle = false;
 var addLine = false;
-var copySelected = false;
-var moveSelected = true;
-var placeSelection = true;
 var brush_radius = 10.0;
 var circle_radius = 10.0;
 var omega = 1.9;
@@ -134,13 +131,6 @@ var PROGS_DESC = {
         'fs': ['shader-fs-utils', 'shader-fs-update-obst-line'],
         'attribs': ['aVertexPosition', 'aTextureCoord'],
         'uniforms': ['uSampler0', 'uPointX1', 'uPointY1', 'uPointX2', 'uPointY2', 'uPointX3', 'uPointY3', 'uPointX4', 'uPointY4', 'uClear', 'uAdd']
-    },
-    'update-obst-square-copy': {
-        'vs': ['shader-vs'],
-        'fs': ['shader-fs-utils', 'shader-fs-update-obst-square-copy'],
-        'attribs': ['aVertexPosition', 'aTextureCoord'],
-        'uniforms': ['uSampler0', 'uPointX1', 'uPointY1', 'uPointX2', 'uPointY2', 'uPointX3', 'uPointY3', 'uPointX4', 'uPointY4', 'uClear', 'uAdd']
-        //'uniforms': ['uSampler0', 'uPointX1', 'uPointY1', 'uPointX2', 'uPointY2', 'uClear', 'uAdd']
     },
     'f-to-accum': {
         'vs': ['shader-vs'],
@@ -477,60 +467,6 @@ function stepState() {
         }
     }
     
-    if(mode == SELECT_MODE && inDraw) {
-
-        if(placeSelection) {
-            if(copySelected) {
-                doRenderOp('tmp', ['obst'], 'update-obst-square-copy', {'uPointX1': square_b1[0], 'uPointY1': square_b1[1], 'uPointX2': square_b2[0], 'uPointY2': square_b2[1], 'uPointX3': square_a1[0], 'uPointY3': square_a1[1], 'uPointX4': square_a2[0], 'uPointY4': square_a2[1], 'uClear': 1, 'uAdd':1});
-                swapTextures('tmp', 'obst');
-                placeSelection = false;
-                square_a1 = square_b1;
-                square_a2 = square_b2;
-            }
-            if(moveSelected) {
-                doRenderOp('tmp', ['obst'], 'update-obst-square-copy', {'uPointX1': square_b1[0], 'uPointY1': square_b1[1], 'uPointX2': square_b2[0], 'uPointY2': square_b2[1], 'uPointX3': square_a1[0], 'uPointY3': square_a1[1], 'uPointX4': square_a2[0], 'uPointY4': square_a2[1], 'uClear': 0, 'uAdd':1});
-                swapTextures('tmp', 'obst');
-                placeSelection = false;
-                square_a1 = square_b1;
-                square_a2 = square_b2;
-            }
-        }
-
-        if(sel_mode == ACTIVE_SEL_MODE){
-            doRenderOp('tmp', ['obst'], 'update-obst-square-copy', {'uPointX1': square_b1[0], 'uPointY1': square_b1[1], 'uPointX2': square_b2[0], 'uPointY2': square_b2[1], 'uPointX3': square_a1[0], 'uPointY3': square_a1[1], 'uPointX4': square_a2[0], 'uPointY4': square_a2[1], 'uClear': 1, 'uAdd':0});
-            swapTextures('tmp', 'obst_intended');
-            
-            doRenderOp('tmp', ['obst_intended'], 'update-obst-square', {'uPointX1': square_b1[0], 'uPointY1': square_b1[1], 'uPointX2': square_b2[0], 'uPointY2': square_b2[1], 'uClear': clear ? 1 : 0, 'uAdd':1});
-            swapTextures('tmp', 'obst_intended');
-            
-            doRenderOp('tmp', ['obst_intended'], 'update-obst-square', {'uPointX1': square_a1[0], 'uPointY1': square_a1[1], 'uPointX2': square_a2[0], 'uPointY2': square_a2[1], 'uClear': clear ? 1 : 0, 'uAdd':1});
-            swapTextures('tmp', 'obst_intended');
-            
-            
-            
-            
-        }
-
-        if(sel_mode == MAKE_SEL_MODE && inDraw){
-            if(obstPoint1[0]<obstPoint2[0]) {
-                square_a1[0] = obstPoint1[0]
-                square_a2[0] = obstPoint2[0]
-            } else {
-                square_a1[0] = obstPoint2[0]
-                square_a2[0] = obstPoint1[0]
-            }
-            if(obstPoint1[1]>obstPoint2[1]) {
-                square_a1[1] = obstPoint1[1]
-                square_a2[1] = obstPoint2[1]
-            } else {
-                square_a1[1] = obstPoint2[1]
-                square_a2[1] = obstPoint1[1]
-            }
-            doRenderOp('tmp', ['obst_intended'], 'update-obst-square', {'uPointX1': square_a1[0], 'uPointY1': square_a1[1], 'uPointX2': square_a2[0], 'uPointY2': square_a2[1], 'uClear': clear ? 1 : 0, 'uAdd':0});
-            swapTextures('tmp', 'obst_intended');
-        }
-    }
-    
     if(clearObst)
     {
         doRenderOp('obst', [], 'update-obst-clear', {});
@@ -632,24 +568,6 @@ function step() {
             obstPoint2[1] = -1.0;
             circle_radius = brush_radius;
         }
-    }else if(document.getElementById('select').checked) {
-        if(mode != SELECT_MODE) {
-            mode = SELECT_MODE;
-            copySelected = false;
-            drawIntended = false;
-            obstPoint1[0] = -1.0;
-            obstPoint1[1] = -1.0;
-            obstPoint2[0] = -1.0;
-            obstPoint2[1] = -1.0;
-        }
-    }
-    
-    if(document.getElementById('move').checked) {
-        copySelected = true;
-        moveselected = false;
-    } else if(document.getElementById('copy').checked) {
-        moveSelected = true;
-        copySelected = false;
     }
     
     stepState();
@@ -675,22 +593,6 @@ function step() {
 }
 
 
-function onMouseDown(e) {
-    
-}
-
-function onMouseUp(e) {
-    mouseDown = false;
-    addSquare = true;
-    //obstPoint = [-1, -1];
-}
-
-function onMouseMove(e) {
-    if (mouseDown) {
-        obstPoint = [256, 256];
-    }
-}
-
 function findPos(obj) {
     var curleft = 0, curtop = 0;
     if (obj.offsetParent) {
@@ -704,7 +606,6 @@ function findPos(obj) {
 }
 function webGLStart() {
     document.getElementById('brush').checked = true;
-    document.getElementById('move').checked = true;
     canvas = document.getElementById('main-canvas');
     pos = findPos(canvas);
     
@@ -726,7 +627,6 @@ function webGLStart() {
         if(mode == SQUARE_MODE) SquareMouseDown(pos);
         if(mode == CIRCLE_MODE) CircleMouseDown(pos);
         if(mode == LINE_MODE) LineMouseDown(pos);
-        if(mode == SELECT_MODE) SelectMouseDown(pos);
         
         e = e || window.event;
         clear = e.ctrlKey;
@@ -740,7 +640,6 @@ function webGLStart() {
         if(mode == SQUARE_MODE) SquareMouseUp(pos);
         if(mode == CIRCLE_MODE) CircleMouseUp(pos);
         if(mode == LINE_MODE) LineMouseUp(pos);
-        if(mode == SELECT_MODE) SelectMouseUp(pos);
         
     };
     canvas.onmousemove = function(e) {
@@ -759,7 +658,6 @@ function webGLStart() {
         if(mode == SQUARE_MODE) SquareMouseMove(pos);
         if(mode == CIRCLE_MODE) CircleMouseMove(pos);
         if(mode == LINE_MODE) LineMouseMove(pos);
-        if(mode == SELECT_MODE) SelectMouseMove(pos);
         
     };
     
@@ -846,43 +744,6 @@ function LineMouseMove(pos) {
 function LineMouseUp(pos) {
     addLine = true;
     drawIntended = false;
-}
-
-function SelectMouseDown(pos) {
-    if(isInside(square_b1,square_b2,obstPoint1)) {
-        sel_mode = ACTIVE_SEL_MODE;
-    } else {
-        sel_mode = MAKE_SEL_MODE;
-        drawIntended = true;
-    }
-}
-
-function SelectMouseMove(pos) {
-    if(sel_mode == ACTIVE_SEL_MODE) {
-        if(mouseDown) {
-            //if(isInside(square_b1,square_b2,obstPoint1)) {
-                var delta = [obstPoint2[0]-obstPoint1[0],obstPoint2[1]-obstPoint1[1]];
-                square_b1 = [square_a1[0]+delta[0],square_a1[1]+delta[1]];
-                square_b2 = [square_a2[0]+delta[0],square_a2[1]+delta[1]];
-            //}
-        }
-    }
-    
-}
-
-function SelectMouseUp(pos) {
-    if(sel_mode == ACTIVE_SEL_MODE) {
-        placeSelection = true;
-    }
-    
-    if(sel_mode == MAKE_SEL_MODE) {
-        //drawIntended = false;
-        sel_mode = ACTIVE_SEL_MODE;
-        square_b1 = square_a1;
-        square_b2 = square_a2;
-    }
-
-    
 }
 
 var zoomFrameLen = 30;
