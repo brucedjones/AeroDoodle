@@ -711,11 +711,6 @@ void main(void)
         </div>  
         <div>
           <h2 class="title">Analyze</h2>
-            <div id="plot-div">
-              <div class="coeff-plot-container">
-                <div id="coeffPlot" class="coeff-plot"></div>
-              </div>
-            </div>
             <div id="analyze-control-div">
               <h3> Viscosity </h3>
               <div id="slider_tau">
@@ -730,9 +725,14 @@ void main(void)
                   onchange="updateUSlider(this.value)"/>High
               </div>
             </div>
-            <!--<div id="chart_div" style="width:400; height:300"></div>-->
-            <div style="clear:both">
-              <body_text>The lift and drag coefficients are shown in the graph above. Use the Viscosity and Velocity sliders to see how the coefficients vary with these parameters.</body_text>
+            <h2></h2>
+            <div id="analyze-explain">
+              <body_text>The lift and drag coefficients are shown in the graph below. Use the Viscosity and Velocity sliders to see how the coefficients vary with these parameters.</body_text>
+            </div>
+            <div id="plot-div" style="clear:both">
+              <div class="coeff-plot-container">
+                <div id="coeffPlot" class="coeff-plot"></div>
+              </div>
             </div>
         </div> 
          

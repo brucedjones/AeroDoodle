@@ -162,8 +162,8 @@ margin-left:4%;
   }        
 .coeff-plot-container {
 	box-sizing: border-box;
-	width: 80%;
-	height: 250px;
+	width: 100%;
+	height: 450px;
 	padding: 20px 15px 15px 15px;
 	margin: 15px auto 30px auto;
 	border: 1px solid #ddd;
@@ -191,5 +191,15 @@ margin-left:4%;
 	border-spacing: 5px;
 }
 
-#plot-div { width: 65%; float: left}
-#analyze-control-div { width: 25%; float: left}
+#plot-div { width: 100%; float: left}
+#analyze-control-div { 
+  position: relative;
+	float: left;
+	width:30%;
+}
+#analyze-explain {
+  position: relative;
+  float: left;
+  width: 50%;
+  margin-left:4%;
+}

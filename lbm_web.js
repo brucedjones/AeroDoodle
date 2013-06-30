@@ -389,6 +389,8 @@ function initState() {
     doRenderOp('obst', [], 'init-obst', {});
 }
 
+var count = 0;
+
 function stepState() {
 
     if(mode == SQUARE_MODE && inDraw){
@@ -467,7 +469,7 @@ function stepState() {
         }
     }
     
-    if(clearObst)
+    if(clearObst && inDraw)
     {
         doRenderOp('obst', [], 'update-obst-clear', {});
         clearObst = false;    
@@ -487,9 +489,13 @@ function stepState() {
     doRenderOp('rho', ['f0', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8'], 'f-to-accum', {'uRhoUxUy': 0});
     doRenderOp('ux', ['f0', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8'], 'f-to-accum', {'uRhoUxUy': 1});
     doRenderOp('uy', ['f0', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8'], 'f-to-accum', {'uRhoUxUy': 2});
+    if(count%10 == 0)
+    {
     doRenderOp('fx', ['f1', 'f2', 'f4', 'f5', 'f6', 'f8', 'obst'], 'update-Fx', {});
     doRenderOp('fy', ['f2', 'f3', 'f4', 'f6', 'f7', 'f8', 'obst'], 'update-Fy', {});
+    
     computeForce();
+    }
     // Stream and collide
     doRenderOp('tmp', ['rho', 'ux', 'uy', 'f0', 'obst'], 'update-f', {'uI': 0, 'uOmega': omega, 'uVel':u});
     swapTextures('tmp', 'f0');
@@ -518,6 +524,7 @@ function stepState() {
         doRenderOp(null, ['ux', 'uy', 'obst', null], 'show-umod', {'drawIntended': drawIntended ? 1: 0, 'MVPMat': MVPMat});
     }
     //doRenderOp(null, ['fx', 'fy', 'obst', 'obst_intended'], 'show-umod', {'drawIntended': drawIntended ? 1: 0, 'MVPMat': MVPMat});
+    count = count+1;
 }
 
 var frameNum = 0;
@@ -852,7 +859,7 @@ function computeForce() {
   }
   
   // Add value to plotting data array
-  if(cl_array.length>1000)
+  if(cl_array.length>200)
   {
     var ignore = cl_array.shift();
     ignore = cd_array.shift();
@@ -888,7 +895,7 @@ $(function () {
 
 		// Set up the control widget
 
-		var updateInterval = 30;
+		//var updateInterval = 30;
 		/*$("#updateInterval").val(updateInterval).change(function () {
 			var v = $(this).val();
 			if (v && !isNaN(+v)) {
@@ -901,7 +908,7 @@ $(function () {
 				$(this).val("" + updateInterval);
 			}
 		});*/
-		var updateInterval = 30;
+		var updateInterval = 60;
     $(this).val("" + updateInterval);
 		var plot = $.plot("#coeffPlot", [{ label: "Cl", data: cl_data },
 			{ label: "Cd", data: cd_data }], {
