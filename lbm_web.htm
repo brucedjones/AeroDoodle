@@ -363,6 +363,17 @@ void main(void)
     gl_FragColor = u2Color(Fy);
 }
 </script>
+<script id="shader-fs-update-obst-clear" type="x-shader/x-fragment">
+precision highp float;
+precision highp int;
+
+varying vec2 vTextureCoord;
+
+void main(void)
+{      
+    gl_FragColor = vec4(0.0, 0.0, 0.0, 0.0);
+}
+</script>
 <script id="shader-fs-update-obst-circle" type="x-shader/x-fragment">
 precision highp float;
 precision highp int;
@@ -708,7 +719,7 @@ void main(void)
     </div>
     <div id="container">
         <div id="lbm_window">
-            <canvas id="main-canvas" width="1024" height="128"></canvas>
+            <canvas id="main-canvas" oncontextmenu="onRightClick(); return false;" width="1024" height="128"></canvas>
         </div>
         <br></br>
         <div id="readouts">
@@ -776,7 +787,15 @@ void main(void)
          
         <div>
           <h2 class="title">Learn</h2>
-          EXPLANATION
+          <p>EXPLANATION</p>
+          <p>EXPLANATION</p>
+          <p>EXPLANATION</p>
+          <p>EXPLANATION</p>
+          <p>EXPLANATION</p>
+          <p>EXPLANATION</p>
+          <p>EXPLANATION</p>
+          <p>EXPLANATION</p>
+          <p>EXPLANATION</p>
         </div>        
 
 

@@ -70,6 +70,9 @@ var CIRCLE_MODE = 2;
 var LINE_MODE = 3;
 var SELECT_MODE = 4;
 var mode = BRUSH_MODE;
+
+var clearObst = false;
+
 //var square_p4 = ;
 var PROGS_DESC = {
     'init-accum': {
@@ -107,6 +110,12 @@ var PROGS_DESC = {
         'fs': ['shader-fs-utils', 'shader-fs-update-fy'],
         'attribs': ['aVertexPosition', 'aTextureCoord'],
         'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uSampler5', 'uSampler6']
+    },
+    'update-obst-clear': {
+        'vs': ['shader-vs'],
+        'fs': ['shader-fs-utils', 'shader-fs-update-obst-clear'],
+        'attribs': ['aVertexPosition', 'aTextureCoord'],
+        'uniforms': []
     },
     'update-obst-circle': {
         'vs': ['shader-vs'],
@@ -454,18 +463,18 @@ function stepState() {
             square_p4 = [square_p4[0]*ctheta+square_p4[1]*stheta+obstPoint1[0], -square_p4[0]*stheta+square_p4[1]*ctheta+obstPoint1[1]];
 
         if(len>0.0)
-            {
-        doRenderOp('tmp', ['obst_intended'], 'update-obst-line', {'uPointX1': square_p1[0], 'uPointY1': square_p1[1], 'uPointX2': square_p2[0], 'uPointY2': square_p2[1], 'uPointX3': square_p3[0], 'uPointY3': square_p3[1], 'uPointX4': square_p4[0], 'uPointY4': square_p4[1], 'uClear': clear ? 1 : 0, 'uAdd':0});
-        swapTextures('tmp', 'obst_intended');
-            
-        if(addLine) {
-            // Calculate Square points from line ends
-            doRenderOp('tmp', ['obst'], 'update-obst-line', {'uPointX1': square_p1[0], 'uPointY1': square_p1[1], 'uPointX2': square_p2[0], 'uPointY2': square_p2[1], 'uPointX3': square_p3[0], 'uPointY3': square_p3[1], 'uPointX4': square_p4[0], 'uPointY4': square_p4[1], 'uClear': clear ? 1 : 0, 'uAdd':1});
-            swapTextures('tmp', 'obst');
-            addLine = false;
-            obstPoint2 = obstPoint1;
+        {
+          doRenderOp('tmp', ['obst_intended'], 'update-obst-line', {'uPointX1': square_p1[0], 'uPointY1': square_p1[1], 'uPointX2': square_p2[0], 'uPointY2': square_p2[1], 'uPointX3': square_p3[0], 'uPointY3': square_p3[1], 'uPointX4': square_p4[0], 'uPointY4': square_p4[1], 'uClear': clear ? 1 : 0, 'uAdd':0});
+          swapTextures('tmp', 'obst_intended');
+              
+          if(addLine) {
+              // Calculate Square points from line ends
+              doRenderOp('tmp', ['obst'], 'update-obst-line', {'uPointX1': square_p1[0], 'uPointY1': square_p1[1], 'uPointX2': square_p2[0], 'uPointY2': square_p2[1], 'uPointX3': square_p3[0], 'uPointY3': square_p3[1], 'uPointX4': square_p4[0], 'uPointY4': square_p4[1], 'uClear': clear ? 1 : 0, 'uAdd':1});
+              swapTextures('tmp', 'obst');
+              addLine = false;
+              obstPoint2 = obstPoint1;
+          }
         }
-            }
     }
     
     if(mode == SELECT_MODE && inDraw) {
@@ -520,6 +529,12 @@ function stepState() {
             doRenderOp('tmp', ['obst_intended'], 'update-obst-square', {'uPointX1': square_a1[0], 'uPointY1': square_a1[1], 'uPointX2': square_a2[0], 'uPointY2': square_a2[1], 'uClear': clear ? 1 : 0, 'uAdd':0});
             swapTextures('tmp', 'obst_intended');
         }
+    }
+    
+    if(clearObst)
+    {
+        doRenderOp('obst', [], 'update-obst-clear', {});
+        clearObst = false;    
     }
     
     // Ensure Canvas is scaled with window size
@@ -1072,9 +1087,12 @@ $(function () {
       //$('#slider-id').liquidSlider();
 
       $('#slider-id').liquidSlider({
+      
+            dynamicTabsAlign:"right",
             autoSlide:false,
             autoHeight:true,
             hideSideArrows:true,
+            mobileNavigation:false,
             callbackFunction: function () { 
             // Store the instance in a variable var
              sliderObject = $.data( $('#slider-id')[0], 'liquidSlider'); 
@@ -1088,16 +1106,6 @@ $(function () {
              }
           });
 
-      /* If you want to adjust the settings, you set an option
-         as follows:
-
-          $('#slider-id').liquidSlider({
-            autoSlide:false,
-            autoHeight:false
-          });
-
-         Find more options at http://liquidslider.kevinbatdorf.com/
-      */
 
       // If you need to access the internal property or methods, use this:
 
@@ -1109,16 +1117,23 @@ $(function () {
     
     $(document).ready(function(){
         var fourValue = 20.0 * u;
-            var red   = Math.round(Math.min(fourValue - 1.5, -fourValue + 4.5)*255);
-            var green = Math.round(Math.min(fourValue - 0.5, -fourValue + 3.5)*255);
-            var blue  = Math.round(Math.min(fourValue + 0.5, -fourValue + 2.5)*255);
+            var red   = Math.round((Math.min(fourValue - 1.5, -fourValue + 4.5)*255)*0.1+217*0.9);
+            var green = Math.round((Math.min(fourValue - 0.5, -fourValue + 3.5)*255)*0.1+217*0.9);
+            var blue  = Math.round((Math.min(fourValue + 0.5, -fourValue + 2.5)*255)*0.1+217*0.9);
             $("body").css('background-color', 'rgb('+red+','+green+','+blue+')');
             
         $("#slider_u").change(function() { 
             var fourValue = 20.0 * u;
-            var red   = Math.round(Math.min(fourValue - 1.5, -fourValue + 4.5)*255);
-            var green = Math.round(Math.min(fourValue - 0.5, -fourValue + 3.5)*255);
-            var blue  = Math.round(Math.min(fourValue + 0.5, -fourValue + 2.5)*255);
+            var red   = Math.round((Math.min(fourValue - 1.5, -fourValue + 4.5)*255)*0.1+217*0.9);
+            var green = Math.round((Math.min(fourValue - 0.5, -fourValue + 3.5)*255)*0.1+217*0.9);
+            var blue  = Math.round((Math.min(fourValue + 0.5, -fourValue + 2.5)*255)*0.1+217*0.9);
             $("body").css('background-color', 'rgb('+red+','+green+','+blue+')');
         });
     });
+    
+    // Disable context menu on canvas
+    function onRightClick()
+    {
+      clearObst = true;
+      return false;
+    }
