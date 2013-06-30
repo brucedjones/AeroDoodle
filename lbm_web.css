@@ -14,10 +14,10 @@ html {
 	padding: 0;
 	}
 body { 
-	font: 75% georgia, sans-serif;
+	font: 100% visitor2, sans-serif;
 	line-height: 1.88889;
 	color: #555753; 
-	background-color: #b0c4de; 
+	background-image: url(resources/graph_paper.gif); 
 	margin: 0; 
 	padding: 0;
 	}
@@ -49,45 +49,100 @@ acronym {
 	border-bottom: none;
 	}
 h1 {
-  font: italic normal 5.0em georgia, sans-serif;
+  font: bold normal 5.0em verdana, sans-serif;
+  font-weight:900;
+  margin-bottom: 0;
+  text-align:center
 }	
 
-
-
-/* specific divs */
-#container {
-    position: relative;
-    padding: 2% 0px 0px 10%;
-    
+h2.title { display:none }
+h2 {
+  font: bold normal 25px verdana, sans-serif;
+  margin-bottom: 0;
+  text-align:center;
 }
 
-#lbm_window { 
+h3 {
+  font: bold normal 25px verdana, sans-serif;
+  margin-bottom: 0;
+  font-family: visitor2;
+}	
+
+@font-face {
+	font-family: visitor2;
+	src: url('visitor2.ttf');
+}
+bar_text{
+  font: bold normal 25px verdana, sans-serif;
+  color: #F2F2F2;
+  font-family: visitor2;
+  
+}
+
+/* specific divs */
+#top_bar {
+  position: fixed;
+  width:100%;
+  height: 25px;
+  padding: 5px 0px 0px 5px;
+  background-color: #0489B1;
+  left: 0px;
+  top: 0px;
+  z-index: 1;
+  box-shadow: 0px 3px 2px #888888;
+}
+
+#container {
+    position: relative;
+    padding: 0px 0px 10% 10%;
+    width: 80%;
+}
+
+#main-canvas{
 	margin: 0;
 	position: relative;
+	padding: 0px 0px 0px 0px;
+	border:2px solid;
+  box-shadow: 3px 3px 5px #888888;
+}
+
+#lbm_window {
+  top: 50px;
+	margin: 0;
+	position: relative;
+	text-align:center;
 	}
 
 #simulation_controls { 
 	min-width: 470px;
+	position: relative;
 	}
         
 #readouts { 
-        table-layout: fixed;
+        table-layout: relative;
+        position: relative;
+        text-align: right;
+        border:2px solid;
+        float: right;
 	}
         
 #readouts_table { 
 	width: 50%;
-        table-layout: fixed;
+  table-layout: fixed;
+  padding: 0px 0px 0px 10%;
+  border:2px solid;
 	}
         
 #disclaimer {
-            
+            border:2px solid;
+  box-shadow: 3px 3px 5px #888888;
         }
 
         
 .coeff-plot-container {
 	box-sizing: border-box;
 	width: 80%;
-	height: 450px;
+	height: 250px;
 	padding: 20px 15px 15px 15px;
 	margin: 15px auto 30px auto;
 	border: 1px solid #ddd;
@@ -114,4 +169,6 @@ h1 {
 .legend table {
 	border-spacing: 5px;
 }
-        
+
+#plot-div { width: 65%; float: left}
+#analyze-control-div { width: 25%; float: left}

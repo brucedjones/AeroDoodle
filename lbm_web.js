@@ -50,8 +50,8 @@ var addLine = false;
 var copySelected = false;
 var moveSelected = true;
 var placeSelection = true;
-var brush_radius = 5.0;
-var circle_radius = brush_radius;
+var brush_radius = 10.0;
+var circle_radius = 10.0;
 var omega = 1.9;
 var u = 0.15;
 
@@ -391,7 +391,8 @@ function initState() {
 }
 
 function stepState() {
-    if(mode == SQUARE_MODE){
+
+    if(mode == SQUARE_MODE && inDraw){
         if(obstPoint1[0]<obstPoint2[0]) {
             square1[0] = obstPoint1[0]
             square2[0] = obstPoint2[0]
@@ -415,7 +416,7 @@ function stepState() {
         }
     }
     
-    if(mode == BRUSH_MODE){
+    if(mode == BRUSH_MODE && inDraw){
         doRenderOp('tmp', ['obst_intended'], 'update-obst-circle', {'uPointX': obstPoint2[0], 'uPointY': obstPoint2[1], 'uRadius': circle_radius, 'uClear': clear ? 1 : 0, 'uAdd':0});
         swapTextures('tmp', 'obst_intended');
         if(addCircle) {
@@ -425,7 +426,7 @@ function stepState() {
         }
     }
     
-    if(mode == CIRCLE_MODE){
+    if(mode == CIRCLE_MODE && inDraw){
         doRenderOp('tmp', ['obst_intended'], 'update-obst-circle', {'uPointX': obstPoint1[0], 'uPointY': obstPoint1[1], 'uRadius': circle_radius, 'uClear': clear ? 1 : 0, 'uAdd':0});
         swapTextures('tmp', 'obst_intended');
         if(addCircleR) {
@@ -435,7 +436,7 @@ function stepState() {
         }
     }
     
-    if(mode == LINE_MODE){
+    if(mode == LINE_MODE && inDraw){
         var delta = [obstPoint2[0]-obstPoint1[0],obstPoint2[1]-obstPoint1[1]];
         var len = Math.sqrt(delta[0]*delta[0]+delta[1]*delta[1]);
         var theta = Math.asin(delta[0]/len);
@@ -467,7 +468,7 @@ function stepState() {
             }
     }
     
-    if(mode == SELECT_MODE) {
+    if(mode == SELECT_MODE && inDraw) {
 
         if(placeSelection) {
             if(copySelected) {
@@ -501,7 +502,7 @@ function stepState() {
             
         }
 
-        if(sel_mode == MAKE_SEL_MODE){
+        if(sel_mode == MAKE_SEL_MODE && inDraw){
             if(obstPoint1[0]<obstPoint2[0]) {
                 square_a1[0] = obstPoint1[0]
                 square_a2[0] = obstPoint2[0]
@@ -522,7 +523,7 @@ function stepState() {
     }
     
     // Ensure Canvas is scaled with window size
-    canvas.width  = window.innerWidth*0.8;
+    canvas.width  = (window.innerWidth*0.8<=1024)?window.innerWidth*0.8:1024;
     canvas.height = canvas.width*Ny/Nx;
     
     // Update the viewport
@@ -558,9 +559,14 @@ function stepState() {
     doRenderOp('tmp', ['rho', 'ux', 'uy', 'f8', 'obst'], 'update-f', {'uI': 8, 'uOmega': omega, 'uVel':u});
     swapTextures('tmp', 'f8');
     // Render
-    doRenderOp(null, ['ux', 'uy', 'obst', 'obst_intended'], 'show-umod', {'drawIntended': drawIntended ? 1: 0, 'MVPMat': MVPMat});
+    if(inDraw)
+    {
+        doRenderOp(null, ['ux', 'uy', 'obst', 'obst_intended'], 'show-umod', {'drawIntended': drawIntended ? 1: 0, 'MVPMat': MVPMat});
+    } else
+    {
+        doRenderOp(null, ['ux', 'uy', 'obst', null], 'show-umod', {'drawIntended': drawIntended ? 1: 0, 'MVPMat': MVPMat});
+    }
     //doRenderOp(null, ['fx', 'fy', 'obst', 'obst_intended'], 'show-umod', {'drawIntended': drawIntended ? 1: 0, 'MVPMat': MVPMat});
-    
 }
 
 var frameNum = 0;
@@ -759,12 +765,10 @@ function updateBrushSlider(value) {
 
 function updateTauSlider(value) {
     omega = 1.0/value;
-    document.getElementById('slider_tau_val').innerText=value; 
 }
 
 function updateUSlider(value) {
     u = value;
-    document.getElementById('slider_u_val').innerText=value; 
 }
 
 function isInside(p1,p2,p3)
@@ -1065,8 +1069,24 @@ $(function () {
 		// LIQUID SLIDER
 	$(function(){
       
-      $('#slider-id').liquidSlider();
+      //$('#slider-id').liquidSlider();
 
+      $('#slider-id').liquidSlider({
+            autoSlide:false,
+            autoHeight:true,
+            hideSideArrows:true,
+            callbackFunction: function () { 
+            // Store the instance in a variable var
+             sliderObject = $.data( $('#slider-id')[0], 'liquidSlider'); 
+             if ( ((sliderObject).currentTab == 1 || (sliderObject).currentTab == 2) && inDraw )
+             {
+                zoomClick()
+             } else if ((sliderObject).currentTab == 0 && !inDraw)
+             {
+                zoomClick()
+             }
+             }
+          });
 
       /* If you want to adjust the settings, you set an option
          as follows:
@@ -1079,45 +1099,26 @@ $(function () {
          Find more options at http://liquidslider.kevinbatdorf.com/
       */
 
-      /* If you need to access the internal property or methods, use this:
+      // If you need to access the internal property or methods, use this:
 
       var sliderObject = $.data( $('#slider-id')[0], 'liquidSlider');
       console.log(sliderObject);
-      //*/
+      
 
     });
     
-    /*
-    // Load the Visualization API and the piechart package.
-      google.load('visualization', '1.0', {'packages':['corechart']});
-      
-      // Set a callback to run when the Google Visualization API is loaded.
-      google.setOnLoadCallback(drawChart);
-
-
-      // Callback that creates and populates a data table, 
-      // instantiates the pie chart, passes in the data and
-      // draws it.
-      function drawChart() {
-
-      // Create the data table.
-      var data = new google.visualization.DataTable();
-      data.addColumn('string', 'Topping');
-      data.addColumn('number', 'Slices');
-      data.addRows([
-        ['Mushrooms', 3],
-        ['Onions', 1],
-        ['Olives', 1], 
-        ['Zucchini', 1],
-        ['Pepperoni', 2]
-      ]);
-
-      // Set chart options
-      var options = {'title':'How Much Pizza I Ate Last Night',
-                     'width':400,
-                     'height':300};
-
-      // Instantiate and draw our chart, passing in some options.
-      var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
-      chart.draw(data, options);
-    }*/
+    $(document).ready(function(){
+        var fourValue = 20.0 * u;
+            var red   = Math.round(Math.min(fourValue - 1.5, -fourValue + 4.5)*255);
+            var green = Math.round(Math.min(fourValue - 0.5, -fourValue + 3.5)*255);
+            var blue  = Math.round(Math.min(fourValue + 0.5, -fourValue + 2.5)*255);
+            $("body").css('background-color', 'rgb('+red+','+green+','+blue+')');
+            
+        $("#slider_u").change(function() { 
+            var fourValue = 20.0 * u;
+            var red   = Math.round(Math.min(fourValue - 1.5, -fourValue + 4.5)*255);
+            var green = Math.round(Math.min(fourValue - 0.5, -fourValue + 3.5)*255);
+            var blue  = Math.round(Math.min(fourValue + 0.5, -fourValue + 2.5)*255);
+            $("body").css('background-color', 'rgb('+red+','+green+','+blue+')');
+        });
+    });

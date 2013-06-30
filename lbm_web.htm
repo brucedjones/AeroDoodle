@@ -36,7 +36,7 @@ const float OMEGA = 1.9;
 const float Nx = 1024.0;
 const float Ny = 128.0;
 const float PI = 3.1415926535897932384626433832795;
-const float VEL = 0.1;
+const float VEL = 0.15;
 
 const float RHO_SCALE = 2.0;
 const float U_SCALE = 2.0;
@@ -624,7 +624,7 @@ void main(void)
     float uy = color2U(texture2D(uSampler1, vTextureCoord));
     float obst = texture2D(uSampler2, vTextureCoord).r;
     float obst_intended = texture2D(uSampler3, vTextureCoord).r;
-    float uMod = ux;//length(vec2(ux, uy));
+    float uMod = length(vec2(ux, uy));
 
     float fourValue = 20.0 * uMod;
     //float fourValue = 10.0 * uMod;
@@ -699,17 +699,18 @@ void main(void)
 
 	<!-- to correct the unsightly Flash of Unstyled Content. http://www.bluerobot.com/web/css/fouc.asp -->
 	<script type="text/javascript" src="lbm_web.js"></script>
-	
-	<style type="text/css" media="all">
-		@import "lbm_web.css";
-	</style>
+
+	<link rel="stylesheet" type="text/css" media="all" href="lbm_web.css">
 </head>
 <body onload="webGLStart();">
+    <div id="top_bar">
+    <bar_text>WebTunnel About</bar_text>
+    </div>
     <div id="container">
-        <div id="page_title">WEBTUNNEL</div> 
         <div id="lbm_window">
-            <canvas id="main-canvas" style="border: none; display: block" width="1024" height="128"></canvas> <br>
+            <canvas id="main-canvas" width="1024" height="128"></canvas>
         </div>
+        <br></br>
         <div id="readouts">
             <table id="readouts_table">
                 <tr>
@@ -719,10 +720,10 @@ void main(void)
                 </tr>
             </table>
         </div>
-        
+        <br></br>
         <div class="liquid-slider"  id="slider-id">
           <div>
-            <h2 class="title">Build</h2>
+            <h2 class="title" id=tabs>Build</h2>
             <div id="simulation_controls">
               <form>
                   <input type="radio" name="brush_toggle" id="brush">Brush
@@ -735,46 +736,54 @@ void main(void)
                   <input type="radio" name="sel_toggle" id="move">Move
                   <input type="radio" name="sel_toggle" id="copy">Copy
               </form>
+              <h3> Brush Size </h3>
               <div id="slider_brush">
-                  Smaller <input id="slider_brush" type="range"
-                  min="5.0" max="50.0" step="1.0" value="5.0"
-                  onchange="updateBrushSlider(this.value)"/>Larger
+                  Small <input id="slider_brush" type="range"
+                  min="10.0" max="50.0" step="1.0" value="20.0"
+                  onchange="updateBrushSlider(this.value)"/>Large
               </div><br/>
-              <div id="slider_tau">
-                  Tau: <input id="slider_tau" type="range"
-                  min="0.51" max="2.0" step="0.01" value="0.51"
-                  onchange="updateTauSlider(this.value)"/><span id="slider_tau_val">0.51</span>
-              </div><br/>
-              
-              <div id="slider_u">
-                  Velocity: <input id="slider_u" type="range"
-                  min="0.001" max="0.15" step="0.001" value="0.15"
-                  onchange="updateUSlider(this.value)"/><span id="slider_u_val">0.15</span>
-              </div><br/>
-              
-              <div id="zoom_but">
-                <button onclick="zoomClick()">Analyze</button>
-              </div>
           </div>
         </div>  
         <div>
           <h2 class="title">Analyze</h2>
-            <div class="coeff-plot-container">
-              <div id="coeffPlot" class="coeff-plot"></div>
+            <div id="plot-div">
+              <div class="coeff-plot-container">
+                <div id="coeffPlot" class="coeff-plot"></div>
+              </div>
             </div>
-            
+            <div id="analyze-control-div">
+              <h3> Viscosity </h3>
+              <div id="slider_tau">
+                    Low <input id="slider_tau" type="range"
+                    min="0.51" max="2.0" step="0.01" value="0.51"
+                    onchange="updateTauSlider(this.value)"/>High
+              </div>
+                
+              <div id="slider_u">
+                  <h3> Velocity </h3>
+                  Low <input id="slider_u" type="range"
+                  min="0.001" max="0.15" step="0.001" value="0.15"
+                  onchange="updateUSlider(this.value)"/>High
+              </div>
+            </div>
             <!--<div id="chart_div" style="width:400; height:300"></div>-->
-
-            <p>You can update a chart periodically to get a real-time effect by using a timer to insert the new data in the plot and redraw it.</p>
-
-            <p>Time between updates: <input id="updateInterval" type="text" value="" style="text-align: right; width:5em"> milliseconds</p>
-            
-        </div>          
+            <div>
+              <p>You can update a chart periodically to get a real-time effect by using a timer to insert the new data in the plot and redraw it.</p>
+  
+              <p>Time between updates: <input id="updateInterval" type="text" value="" style="text-align: right; width:5em"> milliseconds</p>
+            </div>
+        </div> 
+         
+        <div>
+          <h2 class="title">Learn</h2>
+          EXPLANATION
+        </div>        
 
 
       </div>
+      <br></br>
     <div id="disclaimer">
-        
+        DISCLAIMER
     </div>
     </div>
 
