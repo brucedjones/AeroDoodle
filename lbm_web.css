@@ -7,6 +7,7 @@ body {
 	font: 100% visitor2, sans-serif;
 	line-height: 1.88889;
 	color: #555753; 
+	background-color: #EAD0B7;
 	background-image: url(resources/graph_paper_tran.gif); 
 	margin: 0; 
 	padding: 0;
@@ -24,16 +25,15 @@ h3 {
 a:link { 
 	font-weight: bold;
 	text-decoration: none; 
-	color: #B7A5DF;
+	color: #727272;
 	}
 a:visited { 
 	font-weight: bold; 
 	text-decoration: none; 
-	color: #D4CDDC;
+	color: #222222;
 	}
-a:hover, a:active { 
-	text-decoration: underline; 
-	color: #9685BA;
+a:hover, a:active {
+	color: #d2d2d2;
 	}
 acronym {
 	border-bottom: none;
@@ -65,8 +65,23 @@ h3 {
 bar_text{
   font: bold normal 25px verdana, sans-serif;
   color: #F2F2F2;
-  font-family: visitor2;
-  
+  font-family: visitor2; 
+}
+
+#top_bar a:visited{
+color: #F2F2F2;
+}
+
+#top_bar a:link  {
+color: #F2F2F2;
+}
+
+#top_bar a:hover, a:active {
+	color: #d2d2d2;
+	}
+
+body_text{
+  font: normal 12px verdana, sans-serif;
 }
 
 /* specific divs */
@@ -102,10 +117,18 @@ bar_text{
 	}
 
 #simulation_controls { 
-	min-width: 470px;
 	position: relative;
+	float: left;
+	width:30%;
 	}
-        
+
+#build_explain {
+position: relative;
+float: left;
+width: 50%;
+margin-left:4%;
+}
+    
 #readouts { 
         table-layout: relative;
         position: relative;
@@ -122,12 +145,21 @@ bar_text{
 	}
         
 #disclaimer {
+  margin-top: 20px;
   border:2px solid;
   box-shadow: 3px 3px 5px #888888;
   background: #f2f2f2;
+  padding: 10px;
   }
 
-        
+#faq {
+  position: relative;
+  top: 50px;
+  border:2px solid;
+  box-shadow: 3px 3px 5px #888888;
+  background: #f2f2f2;
+  padding: 10px;
+  }        
 .coeff-plot-container {
 	box-sizing: border-box;
 	width: 80%;

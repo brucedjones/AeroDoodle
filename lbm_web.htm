@@ -26,6 +26,7 @@
    
 <script language="javascript" type="text/javascript" src="flot/jquery.flot.js"></script>
 <script language="javascript" type="text/javascript" src="flot/jquery.flot.resize.js"></script>
+<script language="javascript" type="text/javascript" src="flot/jquery.flot.axislabels.js"></script>
    <!--<script type="text/javascript" src="https://www.google.com/jsapi"></script>-->
 <!-- WEBGL SHADERS -->    
 <script id="shader-fs-utils" type="x-shader/x-fragment">
@@ -666,7 +667,7 @@ void main(void)
 </head>
 <body onload="webGLStart();">
     <div id="top_bar">
-    <bar_text>WebTunnel About</bar_text>
+    <bar_text><a href="lbm_web.htm">WebTunnel</a> <a href="faq.htm">FAQ</a></bar_text>
     </div>
     <div id="container">
         <div id="lbm_window">
@@ -687,18 +688,25 @@ void main(void)
           <div>
             <h2 class="title" id=tabs>Build</h2>
             <div id="simulation_controls">
-              <form>
-                  <input type="radio" name="brush_toggle" id="brush">Brush
-                  <input type="radio" name="brush_toggle" id="square">Square
-                  <input type="radio" name="brush_toggle" id="circle">Circle
-                  <input type="radio" name="brush_toggle" id="line">Line
-              </form>
+              <h3> Tools </h3>
+                  <table>
+                    <tr>
+                      <td><input type="radio" name="brush_toggle" id="brush">Brush</td>
+                      <td><input type="radio" name="brush_toggle" id="square">Square</td>
+                      <td><input type="radio" name="brush_toggle" id="circle">Circle</td>
+                      <td><input type="radio" name="brush_toggle" id="line">Line</td>
+                    </tr>
+                  </table>
               <h3> Brush Size </h3>
               <div id="slider_brush">
                   Small <input id="slider_brush" type="range"
                   min="10.0" max="50.0" step="1.0" value="20.0"
                   onchange="updateBrushSlider(this.value)"/>Large
               </div><br/>
+          </div>
+          <div id="build_explain">
+          <h2></h2>
+            <body_text> Use the tools provided to draw a shape within the draw area above. The Brush Size slider may be used to vary the size of both the brush and the width of the line tool. When you are finished click the analyze tab.</body_text>
           </div>
         </div>  
         <div>
@@ -715,7 +723,6 @@ void main(void)
                     min="0.51" max="2.0" step="0.01" value="0.51"
                     onchange="updateTauSlider(this.value)"/>High
               </div>
-                
               <div id="slider_u">
                   <h3> Velocity </h3>
                   Low <input id="slider_u" type="range"
@@ -724,10 +731,8 @@ void main(void)
               </div>
             </div>
             <!--<div id="chart_div" style="width:400; height:300"></div>-->
-            <div>
-              <p>You can update a chart periodically to get a real-time effect by using a timer to insert the new data in the plot and redraw it.</p>
-  
-              <p>Time between updates: <input id="updateInterval" type="text" value="" style="text-align: right; width:5em"> milliseconds</p>
+            <div style="clear:both">
+              <body_text>The lift and drag coefficients are shown in the graph above. Use the Viscosity and Velocity sliders to see how the coefficients vary with these parameters.</body_text>
             </div>
         </div> 
          
@@ -746,7 +751,7 @@ void main(void)
 
 
       </div>
-      <br></br>
+      
     <div id="disclaimer">
         DISCLAIMER
     </div>

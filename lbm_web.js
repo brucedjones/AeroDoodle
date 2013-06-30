@@ -889,7 +889,7 @@ $(function () {
 		// Set up the control widget
 
 		var updateInterval = 30;
-		$("#updateInterval").val(updateInterval).change(function () {
+		/*$("#updateInterval").val(updateInterval).change(function () {
 			var v = $(this).val();
 			if (v && !isNaN(+v)) {
 				updateInterval = +v;
@@ -900,17 +900,28 @@ $(function () {
 				}
 				$(this).val("" + updateInterval);
 			}
-		});
-
+		});*/
+		var updateInterval = 30;
+    $(this).val("" + updateInterval);
 		var plot = $.plot("#coeffPlot", [{ label: "Cl", data: cl_data },
 			{ label: "Cd", data: cd_data }], {
 			series: {
 				shadowSize: 5	// Drawing is faster without shadows
 			},
 			yaxis: {
+        axisLabel: 'Coefficient Value',
+        axisLabelUseCanvas: true,
+        axisLabelFontSizePixels: 20,
+        axisLabelFontFamily: 'visitor2'
 			},
 			xaxis: {
-				show: false
+        axisLabel: 'Time',
+        axisLabelUseCanvas: true,
+        axisLabelFontSizePixels: 20,
+        axisLabelFontFamily: 'visitor2',
+        font: {
+          color: "#ffffff"
+          }
 			},
 			legend: {
         noColumns: 2,
