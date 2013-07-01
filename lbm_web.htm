@@ -665,7 +665,7 @@ void main(void)
 
 	<link rel="stylesheet" type="text/css" media="all" href="lbm_web.css">
 </head>
-<body onload="webGLStart();">
+<body onload="webGLStart(); updateBrushSlider(20.0);">
     <div id="top_bar">
     <bar_text><a href="lbm_web.htm">WebTunnel</a> <a href="faq.htm">FAQ</a></bar_text>
     </div>
@@ -701,7 +701,8 @@ void main(void)
               <div id="slider_brush">
                   Small <input id="slider_brush" type="range"
                   min="10.0" max="50.0" step="1.0" value="20.0"
-                  onchange="updateBrushSlider(this.value)"/>Large
+                  onchange="updateBrushSlider(this.value)"
+                  onload="updateBrushSlider(this.value)"/>Large
               </div><br/>
           </div>
           <div id="build_explain">

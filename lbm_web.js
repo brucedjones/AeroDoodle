@@ -47,8 +47,8 @@ var addSquare = false;
 var drawIntended = true;
 var addCircle = false;
 var addLine = false;
-var brush_radius = 10.0;
-var circle_radius = 10.0;
+var brush_radius = 10.01;
+var circle_radius = 10.01;
 var omega = 1.9;
 var u = 0.15;
 
