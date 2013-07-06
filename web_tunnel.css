@@ -99,6 +99,7 @@ body_text{
     position: relative;
     padding: 0px 0px 10% 10%;
     width: 80%;
+    max-width:1024px;
 }
 
 #main-canvas{
@@ -107,6 +108,7 @@ body_text{
 	padding: 0px 0px 0px 0px;
 	border:2px solid;
   box-shadow: 3px 3px 5px #888888;
+  max-width: 1024px;
 }
 
 #lbm_window {

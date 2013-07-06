@@ -658,16 +658,18 @@ void main(void)
 	<meta name="keywords" content="lattice boltzmann, lbm, bloodhound, bloodhound ssc, swansea university" />
 	<meta name="description" content="Interactive Computational Fluid Dynamics" />
 
-	<title>Fluid simulation with WebGL</title>
+	<title>WebTunnel</title>
+  <!--<LINK REL="icon" HREF="favicon.ico" TYPE="image/x-icon">
+  <LINK REL="shortcut icon" HREF="favicon.ico" TYPE="image/x-icon"> -->
 
 	<!-- to correct the unsightly Flash of Unstyled Content. http://www.bluerobot.com/web/css/fouc.asp -->
-	<script type="text/javascript" src="lbm_web.js"></script>
+	<script type="text/javascript" src="web_tunnel.js"></script>
 
-	<link rel="stylesheet" type="text/css" media="all" href="lbm_web.css">
+	<link rel="stylesheet" type="text/css" media="all" href="web_tunnel.css">
 </head>
 <body onload="webGLStart(); updateBrushSlider(20.0);">
     <div id="top_bar">
-    <bar_text><a href="lbm_web.htm">WebTunnel</a> <a href="faq.htm">FAQ</a></bar_text>
+    <bar_text><a href="web_tunnel.htm">WebTunnel</a> <a href="faq.htm">FAQ</a></bar_text>
     </div>
     <div id="container">
         <div id="lbm_window">
@@ -754,9 +756,21 @@ void main(void)
 
       </div>
       
-    <div id="disclaimer">
-        DISCLAIMER
-    </div>
+      <div id="disclaimer" style="margin-top:70px">
+        <div style="position:relative;float:left;"><a href="http://www.swansea.ac.uk/"><img src="resources/swansea.gif" height="80px"></a></div>
+        <div style="position:relative;float:right;"><a href="http://www.bloodhoundssc.com/"><img src="resources/bloodhound.gif" height="80px"></a></div>
+        <div style="position:relative;overflow:hidden;">
+          <body_text>
+          <p/>
+            <p style = "text-align:center;">WebTunnel was created with generous support from Swansea University and Bloodhound SSC.</p>
+            <p style = "text-align:center;">Copyright &copy; <script type="text/javascript">
+            var d = new Date()
+            document.write(d.getFullYear())
+            </script> Swansea Polymers Ltd.</p>
+          </body_text>
+        </div>
+        <br style="clear:both;" />
+      </div>
     </div>
 
 

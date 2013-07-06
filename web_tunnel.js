@@ -277,9 +277,9 @@ var textures = {};
 var framebuffer;
 function initTexturesFramebuffer() {
     for (var id in TEXTURES_DESC) {
-        textures[id] = createTexture(Nx,Ny,true);//TEXTURES_DESC[id]);
+        textures[id] = createTexture(Nx,Ny,false);//TEXTURES_DESC[id]);
     }
-    textures.display = createTexture(Nx, Ny, true);
+    textures.display = createTexture(Nx, Ny, false);
     framebuffer = gl.createFramebuffer();
 }
 
@@ -603,7 +603,7 @@ function step() {
 function findPos(obj) {
     var curleft = 0, curtop = 0;
     if (obj.offsetParent) {
-        do {
+       do {
             curleft += obj.offsetLeft;
             curtop += obj.offsetTop;
         } while (obj = obj.offsetParent);
@@ -611,13 +611,15 @@ function findPos(obj) {
     }
     return undefined;
 }
+
 function webGLStart() {
     document.getElementById('brush').checked = true;
     canvas = document.getElementById('main-canvas');
-    pos = findPos(canvas);
+    
     
     canvas.onmousedown = function(e) {
-
+        pos = findPos(canvas);
+        
         mouseDown = true;
         var x = e.pageX - pos.x;
         var y = e.pageY - pos.y;
@@ -650,8 +652,11 @@ function webGLStart() {
         
     };
     canvas.onmousemove = function(e) {
-        var x = e.pageX - pos.x;
-        var y = e.pageY - pos.y;
+        pos = findPos(canvas);
+        var cssScale = [Nx / canvas.width,
+                Ny / canvas.height];
+        var x = (e.pageX - pos.x)*cssScale[0];
+        var y = (e.pageY - pos.y)*cssScale[1];
 
         if(inDraw) {
           var horRat = (buildVport.right-buildVport.left)/(vport.right-vport.left);
