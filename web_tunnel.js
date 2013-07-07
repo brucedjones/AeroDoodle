@@ -592,7 +592,7 @@ function step() {
 	frameNum++;
 	var now = new Date();
 	if (now - frameNumStarted > 1000) {
-        document.getElementById('fps').innerText = (1000 / ((now - frameNumStarted) / frameNum)).toFixed(2);
+        document.getElementById('fps').textContent = (1000 / ((now - frameNumStarted) / frameNum)).toFixed(2);
         frameNum = 0;
         frameNumStarted = now;
         }
@@ -894,8 +894,8 @@ function computeForce() {
   max_coeff += offset;
   
   
-  document.getElementById('lift').innerText =  cl.toFixed(7);
-  document.getElementById('drag').innerText =  cd.toFixed(7);
+  document.getElementById('lift').textContent =  cl.toFixed(7);
+  document.getElementById('drag').textContent =  cd.toFixed(7);
 }
 
 function color2Float(r, g, b)
