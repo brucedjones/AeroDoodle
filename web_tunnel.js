@@ -3,17 +3,17 @@ var canvas;
 var Nx = 1024;
 var Ny = 128;
 
-var vport = {'left':-1.0,'right':1.0,'bottom':-1.0,'top':1.0,'near':1.0,'far':-1.0};
+var vport      = {'left':-1.0,'right':1.0,'bottom':-1.0,'top':1.0,'near':1.0,'far':-1.0};
 
-var bLeft = 100;
-var bRight = 356;
-var bBottom = 48;
-var bTop = 80;
-var bWidth = bRight-bLeft;
-var bHeight = bTop-bBottom;
+var bLeft      = 100;
+var bRight     = 356;
+var bBottom    = 48;
+var bTop       = 80;
+var bWidth     = bRight-bLeft;
+var bHeight    = bTop-bBottom;
 
-var horOffset = Nx/2;
-var verOffset = Ny/2;
+var horOffset  = Nx/2;
+var verOffset  = Ny/2;
 
 var buildVport = {'left':(bLeft-horOffset)/horOffset,'right':(bRight-horOffset)/horOffset,
                     'bottom':(bBottom-verOffset)/verOffset,'top':(bTop-verOffset)/verOffset,
@@ -26,49 +26,49 @@ function ortho(vport) {
                 -(vport.right+vport.left)/(vport.right-vport.left), -(vport.top+vport.bottom)/(vport.top-vport.bottom), -(vport.far+vport.near)/(vport.far-vport.near), 1.0];
 } 
 
-var inDraw = true;
-var fromV = vport;
-var toV = buildVport;
-var frameProgress = 200;
+var inDraw          = true;
+var fromV           = vport;
+var toV             = buildVport;
+var frameProgress   = 200;
 
-var MVPMat = ortho(buildVport);
+var MVPMat          = ortho(buildVport);
 
-var mouseDown = false;
-var obstPoint1 = [-1, -1];
-var obstPoint2 = [-1, -1];
-var square1 = [-1, -1];
-var square2 = [-1, -1];
-var square_p1 = [-1, -1];
-var square_p2 = [-1, -1];
-var square_p3 = [-1, -1];
-var square_p4 = [-1, -1];
-var clear = false;
-var addSquare = false;
-var drawIntended = true;
-var addCircle = false;
-var addLine = false;
-var brush_radius = 10.01;
-var circle_radius = 10.01;
-var omega = 1.9;
-var u = 0.15;
+var mouseDown       = false;
+var obstPoint1      = [-1, -1];
+var obstPoint2      = [-1, -1];
+var square1         = [-1, -1];
+var square2         = [-1, -1];
+var square_p1       = [-1, -1];
+var square_p2       = [-1, -1];
+var square_p3       = [-1, -1];
+var square_p4       = [-1, -1];
+var clear           = false;
+var addSquare       = false;
+var drawIntended    = true;
+var addCircle       = false;
+var addLine         = false;
+var brush_radius    = 10.01;
+var circle_radius   = 10.01;
+var omega           = 1.9;
+var u               = 0.15;
 
-var square_a1 = [-1.0, -1.0];
-var square_a2 = [-1.0, -1.0];
-var square_b1 = [-1.0, -1.0];
-var square_b2 = [-1.0, -1.0];
+var square_a1       = [-1.0, -1.0];
+var square_a2       = [-1.0, -1.0];
+var square_b1       = [-1.0, -1.0];
+var square_b2       = [-1.0, -1.0];
 
-var MAKE_SEL_MODE = 1;
+var MAKE_SEL_MODE   = 1;
 var ACTIVE_SEL_MODE = 2;
-var sel_mode = MAKE_SEL_MODE;
+var sel_mode        = MAKE_SEL_MODE;
 
-var BRUSH_MODE = 0;
-var SQUARE_MODE = 1;
-var CIRCLE_MODE = 2;
-var LINE_MODE = 3;
-var SELECT_MODE = 4;
-var mode = BRUSH_MODE;
+var BRUSH_MODE      = 0;
+var SQUARE_MODE     = 1;
+var CIRCLE_MODE     = 2;
+var LINE_MODE       = 3;
+var SELECT_MODE     = 4;
+var mode            = BRUSH_MODE;
 
-var clearObst = false;
+var clearObst       = false;
 
 //var square_p4 = ;
 var PROGS_DESC = {
@@ -544,8 +544,8 @@ var frameNumStarted2 = new Date();
 function step() {
     if(document.getElementById('brush').checked) {
         if(mode != BRUSH_MODE) {
-            mode = BRUSH_MODE;
-            addCircle = false;
+            mode          = BRUSH_MODE;
+            addCircle     = false;
             obstPoint1[0] = -1.0;
             obstPoint1[1] = -1.0;
             obstPoint2[0] = -1.0;
@@ -554,9 +554,9 @@ function step() {
         }
     }else if(document.getElementById('square').checked) {
         if(mode != SQUARE_MODE) {
-            mode = SQUARE_MODE;
-            drawIntended = false;
-            addSquare = false;
+            mode          = SQUARE_MODE;
+            drawIntended  = false;
+            addSquare     = false;
             obstPoint1[0] = -1.0;
             obstPoint1[1] = -1.0;
             obstPoint2[0] = -1.0;
@@ -564,9 +564,9 @@ function step() {
         }
     }else if(document.getElementById('circle').checked) {
         if(mode != CIRCLE_MODE) {
-            mode = CIRCLE_MODE;
-            drawIntended = false;
-            addCircleR = false;
+            mode          = CIRCLE_MODE;
+            drawIntended  = false;
+            addCircleR    = false;
             obstPoint1[0] = -1.0;
             obstPoint1[1] = -1.0;
             obstPoint2[0] = -1.0;
@@ -576,8 +576,8 @@ function step() {
     } else if(document.getElementById('line').checked) {
         if(mode != LINE_MODE) {
             mode = LINE_MODE;
-            drawIntended = false;
-            addLine = false;
+            drawIntended  = false;
+            addLine       = false;
             obstPoint1[0] = -1.0;
             obstPoint1[1] = -1.0;
             obstPoint2[0] = -1.0;
@@ -661,11 +661,11 @@ function webGLStart() {
         
     };
     canvas.onmousemove = function(e) {
-        pos = findPos(canvas);
+        pos           = findPos(canvas);
         var cssScaleX = Nx / canvas.width;
         var cssScaleY = Ny / canvas.height;
-        var x = (e.pageX - pos.x)*cssScaleX;
-        var y = (e.pageY - pos.y)*cssScaleY;
+        var x         = (e.pageX - pos.x)*cssScaleX;
+        var y         = (e.pageY - pos.y)*cssScaleY;
 
         if(inDraw) {
           var horRat = (buildVport.right-buildVport.left)/(vport.right-vport.left);
@@ -799,10 +799,10 @@ function zoomClick() {
 
 var min_coeff = -1;
 var max_coeff = 1;
-var cl_array = [];
-var cd_array = [];
-var cl_data = [];
-var cd_data = [];
+var cl_array  = [];
+var cd_array  = [];
+var cl_data   = [];
+var cd_data   = [];
 
 Array.max = function( array ){
     return Math.max.apply( Math, array );
@@ -833,21 +833,21 @@ function computeForce() {
   
   var forceXVal = 0;
   var forceYVal = 0;
-  var count = 0;
-  var minj = bWidth;
-  var maxj = 0;
+  var count     = 0;
+  var minj      = bWidth;
+  var maxj      = 0;
   for (var j=0;j<bHeight;j++)
   { 
     for (var i=0;i<bWidth;i++)
     { 
-      var r = forceX[(j*bWidth*4)+(4*i)+0];
-      var g = forceX[(j*bWidth*4)+(4*i)+1]; 
-      var b = forceX[(j*bWidth*4)+(4*i)+2];
+      var r    = forceX[(j*bWidth*4)+(4*i)+0];
+      var g    = forceX[(j*bWidth*4)+(4*i)+1]; 
+      var b    = forceX[(j*bWidth*4)+(4*i)+2];
       var tmpx = color2Float(r, g, b);
       
-      var r = forceY[(j*bWidth*4)+(4*i)+0];
-      var g = forceY[(j*bWidth*4)+(4*i)+1];
-      var b = forceY[(j*bWidth*4)+(4*i)+2];
+      var r    = forceY[(j*bWidth*4)+(4*i)+0];
+      var g    = forceY[(j*bWidth*4)+(4*i)+1];
+      var b    = forceY[(j*bWidth*4)+(4*i)+2];
       var tmpy = color2Float(r, g, b);
       if(tmpx!=0 || tmpy!=0)
       {

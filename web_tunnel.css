@@ -106,7 +106,6 @@ body_text{
 }
 
 #main-canvas{
-	margin: 0;
 	position: relative;
 	padding: 0px 0px 0px 0px;
 	border:2px solid;
@@ -116,12 +115,9 @@ body_text{
   margin-left:auto;
   margin-right:auto;
 	margin-top:50px;
+	margin-bottom:0px;
+	display: block;
 }
-
-#lbm_window {
-	position: relative;
-	text-align:center;
-	}
 
 #simulation_controls { 
 	position: relative;
@@ -141,15 +137,15 @@ margin-left:4%;
         table-layout: relative;
         position: relative;
         text-align: left;
-        border:2px solid;
-        float: right;
+        line-height:50%;
+        margin-bottom:10px;
 	}
         
 #readouts_table { 
 	width: 100%;
   table-layout: fixed;
-  padding: 0px 0px 0px 10%;
-  border:2px solid;
+  text-align:left;
+  padding: 0px 0px 0px 0;
   clear:both
 	}
         

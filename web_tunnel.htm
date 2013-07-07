@@ -4,7 +4,6 @@
 <!-- FLOT INCLUDES -->
 <script language="javascript" type="text/javascript" src="flot/jquery.js"></script>
 
-
 <!-- LIQUID SLIDER INCLUDES -->
 <!-- 
   Here is the style sheet for the Liquid Slider
@@ -738,24 +737,58 @@ void main(void)
          
         <div>
           <h2 class="title">Learn</h2>
-          <p>EXPLANATION</p>
-          <p>EXPLANATION</p>
-          <p>EXPLANATION</p>
-          <p>EXPLANATION</p>
-          <p>EXPLANATION</p>
-          <p>EXPLANATION</p>
-          <p>EXPLANATION</p>
-          <p>EXPLANATION</p>
-          <p>EXPLANATION</p>
+          <h3>WebTunnel</h3>
+          <body_text>
+            <p>WebTunnel is a wind tunnel simulation. In the simulation window, fluid flows from left to right. In areas of high velocity the colour of the simulation
+            window is red. In areas of low velocity, the colour is blue.</p>
+            
+            <p>When you draw an object in the simulation window, the fluid is not able to penetrate it. Additionally, any fluid in contact with the obstacle
+            must have a velocity of zero, this is known as the <a href="http://en.wikipedia.org/wiki/No-slip_condition" target="_blank">no-slip condition</a>.</p>
+            
+            <p>As the fluid flows, it exerts forces upon the obstacle. These forces are commonly known as <a href="http://en.wikipedia.org/wiki/Aerodynamic_force" target="_blank">lift and drag</a>.
+            
+            <p>Simply knowing the value of these forces is not particularly useful when comparing different geometries. This is because the forces are proportional to the size of the object.
+            A much larger object will generate much larger forces, however it may not generate them as efficiently. The size of an object is accounted for if <i>coefficients</i> of <a href="http://en.wikipedia.org/wiki/Lift_coefficient" target="_blank">lift</a> and <a href="http://en.wikipedia.org/wiki/Drag_coefficient" target="_blank">drag</a>
+            are compared instead</p>
+          </body_text>
+          <h3>Computational Fluid Dynamics</h3>
+          <body_text>
+            <p>The flow of fluid is described by the <a href="http://en.wikipedia.org/wiki/Navier_Stokes" target="_blank">Navier Stokes</a> equations, which describe the relationship between velocity, pressure and density.
+            Solutions to this set of equations exist for simple cases such as,
+            <list>
+            <li>Flow between two infintely large parallel plates</li>
+            <li>Slow flow past a cylinder or Sphere</li>
+            </list>
+            However no general solution exists which describes fluid flow over arbitrarily shaped objects.</p>
+            
+            <p><a href="http://en.wikipedia.org/wiki/Computational_fluid_dynamics" target="_blank">Computational fluid dynamics</a>, or CFD, allows us to study such flows by using numerical techniques to approximate solutions the the Navier Stokes equations.
+            These numerical techniques typically involve subdividing space into a grid of small <i>continuum elements</i>. For each element an approximation
+            of density, pressure, and velocity is acheived through a series of arithmetic operations.</p>
+            
+            <p>For an engineer today, a number of CFD techniques are available. The most mature of these are the <a href="https://en.wikipedia.org/wiki/Finite_volume" target="_blank">Finite Volume</a> and <a href="https://en.wikipedia.org/wiki/Finite_element" target="_blank">Finite Element</a> methods. More recently
+            developed techniques include <a href="https://en.wikipedia.org/wiki/Smoothed_particle_hydrodynamics" target="_blank">Smoothed Particle Hydrodynamics</a> and the <a href="https://en.wikipedia.org/wiki/Lattice_Boltzmann" target="_blank">Lattice Boltzmann Method</a>. Each of these methods has their relative benefits,
+            WebTunnel uses the Lattice Boltzmann method because it is a naturarally parallel algorithm.</p>
+            
+          </body_text>
+          <h3>High Performance Computing</h3>
+          <body_text>
+            <p>For every second of a WebTunnel simulation, approximately <i>300 million equations are evaluated</i>. Simulations of the Bloodhound SSC far exceed this.</p>
+            
+            <p>The term <a href="https://en.wikipedia.org/wiki/High_performance_computing" target="_blank">high performance computing</a>, or HPC, refers to a field of computer science which seeks to evaluate these equation in the most efficient way possible, leading
+            to reductions in the time required for a simulation to complete. For CFD simulations the most effective way to do this is to compute the solution for each continuum element in <i>parallel</i>.</p>
+          
+            <p>The WebTunnel simulation is divided into a grid of continuum elements which is 1024 elements wide, and 128 elements high. For each frame of the simulation, these elements are
+            distributed accross the many computational <a href="https://en.wikipedia.org/wiki/Multi-core_processor" target="_blank">cores</a> of your computers <a href="https://en.wikipedia.org/wiki/Gpu_computing" target="_blank">graphics chip</a>. The graphics chip is used in this way because it typically has many more cores
+            than a CPU.</p>
+          </body_text>
         </div>        
 
 
       </div>
       
       <div id="disclaimer" style="margin-top:70px">
-        <div style="position:relative;float:left;"><a href="http://www.swansea.ac.uk/"><img src="resources/swansea.gif" height="80px"></a></div>
-        <div style="position:relative;float:right;"><a href="http://www.bloodhoundssc.com/"><img src="resources/bloodhound.gif" height="80px"></a></div>
-        <div style="position:relative;overflow:hidden;">
+        <div style="position:relative;float:left;width:15%;"><a href="http://www.swansea.ac.uk/" target="_blank"><img src="resources/swansea.gif" height="80px"></a></div>
+        <div style="position:relative;float:left;overflow:hidden;width:70%;">
           <body_text>
           <p/>
             <p style = "text-align:center;">WebTunnel was created with generous support from Swansea University and Bloodhound SSC.</p>
@@ -765,6 +798,7 @@ void main(void)
             </script> Swansea Polymers Ltd.</p>
           </body_text>
         </div>
+        <div style="position:relative;float:left;width:15%;text-align:right;"><a href="http://www.bloodhoundssc.com/" target="_blank"><img src="resources/bloodhound.gif" height="80px"></a></div>
         <br style="clear:both;" />
       </div>
     </div>
