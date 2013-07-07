@@ -90,16 +90,19 @@ body_text{
   width:100%;
   padding: 5px 0px 0px 5px;
   background-color: #0489B1;
-
   z-index: 1;
   box-shadow: 0px 3px 2px #888888;
+  top:0;
+  left:0;
 }
 
 #container {
     position: relative;
-    padding: 0px 0px 10% 10%;
     width: 80%;
-    max-width:1024px;
+    max-width:1028px;
+    margin-left:auto;
+    margin-right:auto;
+    min-width:800px;
 }
 
 #main-canvas{
@@ -109,11 +112,13 @@ body_text{
 	border:2px solid;
   box-shadow: 3px 3px 5px #888888;
   max-width: 1024px;
+  min-width:800px;
+  margin-left:auto;
+  margin-right:auto;
+	margin-top:50px;
 }
 
 #lbm_window {
-  top: 50px;
-	margin: 0;
 	position: relative;
 	text-align:center;
 	}
@@ -121,7 +126,8 @@ body_text{
 #simulation_controls { 
 	position: relative;
 	float: left;
-	width:30%;
+	width:35%;
+	min-width:250px;
 	}
 
 #build_explain {
@@ -134,16 +140,17 @@ margin-left:4%;
 #readouts { 
         table-layout: relative;
         position: relative;
-        text-align: right;
+        text-align: left;
         border:2px solid;
         float: right;
 	}
         
 #readouts_table { 
-	width: 50%;
+	width: 100%;
   table-layout: fixed;
   padding: 0px 0px 0px 10%;
   border:2px solid;
+  clear:both
 	}
         
 #disclaimer {
@@ -197,7 +204,8 @@ margin-left:4%;
 #analyze-control-div { 
   position: relative;
 	float: left;
-	width:30%;
+	width:35%;
+	min-width:250px;
 }
 #analyze-explain {
   position: relative;

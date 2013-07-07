@@ -476,8 +476,17 @@ function stepState() {
     }
     
     // Ensure Canvas is scaled with window size
-    canvas.width  = (window.innerWidth*0.8<=1024)?window.innerWidth*0.8:1024;
-    canvas.height = canvas.width*Ny/Nx;
+    if(window.innerWidth*0.8<=1024 && window.innerWidth*0.8>=800)
+    {
+      canvas.width  = window.innerWidth*0.8
+    } else if(window.innerWidth*0.8>1024) {
+      canvas.width  = 1024;
+    } else if(window.innerWidth*0.8<800)
+    {
+      canvas.width  = 800;
+    }
+    //canvas.width  = (window.innerWidth*0.8<=1024)?window.innerWidth*0.8:1024;
+    canvas.height = canvas.width*(Ny/Nx);
     
     // Update the viewport
     frameProgress+=1;
@@ -627,9 +636,9 @@ function webGLStart() {
         if(inDraw) {
           var horRat = (buildVport.right-buildVport.left)/(vport.right-vport.left);
           var verRat = (buildVport.top-buildVport.bottom)/(vport.top-vport.bottom)
-          obstPoint1 = [((x-0.5)*horRat)+bLeft, (canvas.height-y-0.5)*verRat+bBottom];
+          obstPoint1 = [((x)*horRat)+bLeft, (Ny-y)*verRat+bBottom];
         } else {
-          obstPoint1 = [x-0.5, (canvas.height-y-0.5)];
+          obstPoint1 = [x, (Ny-y)];
         }
         
         if(mode == BRUSH_MODE) BrushMouseDown(pos);
@@ -653,17 +662,17 @@ function webGLStart() {
     };
     canvas.onmousemove = function(e) {
         pos = findPos(canvas);
-        var cssScale = [Nx / canvas.width,
-                Ny / canvas.height];
-        var x = (e.pageX - pos.x)*cssScale[0];
-        var y = (e.pageY - pos.y)*cssScale[1];
+        var cssScaleX = Nx / canvas.width;
+        var cssScaleY = Ny / canvas.height;
+        var x = (e.pageX - pos.x)*cssScaleX;
+        var y = (e.pageY - pos.y)*cssScaleY;
 
         if(inDraw) {
           var horRat = (buildVport.right-buildVport.left)/(vport.right-vport.left);
           var verRat = (buildVport.top-buildVport.bottom)/(vport.top-vport.bottom)
-          obstPoint2 = [((x-0.5)*horRat)+bLeft, (canvas.height-y-0.5)*verRat+bBottom];
+          obstPoint2 = [((x)*horRat)+bLeft, (Ny-y)*verRat+bBottom];
         } else {
-          obstPoint2 = [x-0.5, (canvas.height-y-0.5)];
+          obstPoint2 = [x, (Ny-y)];
         }
         
         if(mode == BRUSH_MODE) BrushMouseMove(pos);

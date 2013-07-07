@@ -669,23 +669,19 @@ void main(void)
 </head>
 <body onload="webGLStart(); updateBrushSlider(20.0);">
     <div id="top_bar">
-    <bar_text><a href="web_tunnel.htm">WebTunnel</a> <a href="faq.htm">FAQ</a></bar_text>
+      <bar_text><a href="web_tunnel.htm">WebTunnel</a> <a href="faq.htm">FAQ</a></bar_text>
     </div>
     <div id="container">
-        <div id="lbm_window">
-            <canvas id="main-canvas" oncontextmenu="onRightClick(); return false;" width="1024" height="128"></canvas>
-        </div>
-        <br></br>
+        <canvas id="main-canvas" oncontextmenu="onRightClick(); return false;" width="1024" height="128"></canvas>
         <div id="readouts">
-            <table id="readouts_table">
-                <tr>
-                    <td>FPS: <span id="fps">52.68</span></td>
-                    <td>Lift: <span id="lift">0.0</span></td>
-                    <td>Drag: <span id="drag">0.0</span></td>
-                </tr>
-            </table>
+          <table id="readouts_table">
+              <tr>
+                  <td><b>FPS:</b> <span id="fps">52.68</span></td>
+                  <td><b>C<sub>l</sub>:</b> <span id="lift">0.0</span></td>
+                  <td><b>C<sub>d</sub>:</b> <span id="drag">0.0</span></td>
+              </tr>
+          </table>
         </div>
-        <br></br>
         <div class="liquid-slider"  id="slider-id">
           <div>
             <h2 class="title" id=tabs>Build</h2>
