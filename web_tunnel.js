@@ -73,74 +73,74 @@ var clearObst       = false;
 //var square_p4 = ;
 var PROGS_DESC = {
     'init-accum': {
-        'vs': ['shader-vs'],
-        'fs': ['shader-fs-utils', 'shader-fs-init-accum'],
+        'vs': ['shaders/quad.vs'],
+        'fs': ['shaders/utils.fs', 'shaders/init-accum.fs'],
         'attribs': ['aVertexPosition', 'aTextureCoord'],
         'uniforms': ['uRhoUxUy']
     },
     'init-f': {
-        'vs': ['shader-vs'],
-        'fs': ['shader-fs-utils', 'shader-fs-init-f'],
+        'vs': ['shaders/quad.vs'],
+        'fs': ['shaders/utils.fs', 'shaders/init-f.fs'],
         'attribs': ['aVertexPosition', 'aTextureCoord'],
         'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uI']
     },
     'init-obst': {
-        'vs': ['shader-vs'],
-        'fs': ['shader-fs-utils', 'shader-fs-init-obst'],
+        'vs': ['shaders/quad.vs'],
+        'fs': ['shaders/utils.fs', 'shaders/init-obst.fs'],
         'attribs': ['aVertexPosition', 'aTextureCoord'],
         'uniforms': []
     },
     'update-f': {
-        'vs': ['shader-vs'],
-        'fs': ['shader-fs-utils', 'shader-fs-update-f'],
+        'vs': ['shaders/quad.vs'],
+        'fs': ['shaders/utils.fs', 'shaders/update-f.fs'],
         'attribs': ['aVertexPosition', 'aTextureCoord'],
         'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uI', 'uOmega', 'uVel']
     },
     'update-Fx': {
-        'vs': ['shader-vs'],
-        'fs': ['shader-fs-utils', 'shader-fs-update-fx'],
+        'vs': ['shaders/quad.vs'],
+        'fs': ['shaders/utils.fs', 'shaders/update-fx.fs'],
         'attribs': ['aVertexPosition', 'aTextureCoord'],
         'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uSampler5', 'uSampler6' ]
     },
     'update-Fy': {
-        'vs': ['shader-vs'],
-        'fs': ['shader-fs-utils', 'shader-fs-update-fy'],
+        'vs': ['shaders/quad.vs'],
+        'fs': ['shaders/utils.fs', 'shaders/update-fy.fs'],
         'attribs': ['aVertexPosition', 'aTextureCoord'],
         'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uSampler5', 'uSampler6']
     },
     'update-obst-clear': {
-        'vs': ['shader-vs'],
-        'fs': ['shader-fs-utils', 'shader-fs-update-obst-clear'],
+        'vs': ['shaders/quad.vs'],
+        'fs': ['shaders/utils.fs', 'shaders/update-obst-clear.fs'],
         'attribs': ['aVertexPosition', 'aTextureCoord'],
         'uniforms': []
     },
     'update-obst-circle': {
-        'vs': ['shader-vs'],
-        'fs': ['shader-fs-utils', 'shader-fs-update-obst-circle'],
+        'vs': ['shaders/quad.vs'],
+        'fs': ['shaders/utils.fs', 'shaders/update-obst-circle.fs'],
         'attribs': ['aVertexPosition', 'aTextureCoord'],
         'uniforms': ['uSampler0', 'uPointX', 'uPointY', 'uRadius', 'uClear', 'uAdd']
     },
     'update-obst-square': {
-        'vs': ['shader-vs'],
-        'fs': ['shader-fs-utils', 'shader-fs-update-obst-square'],
+        'vs': ['shaders/quad.vs'],
+        'fs': ['shaders/utils.fs', 'shaders/update-obst-square.fs'],
         'attribs': ['aVertexPosition', 'aTextureCoord'],
         'uniforms': ['uSampler0', 'uPointX1', 'uPointY1', 'uPointX2', 'uPointY2', 'uClear', 'uAdd']
     },
     'update-obst-line': {
-        'vs': ['shader-vs'],
-        'fs': ['shader-fs-utils', 'shader-fs-update-obst-line'],
+        'vs': ['shaders/quad.vs'],
+        'fs': ['shaders/utils.fs', 'shaders/update-obst-line.fs'],
         'attribs': ['aVertexPosition', 'aTextureCoord'],
         'uniforms': ['uSampler0', 'uPointX1', 'uPointY1', 'uPointX2', 'uPointY2', 'uPointX3', 'uPointY3', 'uPointX4', 'uPointY4', 'uClear', 'uAdd']
     },
     'f-to-accum': {
-        'vs': ['shader-vs'],
-        'fs': ['shader-fs-utils', 'shader-fs-f-to-accum'],
+        'vs': ['shaders/quad.vs'],
+        'fs': ['shaders/utils.fs', 'shaders/f-to-accum.fs'],
         'attribs': ['aVertexPosition', 'aTextureCoord'],
         'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uSampler5', 'uSampler6', 'uSampler7', 'uSampler8', 'uRhoUxUy']
     },
     'show-umod': {
-        'vs': ['shader-vs-show'],
-        'fs': ['shader-fs-utils', 'shader-fs-show-umod'],
+        'vs': ['shaders/quad_perspective.vs'],
+        'fs': ['shaders/utils.fs', 'shaders/show-umod.fs'],
         'attribs': ['aVertexPosition', 'aTextureCoord'],
         'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3','drawIntended', 'MVPMat']
     }
@@ -211,6 +211,13 @@ function initGL(canvas) {
     gl.viewport(0, 0, Nx,Ny);
 }
 
+function getSourceSynch(url) {
+  var req = new XMLHttpRequest();
+  req.open("GET", url, false);
+  req.send(null);
+  return (req.status == 200) ? req.responseText : null;
+}
+
 function getShader(ids, type) {
     var shader;
     if (type === 'fs') {
@@ -227,11 +234,13 @@ function getShader(ids, type) {
     
     var shaderTexts = [];
     for (var i = 0; i < ids.length; i++) {
-        var shaderElem = document.getElementById(ids[i]);
-        shaderTexts.push(shaderElem.textContent);
+        //var shaderElem = document.getElementById(ids[i]);
+        var shaderElem = getSourceSynch(ids[i]);
+        //shaderTexts.push(shaderElem.textContent);
+        shaderTexts.push(shaderElem)
     }
-    
-    gl.shaderSource(shader, shaderTexts.join('\n'));
+     gl.shaderSource(shader, shaderTexts.join('\n'));
+
     gl.compileShader(shader);
 
     return shader;
@@ -1006,27 +1015,28 @@ $(function () {
       console.log(sliderObject);
       
 
-    });
+});
     
-    $(document).ready(function(){
+$(document).ready(function(){
+    var fourValue = 20.0 * u;
+        var red   = Math.round((Math.min(fourValue - 1.5, -fourValue + 4.5)*255)*0.1+217*0.9);
+        var green = Math.round((Math.min(fourValue - 0.5, -fourValue + 3.5)*255)*0.1+217*0.9);
+        var blue  = Math.round((Math.min(fourValue + 0.5, -fourValue + 2.5)*255)*0.1+217*0.9);
+        $("body").css('background-color', 'rgb('+red+','+green+','+blue+')');
+        
+    $("#slider_u").change(function() { 
         var fourValue = 20.0 * u;
-            var red   = Math.round((Math.min(fourValue - 1.5, -fourValue + 4.5)*255)*0.1+217*0.9);
-            var green = Math.round((Math.min(fourValue - 0.5, -fourValue + 3.5)*255)*0.1+217*0.9);
-            var blue  = Math.round((Math.min(fourValue + 0.5, -fourValue + 2.5)*255)*0.1+217*0.9);
-            $("body").css('background-color', 'rgb('+red+','+green+','+blue+')');
-            
-        $("#slider_u").change(function() { 
-            var fourValue = 20.0 * u;
-            var red   = Math.round((Math.min(fourValue - 1.5, -fourValue + 4.5)*255)*0.1+217*0.9);
-            var green = Math.round((Math.min(fourValue - 0.5, -fourValue + 3.5)*255)*0.1+217*0.9);
-            var blue  = Math.round((Math.min(fourValue + 0.5, -fourValue + 2.5)*255)*0.1+217*0.9);
-            $("body").css('background-color', 'rgb('+red+','+green+','+blue+')');
-        });
+        var red   = Math.round((Math.min(fourValue - 1.5, -fourValue + 4.5)*255)*0.1+217*0.9);
+        var green = Math.round((Math.min(fourValue - 0.5, -fourValue + 3.5)*255)*0.1+217*0.9);
+        var blue  = Math.round((Math.min(fourValue + 0.5, -fourValue + 2.5)*255)*0.1+217*0.9);
+        $("body").css('background-color', 'rgb('+red+','+green+','+blue+')');
     });
-    
-    // Disable context menu on canvas
-    function onRightClick()
-    {
-      clearObst = true;
-      return false;
-    }
+});
+
+// Disable context menu on canvas
+function onRightClick()
+{
+  clearObst = true;
+  return false;
+}
+
