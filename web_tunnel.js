@@ -5,10 +5,10 @@ var Ny = 128;
 
 var vport      = {'left':-1.0,'right':1.0,'bottom':-1.0,'top':1.0,'near':1.0,'far':-1.0};
 
-var bLeft      = 100;
-var bRight     = 356;
-var bBottom    = 48;
-var bTop       = 80;
+var bLeft      =  0.09765625*Nx;
+var bRight     = 0.34765625*Nx;
+var bBottom    = 0.375*Ny;
+var bTop       = 0.625*Ny;
 var bWidth     = bRight-bLeft;
 var bHeight    = bTop-bBottom;
 
