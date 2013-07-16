@@ -1,23 +1,21 @@
 var canvas;
 
-var Nx = 1024;
-var Ny = 128;
+var Nx;
+var Ny;
 
 var vport      = {'left':-1.0,'right':1.0,'bottom':-1.0,'top':1.0,'near':1.0,'far':-1.0};
 
-var bLeft      =  0.09765625*Nx;
-var bRight     = 0.34765625*Nx;
-var bBottom    = 0.375*Ny;
-var bTop       = 0.625*Ny;
-var bWidth     = bRight-bLeft;
-var bHeight    = bTop-bBottom;
+var bLeft;
+var bRight;
+var bBottom;
+var bTop;
+var bWidth;
+var bHeight;
 
-var horOffset  = Nx/2;
-var verOffset  = Ny/2;
+var horOffset;
+var verOffset;
 
-var buildVport = {'left':(bLeft-horOffset)/horOffset,'right':(bRight-horOffset)/horOffset,
-                    'bottom':(bBottom-verOffset)/verOffset,'top':(bTop-verOffset)/verOffset,
-                    'near':1.0,'far':-1.0};
+var buildVport;
 
 function ortho(vport) {
   return   [2.0/(vport.right- vport.left), 0.0, 0.0, 0.0,
@@ -27,11 +25,11 @@ function ortho(vport) {
 } 
 
 var inDraw          = true;
-var fromV           = vport;
-var toV             = buildVport;
+var fromV;
+var toV;
 var frameProgress   = 200;
 
-var MVPMat          = ortho(buildVport);
+var MVPMat;
 
 var mouseDown       = false;
 var obstPoint1      = [-1, -1];
@@ -71,100 +69,9 @@ var mode            = BRUSH_MODE;
 var clearObst       = false;
 
 //var square_p4 = ;
-var PROGS_DESC = {
-    'init-accum': {
-        'vs': ['shaders/quad.vs'],
-        'fs': ['shaders/utils.fs', 'shaders/init-accum.fs'],
-        'attribs': ['aVertexPosition', 'aTextureCoord'],
-        'uniforms': ['uRhoUxUy']
-    },
-    'init-f': {
-        'vs': ['shaders/quad.vs'],
-        'fs': ['shaders/utils.fs', 'shaders/init-f.fs'],
-        'attribs': ['aVertexPosition', 'aTextureCoord'],
-        'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uI']
-    },
-    'init-obst': {
-        'vs': ['shaders/quad.vs'],
-        'fs': ['shaders/utils.fs', 'shaders/init-obst.fs'],
-        'attribs': ['aVertexPosition', 'aTextureCoord'],
-        'uniforms': []
-    },
-    'update-f': {
-        'vs': ['shaders/quad.vs'],
-        'fs': ['shaders/utils.fs', 'shaders/update-f.fs'],
-        'attribs': ['aVertexPosition', 'aTextureCoord'],
-        'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uI', 'uOmega', 'uVel']
-    },
-    'update-Fx': {
-        'vs': ['shaders/quad.vs'],
-        'fs': ['shaders/utils.fs', 'shaders/update-fx.fs'],
-        'attribs': ['aVertexPosition', 'aTextureCoord'],
-        'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uSampler5', 'uSampler6' ]
-    },
-    'update-Fy': {
-        'vs': ['shaders/quad.vs'],
-        'fs': ['shaders/utils.fs', 'shaders/update-fy.fs'],
-        'attribs': ['aVertexPosition', 'aTextureCoord'],
-        'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uSampler5', 'uSampler6']
-    },
-    'update-obst-clear': {
-        'vs': ['shaders/quad.vs'],
-        'fs': ['shaders/utils.fs', 'shaders/update-obst-clear.fs'],
-        'attribs': ['aVertexPosition', 'aTextureCoord'],
-        'uniforms': []
-    },
-    'update-obst-circle': {
-        'vs': ['shaders/quad.vs'],
-        'fs': ['shaders/utils.fs', 'shaders/update-obst-circle.fs'],
-        'attribs': ['aVertexPosition', 'aTextureCoord'],
-        'uniforms': ['uSampler0', 'uPointX', 'uPointY', 'uRadius', 'uClear', 'uAdd']
-    },
-    'update-obst-square': {
-        'vs': ['shaders/quad.vs'],
-        'fs': ['shaders/utils.fs', 'shaders/update-obst-square.fs'],
-        'attribs': ['aVertexPosition', 'aTextureCoord'],
-        'uniforms': ['uSampler0', 'uPointX1', 'uPointY1', 'uPointX2', 'uPointY2', 'uClear', 'uAdd']
-    },
-    'update-obst-line': {
-        'vs': ['shaders/quad.vs'],
-        'fs': ['shaders/utils.fs', 'shaders/update-obst-line.fs'],
-        'attribs': ['aVertexPosition', 'aTextureCoord'],
-        'uniforms': ['uSampler0', 'uPointX1', 'uPointY1', 'uPointX2', 'uPointY2', 'uPointX3', 'uPointY3', 'uPointX4', 'uPointY4', 'uClear', 'uAdd']
-    },
-    'f-to-accum': {
-        'vs': ['shaders/quad.vs'],
-        'fs': ['shaders/utils.fs', 'shaders/f-to-accum.fs'],
-        'attribs': ['aVertexPosition', 'aTextureCoord'],
-        'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uSampler5', 'uSampler6', 'uSampler7', 'uSampler8', 'uRhoUxUy']
-    },
-    'show-umod': {
-        'vs': ['shaders/quad_perspective.vs'],
-        'fs': ['shaders/utils.fs', 'shaders/show-umod.fs'],
-        'attribs': ['aVertexPosition', 'aTextureCoord'],
-        'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3','drawIntended', 'MVPMat']
-    }
-};
+var PROGS_DESC;
 
-var TEXTURES_DESC = {
-    'rho': [Nx, Ny],
-    'ux': [Nx, Ny],
-    'uy': [Nx, Ny],
-    'f0': [Nx, Ny],
-    'f1': [Nx, Ny],
-    'f2': [Nx, Ny],
-    'f3': [Nx, Ny],
-    'f4': [Nx, Ny],
-    'f5': [Nx, Ny],
-    'f6': [Nx, Ny],
-    'f7': [Nx, Ny],
-    'f8': [Nx, Ny],
-    'tmp': [Nx, Ny],
-    'obst': [Nx, Ny],
-    'obst_intended': [Nx, Ny],
-    'fx': [Nx, Ny],
-    'fy': [Nx, Ny]
-};
+var TEXTURES_DESC;
 
 var BUFFERS_DESC = {
     'quadVB': {
@@ -207,8 +114,8 @@ function initGL(canvas) {
         })();
 
     gl = canvas.getContext("experimental-webgl");
-    //gl.viewport(0, 0, canvas.width, canvas.height);
-    gl.viewport(0, 0, Nx,Ny);
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    //gl.viewport(0, 0, Nx,Ny);
 }
 
 function getSourceSynch(url) {
@@ -631,6 +538,7 @@ function findPos(obj) {
 }
 
 function webGLStart() {
+    init_low();
     document.getElementById('brush').checked = true;
     canvas = document.getElementById('main-canvas');
     
@@ -1040,3 +948,366 @@ function onRightClick()
   return false;
 }
 
+// Initialise variables for low resolution mode
+function init_low()
+{
+    Nx = 256.0;
+    Ny = 32.0;
+
+    bLeft      =  0.09765625*Nx;
+    bRight     = 0.34765625*Nx;
+    bBottom    = 0.375*Ny;
+    bTop       = 0.625*Ny;
+    bWidth     = bRight-bLeft;
+    bHeight    = bTop-bBottom;
+
+    horOffset  = Nx/2;
+    verOffset  = Ny/2;
+
+    buildVport = {'left':(bLeft-horOffset)/horOffset,'right':(bRight-horOffset)/horOffset,
+                        'bottom':(bBottom-verOffset)/verOffset,'top':(bTop-verOffset)/verOffset,
+                        'near':1.0,'far':-1.0};
+
+    fromV           = vport;
+    toV             = buildVport;
+    MVPMat          = ortho(buildVport);
+
+
+    //var square_p4 = ;
+    PROGS_DESC = {
+        'init-accum': {
+            'vs': ['shaders/quad.vs'],
+            'fs': ['shaders/utils-low.fs', 'shaders/init-accum.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': ['uRhoUxUy']
+        },
+        'init-f': {
+            'vs': ['shaders/quad.vs'],
+            'fs': ['shaders/utils-low.fs', 'shaders/init-f.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uI']
+        },
+        'init-obst': {
+            'vs': ['shaders/quad.vs'],
+            'fs': ['shaders/utils-low.fs', 'shaders/init-obst.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': []
+        },
+        'update-f': {
+            'vs': ['shaders/quad.vs'],
+            'fs': ['shaders/utils-low.fs', 'shaders/update-f.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uI', 'uOmega', 'uVel']
+        },
+        'update-Fx': {
+            'vs': ['shaders/quad.vs'],
+            'fs': ['shaders/utils-low.fs', 'shaders/update-fx.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uSampler5', 'uSampler6' ]
+        },
+        'update-Fy': {
+            'vs': ['shaders/quad.vs'],
+            'fs': ['shaders/utils-low.fs', 'shaders/update-fy.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uSampler5', 'uSampler6']
+        },
+        'update-obst-clear': {
+            'vs': ['shaders/quad.vs'],
+            'fs': ['shaders/utils-low.fs', 'shaders/update-obst-clear.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': []
+        },
+        'update-obst-circle': {
+            'vs': ['shaders/quad.vs'],
+            'fs': ['shaders/utils-low.fs', 'shaders/update-obst-circle.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': ['uSampler0', 'uPointX', 'uPointY', 'uRadius', 'uClear', 'uAdd']
+        },
+        'update-obst-square': {
+            'vs': ['shaders/quad.vs'],
+            'fs': ['shaders/utils-low.fs', 'shaders/update-obst-square.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': ['uSampler0', 'uPointX1', 'uPointY1', 'uPointX2', 'uPointY2', 'uClear', 'uAdd']
+        },
+        'update-obst-line': {
+            'vs': ['shaders/quad.vs'],
+            'fs': ['shaders/utils-low.fs', 'shaders/update-obst-line.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': ['uSampler0', 'uPointX1', 'uPointY1', 'uPointX2', 'uPointY2', 'uPointX3', 'uPointY3', 'uPointX4', 'uPointY4', 'uClear', 'uAdd']
+        },
+        'f-to-accum': {
+            'vs': ['shaders/quad.vs'],
+            'fs': ['shaders/utils-low.fs', 'shaders/f-to-accum.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uSampler5', 'uSampler6', 'uSampler7', 'uSampler8', 'uRhoUxUy']
+        },
+        'show-umod': {
+            'vs': ['shaders/quad_perspective.vs'],
+            'fs': ['shaders/utils-low.fs', 'shaders/show-umod.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3','drawIntended', 'MVPMat']
+        }
+    };
+
+    TEXTURES_DESC = {
+        'rho': [Nx, Ny],
+        'ux': [Nx, Ny],
+        'uy': [Nx, Ny],
+        'f0': [Nx, Ny],
+        'f1': [Nx, Ny],
+        'f2': [Nx, Ny],
+        'f3': [Nx, Ny],
+        'f4': [Nx, Ny],
+        'f5': [Nx, Ny],
+        'f6': [Nx, Ny],
+        'f7': [Nx, Ny],
+        'f8': [Nx, Ny],
+        'tmp': [Nx, Ny],
+        'obst': [Nx, Ny],
+        'obst_intended': [Nx, Ny],
+        'fx': [Nx, Ny],
+        'fy': [Nx, Ny]
+    };
+}
+
+function init_med()
+{
+    Nx = 512;
+    Ny = 64;
+
+    bLeft      =  0.09765625*Nx;
+    bRight     = 0.34765625*Nx;
+    bBottom    = 0.375*Ny;
+    bTop       = 0.625*Ny;
+    bWidth     = bRight-bLeft;
+    bHeight    = bTop-bBottom;
+
+    horOffset  = Nx/2;
+    verOffset  = Ny/2;
+
+    buildVport = {'left':(bLeft-horOffset)/horOffset,'right':(bRight-horOffset)/horOffset,
+                        'bottom':(bBottom-verOffset)/verOffset,'top':(bTop-verOffset)/verOffset,
+                        'near':1.0,'far':-1.0};
+
+    fromV           = vport;
+    toV             = buildVport;
+    MVPMat          = ortho(buildVport);
+
+
+    //var square_p4 = ;
+    PROGS_DESC = {
+        'init-accum': {
+            'vs': ['shaders/quad.vs'],
+            'fs': ['shaders/utils-med.fs', 'shaders/init-accum.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': ['uRhoUxUy']
+        },
+        'init-f': {
+            'vs': ['shaders/quad.vs'],
+            'fs': ['shaders/utils-med.fs', 'shaders/init-f.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uI']
+        },
+        'init-obst': {
+            'vs': ['shaders/quad.vs'],
+            'fs': ['shaders/utils-med.fs', 'shaders/init-obst.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': []
+        },
+        'update-f': {
+            'vs': ['shaders/quad.vs'],
+            'fs': ['shaders/utils-med.fs', 'shaders/update-f.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uI', 'uOmega', 'uVel']
+        },
+        'update-Fx': {
+            'vs': ['shaders/quad.vs'],
+            'fs': ['shaders/utils-med.fs', 'shaders/update-fx.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uSampler5', 'uSampler6' ]
+        },
+        'update-Fy': {
+            'vs': ['shaders/quad.vs'],
+            'fs': ['shaders/utils-med.fs', 'shaders/update-fy.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uSampler5', 'uSampler6']
+        },
+        'update-obst-clear': {
+            'vs': ['shaders/quad.vs'],
+            'fs': ['shaders/utils-med.fs', 'shaders/update-obst-clear.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': []
+        },
+        'update-obst-circle': {
+            'vs': ['shaders/quad.vs'],
+            'fs': ['shaders/utils-med.fs', 'shaders/update-obst-circle.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': ['uSampler0', 'uPointX', 'uPointY', 'uRadius', 'uClear', 'uAdd']
+        },
+        'update-obst-square': {
+            'vs': ['shaders/quad.vs'],
+            'fs': ['shaders/utils-med.fs', 'shaders/update-obst-square.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': ['uSampler0', 'uPointX1', 'uPointY1', 'uPointX2', 'uPointY2', 'uClear', 'uAdd']
+        },
+        'update-obst-line': {
+            'vs': ['shaders/quad.vs'],
+            'fs': ['shaders/utils-med.fs', 'shaders/update-obst-line.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': ['uSampler0', 'uPointX1', 'uPointY1', 'uPointX2', 'uPointY2', 'uPointX3', 'uPointY3', 'uPointX4', 'uPointY4', 'uClear', 'uAdd']
+        },
+        'f-to-accum': {
+            'vs': ['shaders/quad.vs'],
+            'fs': ['shaders/utils-med.fs', 'shaders/f-to-accum.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uSampler5', 'uSampler6', 'uSampler7', 'uSampler8', 'uRhoUxUy']
+        },
+        'show-umod': {
+            'vs': ['shaders/quad_perspective.vs'],
+            'fs': ['shaders/utils-med.fs', 'shaders/show-umod.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3','drawIntended', 'MVPMat']
+        }
+    };
+
+    TEXTURES_DESC = {
+        'rho': [Nx, Ny],
+        'ux': [Nx, Ny],
+        'uy': [Nx, Ny],
+        'f0': [Nx, Ny],
+        'f1': [Nx, Ny],
+        'f2': [Nx, Ny],
+        'f3': [Nx, Ny],
+        'f4': [Nx, Ny],
+        'f5': [Nx, Ny],
+        'f6': [Nx, Ny],
+        'f7': [Nx, Ny],
+        'f8': [Nx, Ny],
+        'tmp': [Nx, Ny],
+        'obst': [Nx, Ny],
+        'obst_intended': [Nx, Ny],
+        'fx': [Nx, Ny],
+        'fy': [Nx, Ny]
+    };
+}
+
+function init_high()
+{
+    Nx = 1024.0;
+    Ny = 128.0;
+
+    bLeft      =  0.09765625*Nx;
+    bRight     = 0.34765625*Nx;
+    bBottom    = 0.375*Ny;
+    bTop       = 0.625*Ny;
+    bWidth     = bRight-bLeft;
+    bHeight    = bTop-bBottom;
+
+    horOffset  = Nx/2;
+    verOffset  = Ny/2;
+
+    buildVport = {'left':(bLeft-horOffset)/horOffset,'right':(bRight-horOffset)/horOffset,
+                        'bottom':(bBottom-verOffset)/verOffset,'top':(bTop-verOffset)/verOffset,
+                        'near':1.0,'far':-1.0};
+
+    fromV           = vport;
+    toV             = buildVport;
+    MVPMat          = ortho(buildVport);
+
+
+    //var square_p4 = ;
+    PROGS_DESC = {
+        'init-accum': {
+            'vs': ['shaders/quad.vs'],
+            'fs': ['shaders/utils-high.fs', 'shaders/init-accum.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': ['uRhoUxUy']
+        },
+        'init-f': {
+            'vs': ['shaders/quad.vs'],
+            'fs': ['shaders/utils-high.fs', 'shaders/init-f.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uI']
+        },
+        'init-obst': {
+            'vs': ['shaders/quad.vs'],
+            'fs': ['shaders/utils-high.fs', 'shaders/init-obst.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': []
+        },
+        'update-f': {
+            'vs': ['shaders/quad.vs'],
+            'fs': ['shaders/utils-high.fs', 'shaders/update-f.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uI', 'uOmega', 'uVel']
+        },
+        'update-Fx': {
+            'vs': ['shaders/quad.vs'],
+            'fs': ['shaders/utils-high.fs', 'shaders/update-fx.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uSampler5', 'uSampler6' ]
+        },
+        'update-Fy': {
+            'vs': ['shaders/quad.vs'],
+            'fs': ['shaders/utils-high.fs', 'shaders/update-fy.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uSampler5', 'uSampler6']
+        },
+        'update-obst-clear': {
+            'vs': ['shaders/quad.vs'],
+            'fs': ['shaders/utils-high.fs', 'shaders/update-obst-clear.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': []
+        },
+        'update-obst-circle': {
+            'vs': ['shaders/quad.vs'],
+            'fs': ['shaders/utils-high.fs', 'shaders/update-obst-circle.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': ['uSampler0', 'uPointX', 'uPointY', 'uRadius', 'uClear', 'uAdd']
+        },
+        'update-obst-square': {
+            'vs': ['shaders/quad.vs'],
+            'fs': ['shaders/utils-high.fs', 'shaders/update-obst-square.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': ['uSampler0', 'uPointX1', 'uPointY1', 'uPointX2', 'uPointY2', 'uClear', 'uAdd']
+        },
+        'update-obst-line': {
+            'vs': ['shaders/quad.vs'],
+            'fs': ['shaders/utils-high.fs', 'shaders/update-obst-line.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': ['uSampler0', 'uPointX1', 'uPointY1', 'uPointX2', 'uPointY2', 'uPointX3', 'uPointY3', 'uPointX4', 'uPointY4', 'uClear', 'uAdd']
+        },
+        'f-to-accum': {
+            'vs': ['shaders/quad.vs'],
+            'fs': ['shaders/utils-high.fs', 'shaders/f-to-accum.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uSampler5', 'uSampler6', 'uSampler7', 'uSampler8', 'uRhoUxUy']
+        },
+        'show-umod': {
+            'vs': ['shaders/quad_perspective.vs'],
+            'fs': ['shaders/utils-high.fs', 'shaders/show-umod.fs'],
+            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3','drawIntended', 'MVPMat']
+        }
+    };
+
+    TEXTURES_DESC = {
+        'rho': [Nx, Ny],
+        'ux': [Nx, Ny],
+        'uy': [Nx, Ny],
+        'f0': [Nx, Ny],
+        'f1': [Nx, Ny],
+        'f2': [Nx, Ny],
+        'f3': [Nx, Ny],
+        'f4': [Nx, Ny],
+        'f5': [Nx, Ny],
+        'f6': [Nx, Ny],
+        'f7': [Nx, Ny],
+        'f8': [Nx, Ny],
+        'tmp': [Nx, Ny],
+        'obst': [Nx, Ny],
+        'obst_intended': [Nx, Ny],
+        'fx': [Nx, Ny],
+        'fy': [Nx, Ny]
+    };
+}

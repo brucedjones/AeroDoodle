@@ -2,8 +2,8 @@ precision highp float;
 precision highp int;
 
 const float OMEGA = 1.9;
-const float Nx = 512.0;
-const float Ny = 64.0;
+const float Nx = 256.0;
+const float Ny = 32.0;
 const float PI = 3.1415926535897932384626433832795;
 const float VEL = 0.15;
 
