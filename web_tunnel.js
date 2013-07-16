@@ -538,7 +538,6 @@ function findPos(obj) {
 }
 
 function webGLStart() {
-    init_low();
     document.getElementById('brush').checked = true;
     canvas = document.getElementById('main-canvas');
     
