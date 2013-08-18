@@ -3,6 +3,10 @@ var canvas;
 var Nx;
 var Ny;
 
+var Lx = 1.0;
+var Ly = 0.125;
+var dx;
+
 var vport      = {'left':-1.0,'right':1.0,'bottom':-1.0,'top':1.0,'near':1.0,'far':-1.0};
 
 var bLeft;
@@ -45,8 +49,8 @@ var addSquare       = false;
 var drawIntended    = true;
 var addCircle       = false;
 var addLine         = false;
-var brush_radius    = 10.01;
-var circle_radius   = 10.01;
+var brush_radius;
+var circle_radius;
 var omega           = 1.9;
 var u               = 0.15;
 
@@ -543,11 +547,12 @@ function webGLStart() {
     
     
     canvas.onmousedown = function(e) {
-        pos = findPos(canvas);
-        
         mouseDown = true;
-        var x = e.pageX - pos.x;
-        var y = e.pageY - pos.y;
+        pos           = findPos(canvas);
+        var cssScaleX = Nx / canvas.width;
+        var cssScaleY = Ny / canvas.height;
+        var x         = (e.pageX - pos.x)*cssScaleX;
+        var y         = (e.pageY - pos.y)*cssScaleY;
         
         if(inDraw) {
           var horRat = (buildVport.right-buildVport.left)/(vport.right-vport.left);
@@ -608,7 +613,7 @@ function webGLStart() {
 }
 
 function updateBrushSlider(value) {
-    brush_radius = value*value/Ny;
+    brush_radius = value/dx;
     if(mode == BRUSH_MODE || mode == LINE_MODE)
         circle_radius = brush_radius;
 }
@@ -953,6 +958,11 @@ function init_low()
     Nx = 256.0;
     Ny = 32.0;
 
+    dx = Lx/Nx;
+
+    brush_radius    = 0.01/dx;
+    circle_radius   = 0.01/dx;
+
     bLeft      =  0.09765625*Nx;
     bRight     = 0.34765625*Nx;
     bBottom    = 0.375*Ny;
@@ -1073,6 +1083,11 @@ function init_med()
 {
     Nx = 512;
     Ny = 64;
+
+    dx = Lx/Nx;
+
+    brush_radius    = 0.01/dx;
+    circle_radius   = 0.01/dx;
 
     bLeft      =  0.09765625*Nx;
     bRight     = 0.34765625*Nx;
@@ -1195,6 +1210,11 @@ function init_high()
     Nx = 1024.0;
     Ny = 128.0;
 
+    dx = Lx/Nx;
+
+    brush_radius    = 0.01/dx;
+    circle_radius   = 0.01/dx;
+
     bLeft      =  0.09765625*Nx;
     bRight     = 0.34765625*Nx;
     bBottom    = 0.375*Ny;
@@ -1310,3 +1330,6 @@ function init_high()
         'fy': [Nx, Ny]
     };
 }
+
+// Fix for horizontal scrolling of top bar
+$(window).scroll(function(){$('#top_bar').css('left', parseInt(-1*$(window).scrollLeft())+'px');});
