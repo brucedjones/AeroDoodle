@@ -803,8 +803,8 @@ function computeForce() {
 
   if(count>0)
   {
-    cd = 2*forceXVal/(u_phys*u_phys*A);
-    cl = 2*forceYVal/(u_phys*u_phys*A);
+    cd = 2*forceXVal/(u_phys*u_phys*A*density);
+    cl = 2*forceYVal/(u_phys*u_phys*A*density);
   } else {
     cd = 0;
     cl = 0;
@@ -871,7 +871,8 @@ $(function () {
         axisLabel: 'Coefficient Value',
         axisLabelUseCanvas: true,
         axisLabelFontSizePixels: 20,
-        axisLabelFontFamily: 'visitor2'
+        axisLabelFontFamily: 'visitor2',
+        axisLabelPadding: 30
 			},
 			xaxis: {
         axisLabel: 'Time',
@@ -946,6 +947,7 @@ $(function () {
 
 });
     
+// Set Background color for webpage    
 $(document).ready(function(){
     var fourValue = 20.0 * u;
         var red   = Math.round((Math.min(fourValue - 1.5, -fourValue + 4.5)*255)*0.1+217*0.9);
