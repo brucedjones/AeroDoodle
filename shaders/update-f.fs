@@ -29,11 +29,11 @@ void main(void)
     float f = color2Float(texture2D(uSampler3, vTextureCoord + offset)) * (1.0 - uOmega) +
         getFEq(rho, vec2(ux, uy), uI) * uOmega;
 
-    if (vTextureCoord.y < 2.0/Ny)
+    if (vTextureCoord.y < 1.0/Ny)
         f = getFEq(1.0, vec2(uVel, 0.0), uI);
     if (vTextureCoord.y > (Ny-1.0)/Ny)
         f = getFEq(1.0, vec2(uVel, 0.0), uI);
-    if (vTextureCoord.x < 2.0/Nx)
+    if (vTextureCoord.x < 1.0/Nx)
         f = getFEq(1.0, vec2(uVel, 0.0), uI);
     if (vTextureCoord.x > (Nx-1.0)/Nx)
         f = getFEq(1.0, vec2(ux, uy), uI);
