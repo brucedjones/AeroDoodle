@@ -19,6 +19,8 @@ var bHeight;
 var horOffset;
 var verOffset;
 
+var lowQuality = false;
+
 var buildVport;
 
 function ortho(vport) {
@@ -613,6 +615,7 @@ function webGLStart() {
 }
 
 function updateBrushSlider(value) {
+    if(lowQuality && value < 0.0025) value = 0.0025;
     brush_radius = value/dx;
     if(mode == BRUSH_MODE || mode == LINE_MODE)
         circle_radius = brush_radius;
@@ -955,6 +958,8 @@ function onRightClick()
 // Initialise variables for low resolution mode
 function init_low()
 {
+    lowQuality = true;
+
     Nx = 256.0;
     Ny = 32.0;
 
