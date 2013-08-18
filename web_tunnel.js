@@ -3,9 +3,17 @@ var canvas;
 var Nx;
 var Ny;
 
-var Lx = 1.0;
-var Ly = 0.125;
+var Lx              = 1.0;
+var Ly              = 0.125;
 var dx;
+var nu_phys;
+var tau             = 0.51;
+var omega           = 1.0/tau;
+var u               = 0.15;
+var dt              = 0.01;
+var density         = 1.0;
+
+var stepsPerForceEval = 10;
 
 var vport      = {'left':-1.0,'right':1.0,'bottom':-1.0,'top':1.0,'near':1.0,'far':-1.0};
 
@@ -53,8 +61,6 @@ var addCircle       = false;
 var addLine         = false;
 var brush_radius;
 var circle_radius;
-var omega           = 1.9;
-var u               = 0.15;
 
 var square_a1       = [-1.0, -1.0];
 var square_a2       = [-1.0, -1.0];
@@ -420,7 +426,7 @@ function stepState() {
     doRenderOp('rho', ['f0', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8'], 'f-to-accum', {'uRhoUxUy': 0});
     doRenderOp('ux', ['f0', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8'], 'f-to-accum', {'uRhoUxUy': 1});
     doRenderOp('uy', ['f0', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8'], 'f-to-accum', {'uRhoUxUy': 2});
-    if(count%10 == 0)
+    if(count%stepsPerForceEval == 0)
     {
     doRenderOp('fx', ['f1', 'f2', 'f4', 'f5', 'f6', 'f8', 'obst'], 'update-Fx', {});
     doRenderOp('fy', ['f2', 'f3', 'f4', 'f6', 'f7', 'f8', 'obst'], 'update-Fy', {});
@@ -622,7 +628,9 @@ function updateBrushSlider(value) {
 }
 
 function updateTauSlider(value) {
-    omega = 1.0/value;
+    tau = value;
+    omega = 1.0/tau;
+    nu_phys = (1.0/3.0)*(tau-0.5)*(dx*dx)/dt;
 }
 
 function updateUSlider(value) {
@@ -785,12 +793,18 @@ function computeForce() {
     }
   }
   
-  var cd,cl, A = maxj-minj;
-  
+  var cd,cl, A = (maxj-minj)*dx*dx;
+  var u_phys = u*dx/dt;
+
+  var forceFactor = (density*dx*dx*dx*dx)/dt*dt;
+
+  forceXVal = forceXVal*forceFactor;
+  forceYVal = forceYVal*forceFactor;
+
   if(count>0)
   {
-    cd = 2*forceXVal/(u*u*A);
-    cl = 2*forceYVal/(u*u*A);
+    cd = 2*forceXVal/(u_phys*u_phys*A);
+    cl = 2*forceYVal/(u_phys*u_phys*A);
   } else {
     cd = 0;
     cl = 0;
@@ -964,6 +978,7 @@ function init_low()
     Ny = 32.0;
 
     dx = Lx/Nx;
+    nu_phys = (1.0/3.0)*(tau-0.5)*(dx*dx)/dt;
 
     brush_radius    = 0.01/dx;
     circle_radius   = 0.01/dx;
@@ -1090,6 +1105,7 @@ function init_med()
     Ny = 64;
 
     dx = Lx/Nx;
+    nu_phys = (1.0/3.0)*(tau-0.5)*(dx*dx)/dt;
 
     brush_radius    = 0.01/dx;
     circle_radius   = 0.01/dx;
@@ -1216,6 +1232,7 @@ function init_high()
     Ny = 128.0;
 
     dx = Lx/Nx;
+    nu_phys = (1.0/3.0)*(tau-0.5)*(dx*dx)/dt;
 
     brush_radius    = 0.01/dx;
     circle_radius   = 0.01/dx;
