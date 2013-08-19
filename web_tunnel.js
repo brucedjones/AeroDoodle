@@ -565,6 +565,9 @@ mouseDownListener = function(e) {
       obstPoint1 = [x, (Ny-y)];
     }
 
+    //obstPoint2[0] = obstPoint1[0];
+    //obstPoint2[1] = obstPoint1[1];
+
     if(mode == BRUSH_MODE) BrushMouseDown(pos);
     if(mode == SQUARE_MODE) SquareMouseDown(pos);
     if(mode == CIRCLE_MODE) CircleMouseDown(pos);
@@ -628,7 +631,6 @@ function webGLStart() {
     canvas.addEventListener("mousedown", mouseDownListener, false);
     canvas.addEventListener("mousemove", mouseMoveListener, false);
     canvas.addEventListener("mouseup", mouseUpListener, false);
-    //canvas.onselectstart = function () { return false; }
 
     initGL(canvas);
     initShaders();
@@ -693,8 +695,8 @@ function SquareMouseUp(pos) {
 
 function CircleMouseDown(pos) {
     //var delta = [obstPoint2[0]-obstPoint1[0],obstPoint2[1]-obstPoint1[1]];
-    obstPoint2 = obstPoint1;
-    circle_radius = 0.0;
+    //obstPoint2 = obstPoint1;
+    circle_radius = 0.00001;
     drawIntended = true;
 }
 
