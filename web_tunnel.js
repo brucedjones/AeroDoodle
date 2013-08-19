@@ -370,10 +370,10 @@ function stepState() {
         var len = Math.sqrt(delta[0]*delta[0]+delta[1]*delta[1]);
         var theta = Math.asin(delta[0]/len);
         if(obstPoint2[1]<obstPoint1[1]) theta = Math.PI-theta;
-        square_p1 = [-circle_radius, 0];
-        square_p2 = [-circle_radius, len];
-        square_p3 = [circle_radius, len];
-        square_p4 = [circle_radius, 0];
+        square_p1 = [-brush_radius/2.0, 0];
+        square_p2 = [-brush_radius/2.0, len];
+        square_p3 = [brush_radius/2.0, len];
+        square_p4 = [brush_radius/2.0, 0];
         var ctheta = Math.cos(theta);
         var stheta = Math.sin(theta);
 
@@ -577,6 +577,44 @@ mouseDownListener = function(e) {
     clear = e.ctrlKey;
         
         //code below prevents the mouse down from having an effect on the main browser window:
+        /*if (e.preventDefault) {
+            e.preventDefault();
+        } //standard
+        else if (e.returnValue) {
+            e.returnValue = false;
+        } //older IE*/
+
+    return false;
+};
+
+mouseDownListenerCanvas = function(e) {
+    mouseDown = true;
+    pos           = findPos(canvas);
+    var cssScaleX = Nx / canvas.width;
+    var cssScaleY = Ny / canvas.height;
+    var x         = (e.pageX - pos.x)*cssScaleX;
+    var y         = (e.pageY - pos.y)*cssScaleY;
+        
+    if(inDraw) {
+      var horRat = (buildVport.right-buildVport.left)/(vport.right-vport.left);
+      var verRat = (buildVport.top-buildVport.bottom)/(vport.top-vport.bottom)
+      obstPoint1 = [((x)*horRat)+bLeft, (Ny-y)*verRat+bBottom];
+    } else {
+      obstPoint1 = [x, (Ny-y)];
+    }
+
+    //obstPoint2[0] = obstPoint1[0];
+    //obstPoint2[1] = obstPoint1[1];
+
+    if(mode == BRUSH_MODE) BrushMouseDown(pos);
+    if(mode == SQUARE_MODE) SquareMouseDown(pos);
+    if(mode == CIRCLE_MODE) CircleMouseDown(pos);
+    if(mode == LINE_MODE) LineMouseDown(pos);
+        
+    e = e || window.event;
+    clear = e.ctrlKey;
+        
+        //code below prevents the mouse down from having an effect on the main browser window:
         if (e.preventDefault) {
             e.preventDefault();
         } //standard
@@ -624,13 +662,15 @@ function webGLStart() {
     canvas = document.getElementById('main-canvas');
     
     
-    window.addEventListener("mousedown", mouseDownListener, false);
+    //window.addEventListener("mousedown", mouseDownListener, false);
     window.addEventListener("mousemove", mouseMoveListener, false);
-    window.addEventListener("mouseup", mouseUpListener, false);
+    //window.addEventListener("mouseup", mouseUpListener, false);
 
-    canvas.addEventListener("mousedown", mouseDownListener, false);
+    canvas.addEventListener("mousedown", mouseDownListenerCanvas, false);
     canvas.addEventListener("mousemove", mouseMoveListener, false);
     canvas.addEventListener("mouseup", mouseUpListener, false);
+
+    updateBrushSlider(0.01)
 
     initGL(canvas);
     initShaders();
