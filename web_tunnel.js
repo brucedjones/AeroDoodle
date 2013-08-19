@@ -549,68 +549,87 @@ function findPos(obj) {
     return undefined;
 }
 
+mouseDownListener = function(e) {
+    mouseDown = true;
+    pos           = findPos(canvas);
+    var cssScaleX = Nx / canvas.width;
+    var cssScaleY = Ny / canvas.height;
+    var x         = (e.pageX - pos.x)*cssScaleX;
+    var y         = (e.pageY - pos.y)*cssScaleY;
+        
+    if(inDraw) {
+      var horRat = (buildVport.right-buildVport.left)/(vport.right-vport.left);
+      var verRat = (buildVport.top-buildVport.bottom)/(vport.top-vport.bottom)
+      obstPoint1 = [((x)*horRat)+bLeft, (Ny-y)*verRat+bBottom];
+    } else {
+      obstPoint1 = [x, (Ny-y)];
+    }
+
+    if(mode == BRUSH_MODE) BrushMouseDown(pos);
+    if(mode == SQUARE_MODE) SquareMouseDown(pos);
+    if(mode == CIRCLE_MODE) CircleMouseDown(pos);
+    if(mode == LINE_MODE) LineMouseDown(pos);
+        
+    e = e || window.event;
+    clear = e.ctrlKey;
+        
+        //code below prevents the mouse down from having an effect on the main browser window:
+        if (e.preventDefault) {
+            e.preventDefault();
+        } //standard
+        else if (e.returnValue) {
+            e.returnValue = false;
+        } //older IE
+
+    return false;
+};
+
+mouseUpListener = function(e) {
+   mouseDown = false;
+        
+   if(mode == BRUSH_MODE) BrushMouseUp(pos);
+   if(mode == SQUARE_MODE) SquareMouseUp(pos);
+   if(mode == CIRCLE_MODE) CircleMouseUp(pos);
+   if(mode == LINE_MODE) LineMouseUp(pos);
+        
+};
+
+mouseMoveListener = function(e) {
+    pos           = findPos(canvas);
+    var cssScaleX = Nx / canvas.width;
+    var cssScaleY = Ny / canvas.height;
+    var x         = (e.pageX - pos.x)*cssScaleX;
+    var y         = (e.pageY - pos.y)*cssScaleY;
+
+    if(inDraw) {
+      var horRat = (buildVport.right-buildVport.left)/(vport.right-vport.left);
+      var verRat = (buildVport.top-buildVport.bottom)/(vport.top-vport.bottom)
+      obstPoint2 = [((x)*horRat)+bLeft, (Ny-y)*verRat+bBottom];
+    } else {
+      obstPoint2 = [x, (Ny-y)];
+    }
+        
+    if(mode == BRUSH_MODE) BrushMouseMove(pos);
+    if(mode == SQUARE_MODE) SquareMouseMove(pos);
+    if(mode == CIRCLE_MODE) CircleMouseMove(pos);
+    if(mode == LINE_MODE) LineMouseMove(pos);
+        
+};
+
 function webGLStart() {
     document.getElementById('brush').checked = true;
     canvas = document.getElementById('main-canvas');
     
     
-    canvas.onmousedown = function(e) {
-        mouseDown = true;
-        pos           = findPos(canvas);
-        var cssScaleX = Nx / canvas.width;
-        var cssScaleY = Ny / canvas.height;
-        var x         = (e.pageX - pos.x)*cssScaleX;
-        var y         = (e.pageY - pos.y)*cssScaleY;
-        
-        if(inDraw) {
-          var horRat = (buildVport.right-buildVport.left)/(vport.right-vport.left);
-          var verRat = (buildVport.top-buildVport.bottom)/(vport.top-vport.bottom)
-          obstPoint1 = [((x)*horRat)+bLeft, (Ny-y)*verRat+bBottom];
-        } else {
-          obstPoint1 = [x, (Ny-y)];
-        }
-        
-        if(mode == BRUSH_MODE) BrushMouseDown(pos);
-        if(mode == SQUARE_MODE) SquareMouseDown(pos);
-        if(mode == CIRCLE_MODE) CircleMouseDown(pos);
-        if(mode == LINE_MODE) LineMouseDown(pos);
-        
-        e = e || window.event;
-        clear = e.ctrlKey;
-        
-        return false;
-    };
-    canvas.onmouseup = function(e) {
-        mouseDown = false;
-        
-        if(mode == BRUSH_MODE) BrushMouseUp(pos);
-        if(mode == SQUARE_MODE) SquareMouseUp(pos);
-        if(mode == CIRCLE_MODE) CircleMouseUp(pos);
-        if(mode == LINE_MODE) LineMouseUp(pos);
-        
-    };
-    canvas.onmousemove = function(e) {
-        pos           = findPos(canvas);
-        var cssScaleX = Nx / canvas.width;
-        var cssScaleY = Ny / canvas.height;
-        var x         = (e.pageX - pos.x)*cssScaleX;
-        var y         = (e.pageY - pos.y)*cssScaleY;
+    window.addEventListener("mousedown", mouseDownListener, false);
+    window.addEventListener("mousemove", mouseMoveListener, false);
+    window.addEventListener("mouseup", mouseUpListener, false);
 
-        if(inDraw) {
-          var horRat = (buildVport.right-buildVport.left)/(vport.right-vport.left);
-          var verRat = (buildVport.top-buildVport.bottom)/(vport.top-vport.bottom)
-          obstPoint2 = [((x)*horRat)+bLeft, (Ny-y)*verRat+bBottom];
-        } else {
-          obstPoint2 = [x, (Ny-y)];
-        }
-        
-        if(mode == BRUSH_MODE) BrushMouseMove(pos);
-        if(mode == SQUARE_MODE) SquareMouseMove(pos);
-        if(mode == CIRCLE_MODE) CircleMouseMove(pos);
-        if(mode == LINE_MODE) LineMouseMove(pos);
-        
-    };
-    
+    canvas.addEventListener("mousedown", mouseDownListener, false);
+    canvas.addEventListener("mousemove", mouseMoveListener, false);
+    canvas.addEventListener("mouseup", mouseUpListener, false);
+    //canvas.onselectstart = function () { return false; }
+
     initGL(canvas);
     initShaders();
     initBuffers();
@@ -623,7 +642,7 @@ function webGLStart() {
 function updateBrushSlider(value) {
     if(lowQuality && value < 0.0025) value = 0.0025;
     brush_radius = value/dx;
-    if(mode == BRUSH_MODE || mode == LINE_MODE)
+    //if(mode == BRUSH_MODE || mode == LINE_MODE)
         circle_radius = brush_radius;
 }
 
@@ -673,6 +692,9 @@ function SquareMouseUp(pos) {
 }
 
 function CircleMouseDown(pos) {
+    //var delta = [obstPoint2[0]-obstPoint1[0],obstPoint2[1]-obstPoint1[1]];
+    obstPoint2 = obstPoint1;
+    circle_radius = 0.0;
     drawIntended = true;
 }
 
