@@ -29,6 +29,8 @@ var verOffset;
 
 var lowQuality = false;
 
+var canvasTriggeredMouse = false;
+
 var buildVport;
 
 function ortho(vport) {
@@ -549,44 +551,6 @@ function findPos(obj) {
     return undefined;
 }
 
-mouseDownListener = function(e) {
-    mouseDown = true;
-    pos           = findPos(canvas);
-    var cssScaleX = Nx / canvas.width;
-    var cssScaleY = Ny / canvas.height;
-    var x         = (e.pageX - pos.x)*cssScaleX;
-    var y         = (e.pageY - pos.y)*cssScaleY;
-        
-    if(inDraw) {
-      var horRat = (buildVport.right-buildVport.left)/(vport.right-vport.left);
-      var verRat = (buildVport.top-buildVport.bottom)/(vport.top-vport.bottom)
-      obstPoint1 = [((x)*horRat)+bLeft, (Ny-y)*verRat+bBottom];
-    } else {
-      obstPoint1 = [x, (Ny-y)];
-    }
-
-    //obstPoint2[0] = obstPoint1[0];
-    //obstPoint2[1] = obstPoint1[1];
-
-    if(mode == BRUSH_MODE) BrushMouseDown(pos);
-    if(mode == SQUARE_MODE) SquareMouseDown(pos);
-    if(mode == CIRCLE_MODE) CircleMouseDown(pos);
-    if(mode == LINE_MODE) LineMouseDown(pos);
-        
-    e = e || window.event;
-    clear = e.ctrlKey;
-        
-        //code below prevents the mouse down from having an effect on the main browser window:
-        /*if (e.preventDefault) {
-            e.preventDefault();
-        } //standard
-        else if (e.returnValue) {
-            e.returnValue = false;
-        } //older IE*/
-
-    return false;
-};
-
 mouseDownListenerCanvas = function(e) {
     mouseDown = true;
     pos           = findPos(canvas);
@@ -594,25 +558,30 @@ mouseDownListenerCanvas = function(e) {
     var cssScaleY = Ny / canvas.height;
     var x         = (e.pageX - pos.x)*cssScaleX;
     var y         = (e.pageY - pos.y)*cssScaleY;
-        
-    if(inDraw) {
-      var horRat = (buildVport.right-buildVport.left)/(vport.right-vport.left);
-      var verRat = (buildVport.top-buildVport.bottom)/(vport.top-vport.bottom)
-      obstPoint1 = [((x)*horRat)+bLeft, (Ny-y)*verRat+bBottom];
-    } else {
-      obstPoint1 = [x, (Ny-y)];
-    }
+       
+    if(x>0.0 && x<Nx && y>0.0 && y<Ny)
+    {
+        // EVENT HANDLER IF MOUSE CLICK IN CANVAS
+        canvasTriggeredMouse = true;
 
-    //obstPoint2[0] = obstPoint1[0];
-    //obstPoint2[1] = obstPoint1[1];
+        if(inDraw) {
+          var horRat = (buildVport.right-buildVport.left)/(vport.right-vport.left);
+          var verRat = (buildVport.top-buildVport.bottom)/(vport.top-vport.bottom)
+          x = ((x)*horRat)+bLeft;
+          y = (Ny-y)*verRat+bBottom
+        } else {
+          y = (Ny-y);
+        }
+    
+        obstPoint1 = [x, y];
 
-    if(mode == BRUSH_MODE) BrushMouseDown(pos);
-    if(mode == SQUARE_MODE) SquareMouseDown(pos);
-    if(mode == CIRCLE_MODE) CircleMouseDown(pos);
-    if(mode == LINE_MODE) LineMouseDown(pos);
-        
-    e = e || window.event;
-    clear = e.ctrlKey;
+        if(mode == BRUSH_MODE) BrushMouseDown(pos);
+        if(mode == SQUARE_MODE) SquareMouseDown(pos);
+        if(mode == CIRCLE_MODE) CircleMouseDown(pos);
+        if(mode == LINE_MODE) LineMouseDown(pos);
+            
+        e = e || window.event;
+        clear = e.ctrlKey;
         
         //code below prevents the mouse down from having an effect on the main browser window:
         if (e.preventDefault) {
@@ -622,20 +591,31 @@ mouseDownListenerCanvas = function(e) {
             e.returnValue = false;
         } //older IE
 
-    return false;
+        return false;
+
+    } else {
+        // IF MOUSE CLICK NOT IN CANVAS USE DEFAULT EVENT HANDLING
+        e.returnValue = true;
+        canvasTriggeredMouse = false;
+        return true;
+
+    }
 };
 
 mouseUpListener = function(e) {
-   mouseDown = false;
-        
-   if(mode == BRUSH_MODE) BrushMouseUp(pos);
-   if(mode == SQUARE_MODE) SquareMouseUp(pos);
-   if(mode == CIRCLE_MODE) CircleMouseUp(pos);
-   if(mode == LINE_MODE) LineMouseUp(pos);
-        
+    if(canvasTriggeredMouse)
+    {
+        mouseDown = false;
+             
+        if(mode == BRUSH_MODE) BrushMouseUp(pos);
+        if(mode == SQUARE_MODE) SquareMouseUp(pos);
+        if(mode == CIRCLE_MODE) CircleMouseUp(pos);
+        if(mode == LINE_MODE) LineMouseUp(pos);
+    }
 };
 
 mouseMoveListener = function(e) {
+    
     pos           = findPos(canvas);
     var cssScaleX = Nx / canvas.width;
     var cssScaleY = Ny / canvas.height;
@@ -645,16 +625,22 @@ mouseMoveListener = function(e) {
     if(inDraw) {
       var horRat = (buildVport.right-buildVport.left)/(vport.right-vport.left);
       var verRat = (buildVport.top-buildVport.bottom)/(vport.top-vport.bottom)
-      obstPoint2 = [((x)*horRat)+bLeft, (Ny-y)*verRat+bBottom];
+      x = ((x)*horRat)+bLeft;
+      y = (Ny-y)*verRat+bBottom
     } else {
-      obstPoint2 = [x, (Ny-y)];
+      y = (Ny-y);
     }
+
+    obstPoint2 = [x, y];
         
-    if(mode == BRUSH_MODE) BrushMouseMove(pos);
-    if(mode == SQUARE_MODE) SquareMouseMove(pos);
-    if(mode == CIRCLE_MODE) CircleMouseMove(pos);
-    if(mode == LINE_MODE) LineMouseMove(pos);
-        
+    if(mode == BRUSH_MODE) BrushMouseMove(pos); // Outside of if statement so brush shadow can be seen always
+
+    if(canvasTriggeredMouse)
+    {
+        if(mode == SQUARE_MODE) SquareMouseMove(pos);
+        if(mode == CIRCLE_MODE) CircleMouseMove(pos);
+        if(mode == LINE_MODE) LineMouseMove(pos);
+    }
 };
 
 function webGLStart() {
@@ -662,11 +648,10 @@ function webGLStart() {
     canvas = document.getElementById('main-canvas');
     
     
-    //window.addEventListener("mousedown", mouseDownListener, false);
-    window.addEventListener("mousemove", mouseMoveListener, false);
+    window.addEventListener("mousedown", mouseDownListenerCanvas, false);
+    //window.addEventListener("mousemove", mouseMoveListener, false);
     //window.addEventListener("mouseup", mouseUpListener, false);
 
-    canvas.addEventListener("mousedown", mouseDownListenerCanvas, false);
     canvas.addEventListener("mousemove", mouseMoveListener, false);
     canvas.addEventListener("mouseup", mouseUpListener, false);
 
