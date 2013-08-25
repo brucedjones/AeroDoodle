@@ -128,11 +128,15 @@
             <p>When you draw an object in the simulation window, the fluid is not able to penetrate it. Additionally, any fluid in contact with the obstacle
             must have a velocity of zero, this is known as the <a href="http://en.wikipedia.org/wiki/No-slip_condition" target="_blank">no-slip condition</a>.</p>
             
-            <p>As the fluid flows, it exerts forces upon the obstacle. These forces are commonly known as <a href="http://en.wikipedia.org/wiki/Aerodynamic_force" target="_blank">lift and drag</a>.
+            <p>As the fluid flows, it exerts forces upon the obstacle. These forces are commonly known as <a href="http://en.wikipedia.org/wiki/Aerodynamic_force" target="_blank">lift and drag</a>. Lift acts in a direction perpendicular to the <a href="http://en.wikipedia.org/wiki/Freestream" target="_blank">freestream flow</a> and the drag acts in the direction of the freestream flow.
             
             <p>Simply knowing the value of these forces is not particularly useful when comparing different geometries. This is because the forces are proportional to the size of the object.
             A much larger object will generate much larger forces, however it may not generate them as efficiently. The size of an object is accounted for if <i>coefficients</i> of <a href="http://en.wikipedia.org/wiki/Lift_coefficient" target="_blank">lift</a> and <a href="http://en.wikipedia.org/wiki/Drag_coefficient" target="_blank">drag</a>
             are compared instead</p>
+
+            <p>Lift coefficient =    Lift/qA </p>      <p>Drag Coefficient = Drag/qA</p>
+
+            <p>Where q is the dynamic pressure of the oncoming flow (q=0.5xdensityxvelocity^2) and A is a representative area of the geometry under investigation.</p>
           </body_text>
           <h3>Computational Fluid Dynamics</h3>
           <body_text>
