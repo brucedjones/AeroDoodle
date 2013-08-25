@@ -512,7 +512,10 @@ function step() {
             obstPoint1[1] = -1.0;
             obstPoint2[0] = -1.0;
             obstPoint2[1] = -1.0;
-            circle_radius = brush_radius;
+            //var temp = ((document.getElementById('slider_brush').value/100.0)*(0.015-0.001))+0.001
+            var slid = document.getElementById('slider_brush_range');
+            var temp = slid.value;
+            updateBrushSlider(temp);
         }
     }
     
