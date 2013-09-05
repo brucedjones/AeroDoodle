@@ -249,12 +249,21 @@ function initBuffers() {
     }
 }
 
-function is_int(value){ 
-  if((parseFloat(value) == parseInt(value)) && !isNaN(value)){
-      return true;
-  } else { 
-      return false;
-  } 
+function is_int(varName){ 
+  //if((parseFloat(value) == parseInt(value)) && !isNaN(value)){
+  //    return true;
+  //} else { 
+  //    return false;
+  //} 
+  if(varName == 'uPointX' || varName == 'uPointY' || varName == 'uPointX1' || 
+    varName == 'uPointY1' || varName == 'uPointX2' || varName == 'uPointY2' || 
+    varName == 'uPointX3' || varName == 'uPointY3' || varName == 'uPointX4' || 
+    varName == 'uPointY4' || varName == 'MVPMat' || varName == 'uRadius' || varName == 'uOmega' || varName == 'uVel')
+    {
+        return false;
+    } else {
+        return true;
+    }
 }
 
 function doRenderOp(tgtTexName, srcTexNames, progName, uniformAssignments) {
@@ -265,7 +274,7 @@ function doRenderOp(tgtTexName, srcTexNames, progName, uniformAssignments) {
         if(uniformVarName == 'MVPMat') {
           gl.uniformMatrix4fv(prog[uniformVarName], false, uniformAssignments[uniformVarName]);
         } else {
-          if(is_int(uniformAssignments[uniformVarName])) {
+          if(is_int(uniformVarName)) {
               gl.uniform1i(prog[uniformVarName], uniformAssignments[uniformVarName]);
           } else {
               gl.uniform1f(prog[uniformVarName], uniformAssignments[uniformVarName]);
@@ -1094,7 +1103,7 @@ function init_low()
             'vs': ['shaders/quad.vs'],
             'fs': ['shaders/utils-low.fs', 'shaders/update-f.fs'],
             'attribs': ['aVertexPosition', 'aTextureCoord'],
-            'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uI', 'uOmega', 'uVel']
+        'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uI', 'uOmega', 'uVel']
         },
         'update-Fx': {
             'vs': ['shaders/quad.vs'],
