@@ -1,9 +1,6 @@
 precision highp float;
-precision highp int;
 
 uniform int uRhoUxUy;
-
-varying vec2 vTextureCoord;
 
 void main(void)
 {

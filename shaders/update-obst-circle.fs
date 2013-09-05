@@ -12,7 +12,7 @@ varying vec2 vTextureCoord;
 void main(void)
 {
     vec4 opColor;
-    vec4 baseColor;  
+    vec4 baseColor = vec4(0.0,0.0,0.0,0.0);  
     vec2 point = vec2(uPointX, uPointY);
     
     if (uClear != 0)
@@ -22,8 +22,6 @@ void main(void)
         
     if(uAdd != 0)
         baseColor = texture2D(uSampler0, vTextureCoord);
-    else
-        opColor = vec4(0.1, 0.0, 0.0, 1.0);
     
     float dist_square = (point.x-vTextureCoord.x*Nx)*(point.x-vTextureCoord.x*Nx)+(point.y-vTextureCoord.y*Ny)*(point.y-vTextureCoord.y*Ny);
     

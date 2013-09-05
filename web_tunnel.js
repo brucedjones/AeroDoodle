@@ -127,7 +127,8 @@ function initGL(canvas) {
                   };
         })();
 
-    gl = canvas.getContext("experimental-webgl");
+    gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+    //gl = WebGLDebugUtils.makeDebugContext(gl, throwOnGLError, logAndValidate);
     gl.viewport(0, 0, canvas.width, canvas.height);
     //gl.viewport(0, 0, Nx,Ny);
 }
@@ -275,8 +276,11 @@ function doRenderOp(tgtTexName, srcTexNames, progName, uniformAssignments) {
     gl.bindBuffer(gl.ARRAY_BUFFER, buffers.quadVB);
     gl.vertexAttribPointer(prog.aVertexPosition, buffers.quadVB.itemSize, gl.FLOAT, false, 0, 0);
 
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffers.quadTB);
-    gl.vertexAttribPointer(prog.aTextureCoord, buffers.quadTB.itemSize, gl.FLOAT, false, 0, 0);
+    if(prog.aTextureCoord!=null)
+    {
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.quadTB);
+        gl.vertexAttribPointer(prog.aTextureCoord, buffers.quadTB.itemSize, gl.FLOAT, false, 0, 0);
+    }
     
     for (var i = 0; i < srcTexNames.length; i++) {
         gl.activeTexture(gl.TEXTURE0 + i);
@@ -284,7 +288,7 @@ function doRenderOp(tgtTexName, srcTexNames, progName, uniformAssignments) {
         gl.uniform1i(prog['uSampler' + i], i);
     }
     
-    if (tgtTexName !== null) {
+    if (tgtTexName != null) {
         gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
         gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, textures[tgtTexName], 0);
     } else {
@@ -293,8 +297,17 @@ function doRenderOp(tgtTexName, srcTexNames, progName, uniformAssignments) {
     
     gl.clear(gl.COLOR_BUFFER_BIT);
     
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.quadIB);
-    gl.drawElements(gl.TRIANGLES, buffers.quadIB.numItems, gl.UNSIGNED_SHORT, 0);
+    if(progName == 'init-accum')
+    {
+        gl.disableVertexAttribArray(1)
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.quadIB);
+        gl.drawElements(gl.TRIANGLES, buffers.quadIB.numItems, gl.UNSIGNED_SHORT, 0);
+        gl.enableVertexAttribArray(1)
+    } else {
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.quadIB);
+        gl.drawElements(gl.TRIANGLES, buffers.quadIB.numItems, gl.UNSIGNED_SHORT, 0);
+    }
+    
 }
 
 function swapTextures(tex1Name, tex2Name) {
@@ -303,7 +316,7 @@ function swapTextures(tex1Name, tex2Name) {
     textures[tex2Name] = t;
 }
 
-function initState() {
+function initState() {  
     doRenderOp('rho', [], 'init-accum', {'uRhoUxUy': 0});
     doRenderOp('ux', [], 'init-accum', {'uRhoUxUy': 1});
     doRenderOp('uy', [], 'init-accum', {'uRhoUxUy': 2});
@@ -317,6 +330,7 @@ function initState() {
     doRenderOp('f7', ['rho', 'ux', 'uy'], 'init-f', {'uI': 7});
     doRenderOp('f8', ['rho', 'ux', 'uy'], 'init-f', {'uI': 8});
     doRenderOp('obst', [], 'init-obst', {});
+    doRenderOp('obst_intended', [], 'init-obst', {});
 }
 
 var count = 0;
@@ -1059,9 +1073,9 @@ function init_low()
     //var square_p4 = ;
     PROGS_DESC = {
         'init-accum': {
-            'vs': ['shaders/quad.vs'],
+            'vs': ['shaders/quad-uniform-tex.vs'],
             'fs': ['shaders/utils-low.fs', 'shaders/init-accum.fs'],
-            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'attribs': ['aVertexPosition'],
             'uniforms': ['uRhoUxUy']
         },
         'init-f': {
@@ -1071,9 +1085,9 @@ function init_low()
             'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uI']
         },
         'init-obst': {
-            'vs': ['shaders/quad.vs'],
+            'vs': ['shaders/quad-uniform-tex.vs'],
             'fs': ['shaders/utils-low.fs', 'shaders/init-obst.fs'],
-            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'attribs': ['aVertexPosition'],
             'uniforms': []
         },
         'update-f': {
@@ -1095,9 +1109,9 @@ function init_low()
             'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uSampler5', 'uSampler6']
         },
         'update-obst-clear': {
-            'vs': ['shaders/quad.vs'],
+            'vs': ['shaders/quad-uniform-tex.vs'],
             'fs': ['shaders/utils-low.fs', 'shaders/update-obst-clear.fs'],
-            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'attribs': ['aVertexPosition'],
             'uniforms': []
         },
         'update-obst-circle': {
@@ -1186,9 +1200,9 @@ function init_med()
     //var square_p4 = ;
     PROGS_DESC = {
         'init-accum': {
-            'vs': ['shaders/quad.vs'],
+            'vs': ['shaders/quad-uniform-tex.vs'],
             'fs': ['shaders/utils-med.fs', 'shaders/init-accum.fs'],
-            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'attribs': ['aVertexPosition'],
             'uniforms': ['uRhoUxUy']
         },
         'init-f': {
@@ -1198,9 +1212,9 @@ function init_med()
             'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uI']
         },
         'init-obst': {
-            'vs': ['shaders/quad.vs'],
+            'vs': ['shaders/quad-uniform-tex.vs'],
             'fs': ['shaders/utils-med.fs', 'shaders/init-obst.fs'],
-            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'attribs': ['aVertexPosition'],
             'uniforms': []
         },
         'update-f': {
@@ -1222,9 +1236,9 @@ function init_med()
             'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uSampler5', 'uSampler6']
         },
         'update-obst-clear': {
-            'vs': ['shaders/quad.vs'],
+            'vs': ['shaders/quad-uniform-tex.vs'],
             'fs': ['shaders/utils-med.fs', 'shaders/update-obst-clear.fs'],
-            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'attribs': ['aVertexPosition'],
             'uniforms': []
         },
         'update-obst-circle': {
@@ -1313,9 +1327,9 @@ function init_high()
     //var square_p4 = ;
     PROGS_DESC = {
         'init-accum': {
-            'vs': ['shaders/quad.vs'],
-            'fs': ['shaders/utils-high.fs', 'shaders/init-accum.fs'],
-            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'vs': ['shaders/quad-uniform-tex.vs'],
+            'fs': ['shaders/utils-low.fs', 'shaders/init-accum.fs'],
+            'attribs': ['aVertexPosition'],
             'uniforms': ['uRhoUxUy']
         },
         'init-f': {
@@ -1325,9 +1339,9 @@ function init_high()
             'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uI']
         },
         'init-obst': {
-            'vs': ['shaders/quad.vs'],
+            'vs': ['shaders/quad-uniform-tex.vs'],
             'fs': ['shaders/utils-high.fs', 'shaders/init-obst.fs'],
-            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'attribs': ['aVertexPosition'],
             'uniforms': []
         },
         'update-f': {
@@ -1349,9 +1363,9 @@ function init_high()
             'uniforms': ['uSampler0', 'uSampler1', 'uSampler2', 'uSampler3', 'uSampler4', 'uSampler5', 'uSampler6']
         },
         'update-obst-clear': {
-            'vs': ['shaders/quad.vs'],
+            'vs': ['shaders/quad-uniform-tex.vs'],
             'fs': ['shaders/utils-high.fs', 'shaders/update-obst-clear.fs'],
-            'attribs': ['aVertexPosition', 'aTextureCoord'],
+            'attribs': ['aVertexPosition'],
             'uniforms': []
         },
         'update-obst-circle': {
@@ -1409,3 +1423,26 @@ function init_high()
 
 // Fix for horizontal scrolling of top bar
 $(window).scroll(function(){$('#top_bar').css('left', parseInt(-1*$(window).scrollLeft())+'px');});
+
+function logAndValidate(functionName, args) {
+   logGLCalls(functionName, args);
+   validateNoneOfTheArgsAreUndefined (functionName, args);
+}
+
+function logGLCalls(functionName, args) {   
+   console.log("gl." + functionName + "(" + 
+      WebGLDebugUtils.glFunctionArgsToString(functionName, args) + ")");   
+} 
+
+function throwOnGLError(err, funcName, args) {
+  throw WebGLDebugUtils.glEnumToString(err) + " was caused by call to: " + funcName;
+};
+
+function validateNoneOfTheArgsAreUndefined(functionName, args) {
+  for (var ii = 0; ii < args.length; ++ii) {
+    if (args[ii] === undefined) {
+      console.error("undefined passed to gl." + functionName + "(" +
+                     WebGLDebugUtils.glFunctionArgsToString(functionName, args) + ")");
+    }
+  }
+}
