@@ -33,12 +33,18 @@ var canvasTriggeredMouse = false;
 
 var buildVport;
 
+/*function ortho(vport) {
+  return   [2.0/(vport.right- vport.left), 0.0, 0.0, 0.0,
+                0.0, 2.0/(vport.top-vport.bottom), 0.0, 0.0,
+                0.0, 0.0, -2.0/(vport.far-vport.near), 0.0,
+                -(vport.right+vport.left)/(vport.right-vport.left), -(vport.top+vport.bottom)/(vport.top-vport.bottom), -(vport.far+vport.near)/(vport.far-vport.near), 1.0];
+} */
 function ortho(vport) {
   return   [2.0/(vport.right- vport.left), 0.0, 0.0, 0.0,
                 0.0, 2.0/(vport.top-vport.bottom), 0.0, 0.0,
                 0.0, 0.0, -2.0/(vport.far-vport.near), 0.0,
                 -(vport.right+vport.left)/(vport.right-vport.left), -(vport.top+vport.bottom)/(vport.top-vport.bottom), -(vport.far+vport.near)/(vport.far-vport.near), 1.0];
-} 
+}
 
 var inDraw          = true;
 var fromV;
@@ -130,7 +136,9 @@ function initGL(canvas) {
     gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
     //gl = WebGLDebugUtils.makeDebugContext(gl, throwOnGLError, logAndValidate);
     gl.viewport(0, 0, canvas.width, canvas.height);
-    //gl.viewport(0, 0, Nx,Ny);
+    //gl.viewport(0, 0, Nx, Ny);
+    //gl.viewport(0, 0, canvas.clientWidth, canvas.clientHeight);
+    
 }
 
 function getSourceSynch(url) {
@@ -431,7 +439,7 @@ function stepState() {
     // Ensure Canvas is scaled with window size
     if(window.innerWidth*0.8<=1024 && window.innerWidth*0.8>=800)
     {
-      canvas.width  = window.innerWidth*0.8
+      canvas.width  = window.innerWidth*0.8;
     } else if(window.innerWidth*0.8>1024) {
       canvas.width  = 1024;
     } else if(window.innerWidth*0.8<800)
@@ -440,7 +448,8 @@ function stepState() {
     }
     //canvas.width  = (window.innerWidth*0.8<=1024)?window.innerWidth*0.8:1024;
     canvas.height = canvas.width*(Ny/Nx);
-    
+    //gl.viewport(0, 0, Nx, Ny);
+
     // Update the viewport
     frameProgress+=1;
     updateZoom(fromV, toV);
@@ -675,8 +684,8 @@ function webGLStart() {
     
     
     window.addEventListener("mousedown", mouseDownListenerCanvas, false);
-    //window.addEventListener("mousemove", mouseMoveListener, false);
-    //window.addEventListener("mouseup", mouseUpListener, false);
+    window.addEventListener("mousemove", mouseMoveListener, false);
+    window.addEventListener("mouseup", mouseUpListener, false);
 
     canvas.addEventListener("mousemove", mouseMoveListener, false);
     canvas.addEventListener("mouseup", mouseUpListener, false);
