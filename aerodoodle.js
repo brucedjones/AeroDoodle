@@ -504,7 +504,7 @@ var pos;    //canvas position for mouse interaction
 var frameNum2 = 0;
 var frameNumStarted2 = new Date();
 function step() {
-    if(document.getElementById('brush').checked) {
+    /*if(document.getElementById('brush').checked) {
         if(mode != BRUSH_MODE) {
             mode          = BRUSH_MODE;
             addCircle     = false;
@@ -549,7 +549,7 @@ function step() {
             var temp = slid.value;
             updateBrushSlider(temp);
         }
-    }
+    }*/
     
     stepState();
     
@@ -679,7 +679,7 @@ mouseMoveListener = function(e) {
 };
 
 function webGLStart() {
-    document.getElementById('brush').checked = true;
+    //document.getElementById('brush').checked = true;
     canvas = document.getElementById('main-canvas');
     
     
