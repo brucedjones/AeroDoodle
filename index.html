@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta http-equiv="Content-Type" content="text/html" charset=utf-8">
-  
+
 <script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -13,7 +13,7 @@
   ga('send', 'pageview');
 
 </script>
-
+ 
   <!-- FLOT INCLUDES -->
   <script language="javascript" type="text/javascript" src="flot/jquery.min.js"></script>
 
@@ -27,7 +27,7 @@
 
   <!-- Liquid Slider relies on jQuery and easing effects-->
   <!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>-->
-  <script src="./liquid_slider/js/jquery.easing.1.3.js"></script>
+  <script src="./liquid_slider/js/jquery.easing.1.3.min.js"></script>
 
   <!-- Optional code for enabling touch -->
   <script src="./liquid_slider/js/jquery.touchSwipe.min.js"></script>
@@ -55,13 +55,13 @@
 
   <link rel="stylesheet" type="text/css" media="all" href="aerodoodle.css">
 </head>
-<body onload="init_low(); webGLStart();">
+<body onload="init_high(); webGLStart();">
     <div id="top_bar">
-      <div style="float:left">
+      <div style="float:left;">
         <bar_text><a href="http://aerodoodle.swan.ac.uk"><FONT COLOR=orange>A</FONT>ero<FONT COLOR=orange>D</FONT>oodle</a> <a href="faq.htm">FAQ</a></bar_text>
       </div>
       <div style="float:right; margin-right: 25px;">
-        <bar_text><a href="aerodoodle_low.htm" style="color: #d2d2d2;">Low</a> <a href="aerodoodle_med.htm">Med</a> <a href="aerodoodle_high.htm">High</a>
+        <bar_text><a href="aerodoodle_low.htm">Low</a> <a href="aerodoodle_med.htm">Med</a> <a href="aerodoodle_high.htm" style="color: #d2d2d2;">High</a>
       </div>
     </div>
     <div id="container">
@@ -139,6 +139,7 @@
             <p>Lift coefficient =    Lift/qA </p>      <p>Drag Coefficient = Drag/qA</p>
 
             <p>Where q is the dynamic pressure of the oncoming flow (q=0.5xdensityxvelocity^2) and A is a representative area of the geometry under investigation.</p>
+
           </body_text>
           <h3>Computational Fluid Dynamics</h3>
           <body_text>
@@ -176,17 +177,18 @@
       </div>
       
       <div id="disclaimer" style="margin-top:70px">
-        <div style="position:relative;float:left;width:15%;"><a href="http://www.swansea.ac.uk/" target="_blank"><img src="resources/swansea.gif" height="80px"></a></div>
-        <div style="position:relative;float:left;overflow:hidden;width:70%;">
+        <div style="position:relative;float:left;overflow:hidden;width:100%;">
           <body_text>
           <p/>
-            <p style = "text-align:center;">AeroDoodle was created by <a href="http://bruce.crossproduct.co.uk">Bruce Jones</a> with generous support from <a href="http://www.swansea.ac.uk">Swansea University</a> and <a href="http://www.bloodhoundssc.com">BloodHound SSC</a>.</p>
+            <p style = "text-align:center;">AeroDoodle was created by <a href="http://bruce.crossproduct.co.uk">Bruce Jones</a> with generous support from <a href="http://www.swansea.ac.uk">Swansea University</a> and <a href="http://www.bloodhoundssc.com">BLOODHOUND SSC</a>.</p>
             <p style = "text-align:center;">Copyright &copy; <script type="text/javascript">
             var d = new Date()
             document.write(d.getFullYear())
             </script> Swansea Polymers Ltd.</p>
           </body_text>
         </div>
+        <div style="position:relative;float:left;width:15%;"><a href="http://www.swansea.ac.uk/" target="_blank"><img src="resources/swansea.gif" height="80px"></a></div>
+        <div style="position:relative;float:left;width:15%;text-align:center"><a href="http://www.crossproduct.co.uk/" target="_blank"><img src="resources/cross_product_logo.png" height="80px"></a></div>
         <div style="position:relative;float:left;width:15%;text-align:right;"><a href="http://www.bloodhoundssc.com/" target="_blank"><img src="resources/bloodhound.gif" height="80px"></a></div>
         <br style="clear:both;" />
       </div>
